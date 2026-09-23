@@ -1,33 +1,22 @@
-import { Link } from "react-router";
-import { Plate } from "@/shared/ui/Plate";
+import { ObjectArt } from "@/shared/brand/ObjectArt";
+import { ButtonLink } from "@/shared/kit/ButtonLink";
 import { routes } from "@/app/router/routes";
+import { useAuth } from "@/features/auth/hooks/useAuth";
 
+/** Nothing at this address: the popped bubble, and the way back. */
 export default function NotFoundPage() {
+  const { isAuthenticated } = useAuth();
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-ground px-5 py-16">
-      <Plate className="w-full max-w-[520px] p-8 sm:p-10">
-        <p className="font-mono text-micro font-medium tracking-[0.18em] text-verm-ink uppercase">
-          No such record
-        </p>
-
-        <h1 className="mt-4 text-2xl font-semibold tracking-[-0.03em] text-ink">
-          Nothing is catalogued at this address
-        </h1>
-
-        <p className="mt-3 max-w-[44ch] text-sm leading-relaxed text-ink-2">
-          The work may have been withdrawn, or the number was never issued. The
-          wall is where you left it.
-        </p>
-
-        <Link
-          to={routes.home}
-          viewTransition
-          className="group/back mt-8 inline-flex items-center gap-3 font-mono text-micro font-medium tracking-[0.14em] text-ink uppercase"
-        >
-          <span className="h-px w-6 origin-left bg-verm transition-transform duration-200 ease-out group-hover/back:scale-x-150" />
-          Back to the wall
-        </Link>
-      </Plate>
-    </div>
+    <section className="grid justify-items-center gap-5 py-12 text-center sm:py-16">
+      <div className="w-56 sm:w-72">
+        <ObjectArt name="bubble-popped" sizes="288px" />
+      </div>
+      <h1 className="type-display text-balance">This one popped</h1>
+      <p className="max-w-[44ch] type-body-lg text-ink-2">There’s nothing at this address. It may have moved, or it never existed.</p>
+      <ButtonLink to={isAuthenticated ? routes.home : routes.login} viewTransition size="lg">
+        {isAuthenticated ? "Back to the wall" : "Go to sign in"}
+      </ButtonLink>
+    </section>
   );
 }
