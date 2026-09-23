@@ -49,14 +49,40 @@
   }
 }
 
-::view-transition-group(dock) {
-  animation: none;
-}
+/* The dock sits in the same place on every member page, so its default group
+   animation moves nothing; only the old snapshot is hidden. */
 ::view-transition-old(dock) {
   display: none;
 }
 ::view-transition-new(dock) {
   animation: none;
+}
+
+/* Signing in or out: the guest nav and the dock share the name, so the pill
+   travels between the top and the bottom of the screen — it peels off one
+   edge and slaps back on at the other. */
+:root.shell-swap::view-transition-group(dock) {
+  animation-duration: 640ms;
+  animation-timing-function: var(--ease-spring-css);
+}
+:root.shell-swap::view-transition-old(dock) {
+  display: block;
+  animation: vt-pill-off 260ms var(--ease-out-css) both;
+}
+:root.shell-swap::view-transition-new(dock) {
+  animation: vt-pill-on 520ms 120ms var(--ease-spring-css) both;
+}
+@keyframes vt-pill-off {
+  to {
+    opacity: 0;
+    transform: rotate(-3deg) scale(0.96);
+  }
+}
+@keyframes vt-pill-on {
+  from {
+    opacity: 0;
+    transform: rotate(3deg) scale(1.08);
+  }
 }
 
 /* The dock slides up once, on first mount. */
@@ -72,7 +98,10 @@
 @media (prefers-reduced-motion: reduce) {
   ::view-transition-old(root),
   ::view-transition-new(root),
-  :root.theme-switching::view-transition-new(root) {
+  :root.theme-switching::view-transition-new(root),
+  ::view-transition-group(dock),
+  :root.shell-swap::view-transition-old(dock),
+  :root.shell-swap::view-transition-new(dock) {
     animation: none !important;
   }
   .dock-enter {

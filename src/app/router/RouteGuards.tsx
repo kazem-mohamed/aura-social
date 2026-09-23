@@ -1,4 +1,6 @@
-import { Navigate, Outlet, useLocation } from "react-router";
+import { useEffect } from "react";
+import { Navigate, Outlet, useLocation, useNavigate } from "react-router";
+import { markShellSwap } from "@/shared/lib/shellSwap";
 import { useAuth } from "@/features/auth/hooks/useAuth";
 import { routes } from "./routes";
 
@@ -18,11 +20,20 @@ export function RequireAuth() {
   return <Outlet />;
 }
 
-/** Keeps signed-in users out of the sign-in and sign-up screens. */
+/**
+ * Keeps signed-in users out of the sign-in and sign-up screens. The move to
+ * the wall is a view transition marked as a shell swap, so the guest nav
+ * travels down into the dock.
+ */
 export function RequireGuest() {
   const { isAuthenticated } = useAuth();
+  const navigate = useNavigate();
 
-  if (isAuthenticated) return <Navigate to={routes.home} replace />;
+  useEffect(() => {
+    if (!isAuthenticated) return;
+    markShellSwap();
+    void navigate(routes.home, { replace: true, viewTransition: true });
+  }, [isAuthenticated, navigate]);
 
   return <Outlet />;
 }

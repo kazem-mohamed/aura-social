@@ -1,4 +1,5 @@
 import { matchPath, useLocation } from "react-router";
+import { useAuth } from "@/features/auth/hooks/useAuth";
 
 const TITLE_RULES = [
   { path: "/", title: "Wall" },
@@ -16,6 +17,11 @@ const TITLE_RULES = [
 /** Per-route document title. React 19 hoists `<title>` into `<head>`. */
 export function DocumentTitle() {
   const { pathname } = useLocation();
+  const { isAuthenticated } = useAuth();
+
+  // Guests at `/` are on the front door, which carries the brand line.
+  if (pathname === "/" && !isAuthenticated) return <title>Aura — Everything here breathes</title>;
+
   const matched = TITLE_RULES.find((rule) => matchPath({ path: rule.path, end: true }, pathname));
   return <title>{`${matched?.title ?? "Not found"} · Aura`}</title>;
 }
