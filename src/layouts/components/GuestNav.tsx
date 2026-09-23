@@ -1,4 +1,4 @@
-import { Link, useLocation } from "react-router";
+import { Link, NavLink, useLocation } from "react-router";
 import { Logo } from "@/shared/brand/Logo";
 import { ButtonLink } from "@/shared/kit/ButtonLink";
 import { cx } from "@/shared/kit/cx";
@@ -38,9 +38,10 @@ export function GuestNav({ className }: { className?: string }) {
             </a>
           ))
         : null}
-      <Link to={routes.login} viewTransition className={cx(ITEM, "inline-flex")}>
+      {/* NavLink marks itself aria-current="page" on the sign-in screen. */}
+      <NavLink to={routes.login} viewTransition className={cx(ITEM, "inline-flex")}>
         Sign in
-      </Link>
+      </NavLink>
       <ButtonLink to={routes.register} viewTransition variant="sticker" fill="sun" size="sm" className="h-10">
         Join Aura
       </ButtonLink>

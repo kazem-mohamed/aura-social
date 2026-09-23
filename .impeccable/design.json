@@ -1,0 +1,543 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-09-23T17:29:26.551Z",
+  "title": "Design System: Aura",
+  "extensions": {
+    "colorMeta": {
+      "carbon": {
+        "role": "neutral",
+        "displayName": "Carbon",
+        "canonical": "#000000",
+        "tonalRamp": [
+          "oklch(15.0% 0.000 0)",
+          "oklch(27.0% 0.000 0)",
+          "oklch(39.0% 0.000 0)",
+          "oklch(51.0% 0.000 0)",
+          "oklch(63.0% 0.000 0)",
+          "oklch(75.0% 0.000 0)",
+          "oklch(86.0% 0.000 0)",
+          "oklch(95.0% 0.000 0)"
+        ]
+      },
+      "paper": {
+        "role": "neutral",
+        "displayName": "Paper",
+        "canonical": "#ffffff",
+        "tonalRamp": [
+          "oklch(15.0% 0.000 0)",
+          "oklch(27.0% 0.000 0)",
+          "oklch(39.0% 0.000 0)",
+          "oklch(51.0% 0.000 0)",
+          "oklch(63.0% 0.000 0)",
+          "oklch(75.0% 0.000 0)",
+          "oklch(86.0% 0.000 0)",
+          "oklch(95.0% 0.000 0)"
+        ]
+      },
+      "electric-blue": {
+        "role": "primary",
+        "displayName": "Electric Blue",
+        "canonical": "#4da2ff",
+        "tonalRamp": [
+          "oklch(15.0% 0.160 252.8)",
+          "oklch(27.0% 0.160 252.8)",
+          "oklch(39.0% 0.160 252.8)",
+          "oklch(51.0% 0.160 252.8)",
+          "oklch(63.0% 0.160 252.8)",
+          "oklch(75.0% 0.160 252.8)",
+          "oklch(86.0% 0.160 252.8)",
+          "oklch(95.0% 0.064 252.8)"
+        ]
+      },
+      "ember": {
+        "role": "secondary",
+        "displayName": "Ember",
+        "canonical": "#fb4903",
+        "tonalRamp": [
+          "oklch(15.0% 0.200 36.3)",
+          "oklch(27.0% 0.200 36.3)",
+          "oklch(39.0% 0.200 36.3)",
+          "oklch(51.0% 0.200 36.3)",
+          "oklch(63.0% 0.200 36.3)",
+          "oklch(75.0% 0.200 36.3)",
+          "oklch(86.0% 0.200 36.3)",
+          "oklch(95.0% 0.080 36.3)"
+        ]
+      },
+      "sunburst": {
+        "role": "secondary",
+        "displayName": "Sunburst",
+        "canonical": "#ffd731",
+        "tonalRamp": [
+          "oklch(15.0% 0.171 94.2)",
+          "oklch(27.0% 0.171 94.2)",
+          "oklch(39.0% 0.171 94.2)",
+          "oklch(51.0% 0.171 94.2)",
+          "oklch(63.0% 0.171 94.2)",
+          "oklch(75.0% 0.171 94.2)",
+          "oklch(86.0% 0.171 94.2)",
+          "oklch(95.0% 0.068 94.2)"
+        ]
+      },
+      "voltage-violet": {
+        "role": "tertiary",
+        "displayName": "Voltage Violet",
+        "canonical": "#5c4ade",
+        "tonalRamp": [
+          "oklch(15.0% 0.200 281.4)",
+          "oklch(27.0% 0.200 281.4)",
+          "oklch(39.0% 0.200 281.4)",
+          "oklch(51.0% 0.200 281.4)",
+          "oklch(63.0% 0.200 281.4)",
+          "oklch(75.0% 0.200 281.4)",
+          "oklch(86.0% 0.200 281.4)",
+          "oklch(95.0% 0.080 281.4)"
+        ]
+      },
+      "mint-pop": {
+        "role": "tertiary",
+        "displayName": "Mint Pop",
+        "canonical": "#55db9c",
+        "tonalRamp": [
+          "oklch(15.0% 0.149 159.6)",
+          "oklch(27.0% 0.149 159.6)",
+          "oklch(39.0% 0.149 159.6)",
+          "oklch(51.0% 0.149 159.6)",
+          "oklch(63.0% 0.149 159.6)",
+          "oklch(75.0% 0.149 159.6)",
+          "oklch(86.0% 0.149 159.6)",
+          "oklch(95.0% 0.059 159.6)"
+        ]
+      },
+      "lavender": {
+        "role": "tertiary",
+        "displayName": "Lavender",
+        "canonical": "#e9ccff",
+        "tonalRamp": [
+          "oklch(15.0% 0.075 310.4)",
+          "oklch(27.0% 0.075 310.4)",
+          "oklch(39.0% 0.075 310.4)",
+          "oklch(51.0% 0.075 310.4)",
+          "oklch(63.0% 0.075 310.4)",
+          "oklch(75.0% 0.075 310.4)",
+          "oklch(86.0% 0.075 310.4)",
+          "oklch(95.0% 0.030 310.4)"
+        ]
+      },
+      "sky-wash": {
+        "role": "neutral",
+        "displayName": "Sky Wash",
+        "canonical": "#dceeff",
+        "tonalRamp": [
+          "oklch(15.0% 0.030 246.6)",
+          "oklch(27.0% 0.030 246.6)",
+          "oklch(39.0% 0.030 246.6)",
+          "oklch(51.0% 0.030 246.6)",
+          "oklch(63.0% 0.030 246.6)",
+          "oklch(75.0% 0.030 246.6)",
+          "oklch(86.0% 0.030 246.6)",
+          "oklch(95.0% 0.012 246.6)"
+        ]
+      },
+      "concrete": {
+        "role": "neutral",
+        "displayName": "Concrete",
+        "canonical": "#cccccc",
+        "tonalRamp": [
+          "oklch(15.0% 0.000 0)",
+          "oklch(27.0% 0.000 0)",
+          "oklch(39.0% 0.000 0)",
+          "oklch(51.0% 0.000 0)",
+          "oklch(63.0% 0.000 0)",
+          "oklch(75.0% 0.000 0)",
+          "oklch(86.0% 0.000 0)",
+          "oklch(95.0% 0.000 0)"
+        ]
+      },
+      "mist": {
+        "role": "neutral",
+        "displayName": "Mist",
+        "canonical": "#e9e9e9",
+        "tonalRamp": [
+          "oklch(15.0% 0.000 0)",
+          "oklch(27.0% 0.000 0)",
+          "oklch(39.0% 0.000 0)",
+          "oklch(51.0% 0.000 0)",
+          "oklch(63.0% 0.000 0)",
+          "oklch(75.0% 0.000 0)",
+          "oklch(86.0% 0.000 0)",
+          "oklch(95.0% 0.000 0)"
+        ]
+      },
+      "paper-surface-2": {
+        "role": "neutral",
+        "displayName": "Paper Surface 2",
+        "canonical": "#f2f2f2",
+        "tonalRamp": [
+          "oklch(15.0% 0.000 0)",
+          "oklch(27.0% 0.000 0)",
+          "oklch(39.0% 0.000 0)",
+          "oklch(51.0% 0.000 0)",
+          "oklch(63.0% 0.000 0)",
+          "oklch(75.0% 0.000 0)",
+          "oklch(86.0% 0.000 0)",
+          "oklch(95.0% 0.000 0)"
+        ]
+      },
+      "ink-2": {
+        "role": "neutral",
+        "displayName": "Ink 2",
+        "canonical": "#3a3a3a",
+        "tonalRamp": [
+          "oklch(15.0% 0.000 0)",
+          "oklch(27.0% 0.000 0)",
+          "oklch(39.0% 0.000 0)",
+          "oklch(51.0% 0.000 0)",
+          "oklch(63.0% 0.000 0)",
+          "oklch(75.0% 0.000 0)",
+          "oklch(86.0% 0.000 0)",
+          "oklch(95.0% 0.000 0)"
+        ]
+      },
+      "ink-3": {
+        "role": "neutral",
+        "displayName": "Ink 3",
+        "canonical": "#6b6b6b",
+        "tonalRamp": [
+          "oklch(15.0% 0.000 0)",
+          "oklch(27.0% 0.000 0)",
+          "oklch(39.0% 0.000 0)",
+          "oklch(51.0% 0.000 0)",
+          "oklch(63.0% 0.000 0)",
+          "oklch(75.0% 0.000 0)",
+          "oklch(86.0% 0.000 0)",
+          "oklch(95.0% 0.000 0)"
+        ]
+      },
+      "night": {
+        "role": "neutral",
+        "displayName": "Night",
+        "canonical": "#111114",
+        "tonalRamp": [
+          "oklch(15.0% 0.006 285.8)",
+          "oklch(27.0% 0.006 285.8)",
+          "oklch(39.0% 0.006 285.8)",
+          "oklch(51.0% 0.006 285.8)",
+          "oklch(63.0% 0.006 285.8)",
+          "oklch(75.0% 0.006 285.8)",
+          "oklch(86.0% 0.006 285.8)",
+          "oklch(95.0% 0.002 285.8)"
+        ]
+      },
+      "night-sky": {
+        "role": "neutral",
+        "displayName": "Night Sky",
+        "canonical": "#0d1826",
+        "tonalRamp": [
+          "oklch(15.0% 0.032 254.9)",
+          "oklch(27.0% 0.032 254.9)",
+          "oklch(39.0% 0.032 254.9)",
+          "oklch(51.0% 0.032 254.9)",
+          "oklch(63.0% 0.032 254.9)",
+          "oklch(75.0% 0.032 254.9)",
+          "oklch(86.0% 0.032 254.9)",
+          "oklch(95.0% 0.013 254.9)"
+        ]
+      },
+      "night-lavender": {
+        "role": "neutral",
+        "displayName": "Night Lavender",
+        "canonical": "#1d1729",
+        "tonalRamp": [
+          "oklch(15.0% 0.035 298.8)",
+          "oklch(27.0% 0.035 298.8)",
+          "oklch(39.0% 0.035 298.8)",
+          "oklch(51.0% 0.035 298.8)",
+          "oklch(63.0% 0.035 298.8)",
+          "oklch(75.0% 0.035 298.8)",
+          "oklch(86.0% 0.035 298.8)",
+          "oklch(95.0% 0.014 298.8)"
+        ]
+      },
+      "night-surface": {
+        "role": "neutral",
+        "displayName": "Night Surface",
+        "canonical": "#18181c",
+        "tonalRamp": [
+          "oklch(15.0% 0.008 285.7)",
+          "oklch(27.0% 0.008 285.7)",
+          "oklch(39.0% 0.008 285.7)",
+          "oklch(51.0% 0.008 285.7)",
+          "oklch(63.0% 0.008 285.7)",
+          "oklch(75.0% 0.008 285.7)",
+          "oklch(86.0% 0.008 285.7)",
+          "oklch(95.0% 0.003 285.7)"
+        ]
+      },
+      "night-surface-2": {
+        "role": "neutral",
+        "displayName": "Night Surface 2",
+        "canonical": "#222227",
+        "tonalRamp": [
+          "oklch(15.0% 0.009 285.7)",
+          "oklch(27.0% 0.009 285.7)",
+          "oklch(39.0% 0.009 285.7)",
+          "oklch(51.0% 0.009 285.7)",
+          "oklch(63.0% 0.009 285.7)",
+          "oklch(75.0% 0.009 285.7)",
+          "oklch(86.0% 0.009 285.7)",
+          "oklch(95.0% 0.004 285.7)"
+        ]
+      },
+      "bone": {
+        "role": "neutral",
+        "displayName": "Bone",
+        "canonical": "#f6f5f0",
+        "tonalRamp": [
+          "oklch(15.0% 0.007 97.4)",
+          "oklch(27.0% 0.007 97.4)",
+          "oklch(39.0% 0.007 97.4)",
+          "oklch(51.0% 0.007 97.4)",
+          "oklch(63.0% 0.007 97.4)",
+          "oklch(75.0% 0.007 97.4)",
+          "oklch(86.0% 0.007 97.4)",
+          "oklch(95.0% 0.003 97.4)"
+        ]
+      },
+      "bone-2": {
+        "role": "neutral",
+        "displayName": "Bone 2",
+        "canonical": "#b8b7b0",
+        "tonalRamp": [
+          "oklch(15.0% 0.010 100.0)",
+          "oklch(27.0% 0.010 100.0)",
+          "oklch(39.0% 0.010 100.0)",
+          "oklch(51.0% 0.010 100.0)",
+          "oklch(63.0% 0.010 100.0)",
+          "oklch(75.0% 0.010 100.0)",
+          "oklch(86.0% 0.010 100.0)",
+          "oklch(95.0% 0.004 100.0)"
+        ]
+      },
+      "bone-3": {
+        "role": "neutral",
+        "displayName": "Bone 3",
+        "canonical": "#8a8984",
+        "tonalRamp": [
+          "oklch(15.0% 0.007 97.4)",
+          "oklch(27.0% 0.007 97.4)",
+          "oklch(39.0% 0.007 97.4)",
+          "oklch(51.0% 0.007 97.4)",
+          "oklch(63.0% 0.007 97.4)",
+          "oklch(75.0% 0.007 97.4)",
+          "oklch(86.0% 0.007 97.4)",
+          "oklch(95.0% 0.003 97.4)"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "display-xl": {
+        "displayName": "Display XL",
+        "purpose": "A person's name on their profile."
+      },
+      "display": {
+        "displayName": "Display",
+        "purpose": "Landing section titles and the 404."
+      },
+      "poster": {
+        "displayName": "Poster",
+        "purpose": "Every member page's h1, fitted to one line."
+      },
+      "headline": {
+        "displayName": "Headline",
+        "purpose": "Section headings and story steps."
+      },
+      "title": {
+        "displayName": "Title",
+        "purpose": "Card and sheet titles; short text-only posts."
+      },
+      "body-lg": {
+        "displayName": "Body Large",
+        "purpose": "Post text and ledes."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Comments and UI copy."
+      },
+      "caption": {
+        "displayName": "Caption",
+        "purpose": "Handles, times and hints."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "Buttons, chips, tabs and the marquee; uppercase."
+      }
+    },
+    "shadows": [],
+    "motion": [
+      {
+        "name": "ease-spring",
+        "value": "cubic-bezier(0.34, 1.56, 0.64, 1)",
+        "purpose": "Sticker physics: release, like, save, slap-in, anything that lands."
+      },
+      {
+        "name": "ease-out",
+        "value": "cubic-bezier(0.16, 1, 0.3, 1)",
+        "purpose": "Arrivals, route peel and theme peel."
+      },
+      {
+        "name": "spring-press",
+        "value": "stiffness 700, damping 30",
+        "purpose": "Press squish (scale .94 in 90ms)."
+      },
+      {
+        "name": "spring-release",
+        "value": "stiffness 420, damping 18",
+        "purpose": "Release and hover lift."
+      },
+      {
+        "name": "spring-arrive",
+        "value": "stiffness 260, damping 22",
+        "purpose": "Cards arriving on scroll."
+      },
+      {
+        "name": "breath",
+        "value": "4.8s ease-in-out, scale 1 ↔ 1.06",
+        "purpose": "Landing objects only; paused off screen."
+      },
+      {
+        "name": "route-peel",
+        "value": "360ms",
+        "purpose": "Old page peels away from the top-right corner."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "sm",
+        "value": "640px"
+      },
+      {
+        "name": "md",
+        "value": "768px"
+      },
+      {
+        "name": "lg",
+        "value": "1024px"
+      },
+      {
+        "name": "2xl",
+        "value": "1440px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "The ink pill: the default action in the app.",
+      "html": "<button class=\"ds-btn-primary\">Post</button>",
+      "css": ".ds-btn-primary{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:44px;padding:0 20px;border-radius:999px;border:1px solid var(--carbon,#000);font:700 13px/1 'Onest Variable',system-ui,sans-serif;letter-spacing:.032em;text-transform:uppercase;cursor:pointer;transition:transform .3s cubic-bezier(.34,1.56,.64,1),background-color .2s ease;background:var(--action-bg,#000);color:var(--action-ink,#fff);border-color:var(--action-bg,#000)}.ds-btn-primary:hover{transform:translateY(-2px) rotate(-1.5deg)}.ds-btn-primary:active{transform:scale(.94)}.ds-btn-primary:focus-visible{outline:2px solid var(--focus,#000);outline-offset:3px}"
+    },
+    {
+      "name": "Sticker Button",
+      "kind": "button",
+      "refersTo": "button-sticker",
+      "description": "Sunburst sticker call to action; landing only.",
+      "html": "<button class=\"ds-btn-sticker\">Join Aura <svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M5 12h14M13 6l6 6-6 6\"/></svg></button>",
+      "css": ".ds-btn-sticker{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:44px;padding:0 20px;border-radius:999px;border:1px solid var(--carbon,#000);font:700 13px/1 'Onest Variable',system-ui,sans-serif;letter-spacing:.032em;text-transform:uppercase;cursor:pointer;transition:transform .3s cubic-bezier(.34,1.56,.64,1),background-color .2s ease;background:var(--sun,#ffd731);color:var(--carbon,#000)}.ds-btn-sticker:hover{transform:translateY(-2px) rotate(-1.5deg)}.ds-btn-sticker:active{transform:scale(.94)}.ds-btn-sticker:focus-visible{outline:2px solid var(--focus,#000);outline-offset:3px}"
+    },
+    {
+      "name": "Secondary Button",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "Outlined paper pill for secondary actions.",
+      "html": "<button class=\"ds-btn-secondary\">Sign in</button>",
+      "css": ".ds-btn-secondary{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:44px;padding:0 20px;border-radius:999px;border:1px solid var(--carbon,#000);font:700 13px/1 'Onest Variable',system-ui,sans-serif;letter-spacing:.032em;text-transform:uppercase;cursor:pointer;transition:transform .3s cubic-bezier(.34,1.56,.64,1),background-color .2s ease;background:var(--surface,#fff);color:var(--ink,#000);border-color:var(--line,#000)}.ds-btn-secondary:hover{background:var(--surface-2,#f2f2f2);transform:translateY(-2px) rotate(-1.5deg)}.ds-btn-secondary:focus-visible{outline:2px solid var(--focus,#000);outline-offset:3px}"
+    },
+    {
+      "name": "Field",
+      "kind": "input",
+      "refersTo": "field",
+      "description": "The branded pill input; its focus ring takes the person's identity colour when known.",
+      "html": "<label class=\"ds-field\"><span class=\"ds-field-label\">Username</span><span class=\"ds-field-box\"><span aria-hidden=\"true\">@</span><input placeholder=\"your.handle\"></span></label>",
+      "css": ".ds-field{display:grid;gap:8px;font-family:'Onest Variable',system-ui,sans-serif}.ds-field-label{font:700 12px/1 'Onest Variable',system-ui,sans-serif;letter-spacing:.032em;text-transform:uppercase}.ds-field-box{display:flex;align-items:center;gap:10px;min-height:52px;padding:0 12px 0 18px;border:1px solid var(--line,#000);border-radius:999px;background:var(--surface,#fff);color:var(--ink,#000);outline:3px solid transparent;outline-offset:3px;transition:background-color .22s ease,outline-color .22s ease}.ds-field-box:hover{background:var(--surface-2,#f2f2f2)}.ds-field-box:focus-within{outline-color:#55db9c}.ds-field-box input{flex:1;min-width:0;border:0;background:transparent;color:inherit;font:500 16px/1.35 inherit;padding:13px 0;outline:none}"
+    },
+    {
+      "name": "Card",
+      "kind": "card",
+      "refersTo": "card",
+      "description": "A sticker-edged surface: 1px outline, 24px corners, no shadow.",
+      "html": "<article class=\"ds-card\"><strong>Mira Sol</strong><p>First sticker on the wall. It’s mint, and it’s mine.</p></article>",
+      "css": ".ds-card{display:grid;gap:12px;padding:24px;border:1px solid var(--line,#000);border-radius:24px;background:var(--surface,#fff);color:var(--ink,#000);font:500 17px/1.4 'Onest Variable',system-ui,sans-serif;transition:transform .3s cubic-bezier(.34,1.56,.64,1)}.ds-card:hover{transform:translateY(-3px) rotate(-.6deg)}.ds-card p{margin:0}"
+    },
+    {
+      "name": "Dock",
+      "kind": "nav",
+      "refersTo": "dock",
+      "description": "The one navigation: a floating ink pill with a sliding sticker on the current page and a Sunburst + in the middle.",
+      "html": "<nav class=\"ds-dock\" aria-label=\"Primary\"><a class=\"ds-dock-item is-active\" aria-current=\"page\">Wall</a><a class=\"ds-dock-item\">People</a><button class=\"ds-dock-post\" aria-label=\"New post\">+</button><a class=\"ds-dock-item\">Alerts</a><a class=\"ds-dock-item\">You</a></nav>",
+      "css": ".ds-dock{display:inline-flex;align-items:center;gap:4px;padding:6px;border:1px solid var(--line,#000);border-radius:999px;background:var(--action-bg,#000);color:var(--action-ink,#fff);font:700 12px/1 'Onest Variable',system-ui,sans-serif;letter-spacing:.032em;text-transform:uppercase}.ds-dock-item{display:inline-flex;align-items:center;height:48px;padding:0 16px;border-radius:999px;color:inherit;text-decoration:none;cursor:pointer}.ds-dock-item:hover{background:rgba(255,255,255,.1)}.ds-dock-item.is-active{background:var(--ground,#fff);color:var(--ink,#000)}.ds-dock-post{display:grid;place-items:center;width:48px;height:48px;margin:0 4px;border:1px solid #000;border-radius:999px;background:var(--sun,#ffd731);color:#000;font:700 24px/1 system-ui;cursor:pointer;transition:transform .3s cubic-bezier(.34,1.56,.64,1)}.ds-dock-post:hover{transform:rotate(90deg) scale(1.06)}.ds-dock-item:focus-visible,.ds-dock-post:focus-visible{outline:2px solid var(--focus,#000);outline-offset:3px}"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Sticker Wall",
+    "overview": "Aura is a wall of paper that people cover in stickers. Every surface is paper, and every piece of content or control is a die-cut sticker: a flat shape with a 1px carbon outline, slapped on at a slight tilt. The six sticker colours are loud because they are the objects, not the background. The grounds stay quiet: white Paper by day and near-black Night paper by night, with washes of sky, lavender or concrete marking the big bands.\n\nDepth never comes from shadows. It comes from overlap, tilt, and the inflated 3D objects (bubble, heart, bookmark, share loop, bell), which stand for the social actions and swell with scroll and breath. Type does the shouting: crushed, uppercase Anybody 900 is set as a poster and fitted edge to edge. The Onest UI text beneath it stays calm and readable.\n\nMotion is sticker physics. Things slap on from a tilt, squash, settle, peel at a corner, inflate when loved and deflate when empty. Every loop pauses off screen, and everything collapses to an instant state change under reduced motion.",
+    "keyCharacteristics": [
+      "Paper grounds, 1px carbon outlines, no shadows, no gradients.",
+      "Six sticker fills (blue, ember, sun, violet, mint, lavender) that belong to objects, never to backgrounds of text.",
+      "Poster type (Anybody 900, uppercase, 0.76–0.8 leading), fitted to its box and never wrapped.",
+      "Pills and rounded die-cuts: `pill` controls, `card` surfaces, `card-lg` sheets.",
+      "Identity stickers: each person's colour, shape and tilt come from their handle.",
+      "Inflated 3D renders as the signature imagery; deflated and popped variants for empty and missing states."
+    ],
+    "rules": [
+      {
+        "name": "The Sticker Colours Are Objects Rule",
+        "body": "Sticker fills colour things you can touch — buttons, badges, shapes, 3D objects — and whole bands. They never tint body text, and gray is never used on a coloured surface: text on a sticker is Carbon (Paper only on Violet).",
+        "section": "colors"
+      },
+      {
+        "name": "The Blue Is The Logo Rule",
+        "body": "Electric Blue is never a call to action. The Sunburst sticker and the ink pill carry actions.",
+        "section": "colors"
+      },
+      {
+        "name": "The One Line Poster Rule",
+        "body": "Poster type never wraps: it shrinks to fit its box (`useFitText`, `usePosterLines`). A poster headline that breaks across lines is a bug, unless it is deliberately set as separate fitted lines.",
+        "section": "typography"
+      },
+      {
+        "name": "The Handle Goes Under Rule",
+        "body": "No label, kicker or eyebrow sits above a heading. Context, including a person's handle, goes in the line beneath the poster.",
+        "section": "typography"
+      },
+      {
+        "name": "The No Shadow Rule",
+        "body": "Nothing casts a shadow. When something must feel lifted, it overlaps, tilts or scales.",
+        "section": "elevation"
+      },
+      {
+        "name": "The One Pixel Rule",
+        "body": "Every outline, rule and thread line is 1px. Weight comes from fill and scale, never from thicker strokes.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "Do outline every surface and sticker at 1px in Carbon (Bone on Night paper).",
+      "Do set page titles in poster type fitted to one line, with context underneath.",
+      "Do give every control a touch area of at least 44px (48px in the dock), even when it draws smaller.",
+      "Do use the overshoot spring (`cubic-bezier(0.34, 1.56, 0.64, 1)`) for things you touch and things that land, and the ease-out (`cubic-bezier(0.16, 1, 0.3, 1)`) for things that arrive.",
+      "Do label sample content \"Sample\", and show empty states as a deflated object with one useful action.",
+      "Do collapse every animation to an instant state under reduced motion, and pause every loop off screen."
+    ],
+    "donts": [
+      "Don't use box shadows, gradients, glass or blur.",
+      "Don't make Electric Blue a call to action, or put coloured text on a sticker fill.",
+      "Don't put a label, kicker or eyebrow above a heading.",
+      "Don't draw outlines, rules or thread lines thicker than 1px.",
+      "Don't use Unicode characters as icons. Glyphs are drawn SVG line icons at one stroke; sticker marks are drawn stickers.",
+      "Don't let tilted or arriving content widen the page. Clip horizontally at `main`."
+    ]
+  }
+}

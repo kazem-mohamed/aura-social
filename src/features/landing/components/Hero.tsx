@@ -74,7 +74,7 @@ export function Hero() {
             <SlappedObject key={object.name} object={object} index={index} progress={scrollYProgress} />
           ))}
           <div className="absolute -bottom-[6%] left-[4%] z-10 w-[42%] sm:w-[30%] lg:-bottom-[8%] lg:left-[18%] lg:w-[20%]">
-            <Logo slapIn title={null} className="h-auto w-full" />
+            <Logo slapIn interactive title={null} className="h-auto w-full" />
           </div>
         </div>
 

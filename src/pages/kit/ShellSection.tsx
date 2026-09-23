@@ -27,7 +27,7 @@ export function ShellSection() {
           />
         </div>
         <div className="rounded-card border border-line px-4 sm:px-8">
-          <PosterHeader size="xl" title="Idris Okafor" eyebrow="@idris.okafor · sample" />
+          <PosterHeader size="xl" title="Idris Okafor" lede="@idris.okafor · sample" />
         </div>
       </KitBlock>
 

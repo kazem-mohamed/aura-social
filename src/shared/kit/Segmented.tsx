@@ -93,7 +93,8 @@ export function Segmented<T extends string>({
             onKeyDown={(event) => onKeyDown(event, index)}
             className={cx(
               "relative isolate inline-flex shrink-0 items-center gap-1.5 rounded-pill px-4 type-label transition-colors duration-200",
-              size === "sm" ? "h-8" : "h-10",
+              // `sm` draws at 32px; the ::after grows the touch target to 44px vertically (neighbours sit side by side).
+              size === "sm" ? "h-8 after:absolute after:inset-x-0 after:-inset-y-1.5 after:content-['']" : "h-10",
               selected ? "text-action-ink" : "text-ink hover:bg-surface-2",
             )}
           >
