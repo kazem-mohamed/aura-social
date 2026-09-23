@@ -1,101 +1,64 @@
-import { useForm } from "react-hook-form";
+import { useState, type FormEvent, type ReactNode, type Ref } from "react";
 import { MAX_COMMENT_LENGTH } from "@/shared/config/constants";
-import { Avatar } from "@/shared/ui/Avatar";
-import { Button } from "@/shared/ui/Button";
+import { Button } from "@/shared/kit/Button";
+import { TextArea } from "@/shared/kit/TextArea";
 
 interface CommentComposerProps {
-  authorName: string;
-  authorPhoto: string | null | undefined;
-  authorHandle: string;
-  isDisabled: boolean;
-  isSubmitting: boolean;
-  submitError: string;
-  onSubmit: (content: string) => Promise<void>;
+  label: string;
+  placeholder: string;
+  submitLabel: string;
+  pending: boolean;
+  /** Resolves `true` once the text is accepted — only then does the box empty. */
+  onSubmit: (content: string) => Promise<boolean>;
+  onCancel?: () => void;
+  autoFocus?: boolean;
+  /** Shown before the box: the writer's avatar. */
+  lead?: ReactNode;
+  ref?: Ref<HTMLTextAreaElement>;
 }
 
-interface ComposerValues {
-  content: string;
-}
+/** A comment or reply box. Ctrl/⌘ + Enter sends. */
+export function CommentComposer({ label, placeholder, submitLabel, pending, onSubmit, onCancel, autoFocus, lead, ref }: CommentComposerProps) {
+  const [content, setContent] = useState("");
 
-/**
- * The "write a comment" row.
- *
- * The old version carried an image picker wired to nothing and an emoji
- * button that did nothing; the comments endpoint takes text only. Both are
- * gone rather than restyled.
- */
-export function CommentComposer({
-  authorName,
-  authorPhoto,
-  authorHandle,
-  isDisabled,
-  isSubmitting,
-  submitError,
-  onSubmit,
-}: CommentComposerProps) {
-  const {
-    register,
-    handleSubmit,
-    reset,
-    formState: { errors, isValid },
-  } = useForm<ComposerValues>({
-    mode: "onChange",
-    defaultValues: { content: "" },
-  });
-
-  async function submit({ content }: ComposerValues) {
+  const submit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
     const trimmed = content.trim();
-    if (!trimmed) return;
-
-    await onSubmit(trimmed);
-    reset({ content: "" });
-  }
-
-  const message = errors.content?.message || submitError;
+    if (!trimmed || pending) return;
+    if (await onSubmit(trimmed)) setContent("");
+  };
 
   return (
-    <form
-      onSubmit={handleSubmit(submit)}
-      className="flex items-start gap-3 border-t border-rail pt-4"
-    >
-      <Avatar alt={authorName} seed={authorHandle} size={32} src={authorPhoto} />
-
-      <div className="min-w-0 flex-1">
-        <label htmlFor="comment-composer" className="sr-only">
-          Write a comment
-        </label>
-        <textarea
-          id="comment-composer"
-          {...register("content", {
-            required: "Write something first.",
-            maxLength: {
-              value: MAX_COMMENT_LENGTH,
-              message: `Keep it under ${MAX_COMMENT_LENGTH} characters.`,
-            },
-            validate: (value) => value.trim().length > 0 || "Write something first.",
-          })}
-          placeholder={isDisabled ? "Sign in to comment" : "Add a comment"}
+    <form aria-label={label} onSubmit={(event) => void submit(event)} className="flex items-start gap-3">
+      {lead}
+      <div className="grid min-w-0 flex-1 gap-2">
+        <TextArea
+          ref={ref}
+          label={label}
+          hideLabel
           rows={1}
-          disabled={isDisabled || isSubmitting}
-          className="max-h-[140px] min-h-[38px] w-full resize-none border-b border-rail bg-transparent pb-2 text-base leading-relaxed text-ink outline-none transition-colors duration-300 placeholder:text-ink-3 focus:border-verm disabled:cursor-not-allowed disabled:opacity-55"
+          placeholder={placeholder}
+          value={content}
+          readOnly={pending}
+          autoFocus={autoFocus}
+          maxLength={MAX_COMMENT_LENGTH}
+          counter="near"
+          onChange={(event) => setContent(event.target.value)}
+          onKeyDown={(event) => {
+            if (event.key === "Enter" && (event.metaKey || event.ctrlKey)) {
+              event.preventDefault();
+              event.currentTarget.form?.requestSubmit();
+            }
+          }}
         />
-
-        {message ? (
-          <p role="alert" className="mt-2 font-mono text-micro tracking-[0.1em] text-verm-ink">
-            {message}
-          </p>
-        ) : null}
-
-        <div className="mt-3 flex justify-end">
-          <Button
-            variant="ghost"
-            size="sm"
-            type="submit"
-            disabled={isDisabled || !isValid}
-            isBusy={isSubmitting}
-            busyLabel="Sending"
-          >
-            Comment
+        <div className="flex justify-end gap-2">
+          {onCancel ? (
+            <Button variant="ghost" size="sm" onClick={onCancel}>
+              Cancel
+            </Button>
+          ) : null}
+          <Button type="submit" size="sm" iconStart="send" loading={pending} disabled={!content.trim()}>
+            {submitLabel}
           </Button>
         </div>
       </div>

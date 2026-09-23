@@ -5,6 +5,7 @@ import { useMotionPrefs } from "@/shared/motion/useMotionPrefs";
 import { BrandSection } from "./BrandSection";
 import { ControlsSection } from "./ControlsSection";
 import { FeedbackSection } from "./FeedbackSection";
+import { PostsSection } from "./PostsSection";
 import { ShellSection } from "./ShellSection";
 import { SurfacesSection } from "./SurfacesSection";
 
@@ -30,12 +31,13 @@ export default function KitPage() {
           {theme === "dark" ? "Paper" : "Night paper"}
         </button>
       </header>
-      <main className="mx-auto grid max-w-(--page-max) gap-24 px-4 py-12 sm:px-8 sm:py-16">
+      <main className="mx-auto grid max-w-(--page-max) gap-24 overflow-x-clip px-4 py-12 sm:px-8 sm:py-16">
         <BrandSection />
         <ControlsSection />
         <SurfacesSection />
         <FeedbackSection />
         <ShellSection />
+        <PostsSection />
       </main>
     </div>
   );

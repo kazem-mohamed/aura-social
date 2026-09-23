@@ -10,7 +10,8 @@ export function MainLayout() {
     <ComposerProvider>
       <SkipLink />
       <ShellHeader />
-      <main id="content" tabIndex={-1} className="mx-auto w-full max-w-(--page-max) px-4 pb-36 outline-none sm:px-8">
+      {/* overflow-x-clip: cards arrive tilted and scaled, and must not widen the page while they do. */}
+      <main id="content" tabIndex={-1} className="mx-auto w-full max-w-(--page-max) overflow-x-clip px-4 pb-36 outline-none sm:px-8">
         <Outlet />
       </main>
       <Dock />
