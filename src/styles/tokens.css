@@ -85,6 +85,8 @@
 }
 
 @theme inline {
+  --color-*: initial;
+  /* Only Aura's colours exist — Tailwind's default palette is switched off. */
   --color-carbon: var(--carbon);
   --color-paper: var(--paper);
   --color-sky: var(--sky);
