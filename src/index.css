@@ -3,4 +3,5 @@
 @import "@fontsource-variable/onest/index.css";
 @import "./styles/tokens.css";
 @import "./styles/base.css";
+@import "./styles/kit.css";
 @import "./styles/legacy.css";
