@@ -1,13 +1,13 @@
 import { useState } from "react";
 import { getErrorMessage } from "@/shared/api/errors";
-import type { AlertState } from "@/shared/ui/alertState";
-import { HIDDEN_ALERT } from "@/shared/ui/alertState";
+import { useToast } from "@/shared/kit/toast/useToast";
 import { cropToSquare, readFileAsDataUrl, type Offset } from "../lib/imageCrop";
 import { useUploadCoverPhoto, useUploadProfilePhoto } from "./useProfilePhotoUpload";
 
 /**
  * Everything the profile page needs to change its avatar and cover: staged
- * files, local previews, the two dialogs, and the upload mutations.
+ * files, local previews, the two dialogs, and the upload mutations. Results
+ * are reported as toasts.
  *
  * Previews are keyed by profile so a preview from one profile never bleeds onto
  * another after navigation — the behaviour the page implemented with a
@@ -16,8 +16,8 @@ import { useUploadCoverPhoto, useUploadProfilePhoto } from "./useProfilePhotoUpl
 export function useProfileImages(profileKey: string, canEdit: boolean) {
   const uploadPhoto = useUploadProfilePhoto();
   const uploadCover = useUploadCoverPhoto();
+  const toast = useToast();
 
-  const [alert, setAlert] = useState<AlertState>(HIDDEN_ALERT);
   const [previewKey, setPreviewKey] = useState("");
   const [avatarPreview, setAvatarPreview] = useState("");
   const [coverPreview, setCoverPreview] = useState("");
@@ -30,21 +30,11 @@ export function useProfileImages(profileKey: string, canEdit: boolean) {
   const isForCurrentProfile = previewKey === profileKey;
 
   function fail(message: string) {
-    setAlert({
-      isVisible: true,
-      color: "danger",
-      title: "Upload Failed",
-      description: message,
-    });
+    toast.show({ tone: "error", title: "Upload failed", description: message });
   }
 
-  function succeed(message: string) {
-    setAlert({
-      isVisible: true,
-      color: "success",
-      title: "Success Notification",
-      description: message,
-    });
+  function succeed(title: string) {
+    toast.show({ tone: "success", title });
   }
 
   /** Shared validation for both pickers. Resets the input so re-picking works. */
@@ -55,16 +45,15 @@ export function useProfileImages(profileKey: string, canEdit: boolean) {
     if (!file) return null;
 
     if (!file.type.startsWith("image/")) {
-      fail("Please choose a valid image file.");
+      fail("Choose an image file.");
       return null;
     }
 
     if (!canEdit) {
-      fail("You can only update images on your own profile.");
+      fail("You can only change images on your own profile.");
       return null;
     }
 
-    setAlert(HIDDEN_ALERT);
     return file;
   }
 
@@ -96,9 +85,9 @@ export function useProfileImages(profileKey: string, canEdit: boolean) {
           setCoverPreview(preview);
         }
         setIsCoverRemoved(false);
-        succeed("Cover photo updated successfully.");
+        succeed("Cover updated.");
       },
-      onError: (error) => fail(getErrorMessage(error, "Failed to update cover photo.")),
+      onError: (error) => fail(getErrorMessage(error, "Your cover didn’t upload. Try again.")),
     });
   }
 
@@ -107,7 +96,7 @@ export function useProfileImages(profileKey: string, canEdit: boolean) {
     setPreviewKey(profileKey);
     setCoverPreview("");
     setIsCoverRemoved(true);
-    succeed("Cover photo removed successfully.");
+    succeed("Cover removed.");
   }
 
   async function selectPhotoFile(event: React.ChangeEvent<HTMLInputElement>) {
@@ -121,7 +110,7 @@ export function useProfileImages(profileKey: string, canEdit: boolean) {
       setPendingPhotoFile(file);
       setPhotoEditorUrl(preview);
     } catch {
-      fail("Failed to preview selected profile photo.");
+      fail("That image couldn’t be opened. Try another.");
     }
   }
 
@@ -135,12 +124,7 @@ export function useProfileImages(profileKey: string, canEdit: boolean) {
     if (!pendingPhotoFile || uploadPhoto.isPending) return;
 
     try {
-      const { file, previewUrl } = await cropToSquare(
-        photoEditorUrl,
-        pendingPhotoFile,
-        zoom,
-        offset,
-      );
+      const { file, previewUrl } = await cropToSquare(photoEditorUrl, pendingPhotoFile, zoom, offset);
 
       setPreviewKey(profileKey);
       setAvatarPreview(previewUrl);
@@ -148,21 +132,18 @@ export function useProfileImages(profileKey: string, canEdit: boolean) {
       setPhotoEditorUrl("");
 
       uploadPhoto.mutate(file, {
-        onSuccess: () => succeed("Profile photo updated successfully."),
+        onSuccess: () => succeed("Photo updated."),
         onError: (error) => {
           setAvatarPreview("");
-          fail(getErrorMessage(error, "Failed to update profile photo."));
+          fail(getErrorMessage(error, "Your photo didn’t upload. Try again."));
         },
       });
     } catch (error) {
-      fail(getErrorMessage(error, "Failed to prepare profile photo."));
+      fail(getErrorMessage(error, "That photo couldn’t be prepared. Try another."));
     }
   }
 
   return {
-    alert,
-    dismissAlert: () => setAlert((previous) => ({ ...previous, isVisible: false })),
-
     avatarPreview: isForCurrentProfile ? avatarPreview : "",
     coverPreview: isForCurrentProfile ? coverPreview : "",
     isCoverRemoved: isForCurrentProfile && isCoverRemoved,
