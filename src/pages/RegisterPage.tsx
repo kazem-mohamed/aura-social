@@ -1,39 +1,41 @@
-import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Controller, useForm } from "react-hook-form";
-import { useNavigate } from "react-router";
+import { useState } from "react";
+import { Controller, useForm, useWatch } from "react-hook-form";
+import { Link, useLocation, useNavigate } from "react-router";
 import { getErrorMessage } from "@/shared/api/errors";
-import {
-  latestDateForMinimumAge,
-  parseDateInput,
-  toIsoDateOnly,
-} from "@/shared/lib/dates";
-import { Button } from "@/shared/ui/Button";
-import { FeedbackAlert } from "@/shared/ui/FeedbackAlert";
-import { Field } from "@/shared/ui/Field";
-import { SelectField } from "@/shared/ui/SelectField";
-import { Plate } from "@/shared/ui/Plate";
-import { Wordmark } from "@/shared/ui/Wordmark";
-import { HIDDEN_ALERT, type AlertState } from "@/shared/ui/alertState";
+import { identityFor } from "@/shared/brand/identity";
+import { latestDateForMinimumAge, parseDateInput, toIsoDateOnly } from "@/shared/lib/dates";
+import { Button } from "@/shared/kit/Button";
+import { DateField } from "@/shared/kit/DateField";
+import { Field } from "@/shared/kit/Field";
+import { PasswordField } from "@/shared/kit/PasswordField";
+import { RadioPills } from "@/shared/kit/RadioPills";
+import { RuleList } from "@/shared/kit/RuleList";
+import { useToast } from "@/shared/kit/toast/useToast";
 import { routes } from "@/app/router/routes";
-import { AuthTabs } from "@/features/auth/components/AuthTabs";
+import { AuthFrame } from "@/features/auth/components/AuthFrame";
+import { IdentityPreview } from "@/features/auth/components/IdentityPreview";
 import { useSignUp } from "@/features/auth/hooks/useAuthMutations";
-import {
-  registerSchema,
-  type RegisterFormValues,
-} from "@/features/auth/model/auth.schemas";
+import { registerSchema, type RegisterFormValues } from "@/features/auth/model/auth.schemas";
+import { passwordRules } from "@/features/auth/model/passwordRules";
 
 const REDIRECT_DELAY_MS = 1200;
+/** Name and username are both capped at 15 by the API schema. */
+const MAX_NAME = 15;
 
 const GENDER_OPTIONS = [
   { value: "male", label: "Male" },
   { value: "female", label: "Female" },
 ];
 
+/** Join. The username you type decides your sticker, live, before you commit to it. */
 export default function RegisterPage() {
   const navigate = useNavigate();
+  const location = useLocation();
   const signUp = useSignUp();
-  const [alert, setAlert] = useState<AlertState>(HIDDEN_ALERT);
+  const toast = useToast();
+  const [joined, setJoined] = useState(false);
+  const claimed = (location.state as { handle?: string } | null)?.handle ?? "";
 
   const {
     control,
@@ -45,7 +47,7 @@ export default function RegisterPage() {
     reValidateMode: "onChange",
     defaultValues: {
       name: "",
-      username: "",
+      username: claimed.replace(/^@/, "").slice(0, MAX_NAME),
       email: "",
       password: "",
       rePassword: "",
@@ -54,9 +56,12 @@ export default function RegisterPage() {
     },
   });
 
-  function onSubmit(values: RegisterFormValues) {
-    signUp.mutate(
-      {
+  const [name, username, password] = useWatch({ control, name: ["name", "username", "password"] });
+  const identity = identityFor(username.trim() || "you");
+
+  const onSubmit = async (values: RegisterFormValues) => {
+    try {
+      await signUp.mutateAsync({
         name: values.name,
         username: values.username,
         email: values.email,
@@ -64,191 +69,171 @@ export default function RegisterPage() {
         gender: values.gender,
         password: values.password,
         rePassword: values.rePassword,
-      },
-      {
-        onSuccess: (result) => {
-          setAlert({
-            isVisible: true,
-            color: "success",
-            title: "Account created",
-            description: result.message ?? "Sign in to claim your colour.",
-          });
-          setTimeout(() => navigate(routes.login), REDIRECT_DELAY_MS);
-        },
-        onError: (error) =>
-          setAlert({
-            isVisible: true,
-            color: "danger",
-            title: "Could not create account",
-            description: getErrorMessage(
-              error,
-              "Check the fields above and try again.",
-            ),
-          }),
-      },
-    );
-  }
-
-  const isBusy = isSubmitting || signUp.isPending;
+      });
+      setJoined(true);
+      toast.show({ tone: "success", title: "You’re on the wall.", description: "Sign in to stick around." });
+      // A beat to see the tick, then on to sign in with the email filled in.
+      window.setTimeout(() => navigate(routes.login, { state: { email: values.email }, viewTransition: true }), REDIRECT_DELAY_MS);
+    } catch (error) {
+      toast.show({
+        tone: "error",
+        title: "Couldn’t create your account",
+        description: getErrorMessage(error, "Check the fields above and try again."),
+      });
+    }
+  };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-ground px-5 py-12">
-      <div className="w-full max-w-[420px]">
-        <Wordmark className="mb-8 block w-[84px]" />
-
-        {/* The accession card itself: a plate bearing the entry you are
-            about to make. */}
-        <Plate className="p-7 sm:p-8">
-          <AuthTabs active="register" />
-
-          <h1 className="text-2xl font-semibold tracking-[-0.03em] text-ink">
-            Create account
-          </h1>
-          <p className="mt-2 text-sm text-ink-2">
-            Your username decides your colour. Choose it once.
+    <AuthFrame
+      title="Join the wall"
+      lede="Pick a username. It picks your sticker."
+      art={
+        <figure className="mt-2 grid justify-items-start gap-5">
+          <IdentityPreview username={username} name={name} size={240} />
+          <figcaption className="max-w-[38ch] type-body text-ink-2">
+            <span className="font-bold text-ink capitalize">
+              {identity.color.name} · {identity.shape}.
+            </span>{" "}
+            Your username decides the colour and the shape. Nobody picks it — not even you.
+          </figcaption>
+        </figure>
+      }
+      footer={
+        <>
+          Already have a sticker?{" "}
+          <Link to={routes.login} viewTransition className="font-bold text-ink underline decoration-1 underline-offset-4">
+            Sign in
+          </Link>
+        </>
+      }
+    >
+      <form noValidate aria-label="Join Aura" onSubmit={handleSubmit(onSubmit)} className="grid gap-5">
+        <div className="flex items-center gap-4 lg:hidden">
+          <IdentityPreview username={username} name={name} size={72} />
+          <p className="type-caption text-ink-2">
+            <span className="block text-[15px] font-bold text-ink capitalize">
+              {identity.color.name} · {identity.shape}
+            </span>
+            Your username picks your sticker.
           </p>
+        </div>
 
-          <FeedbackAlert
-            state={alert}
-            wrapperClassName="mt-6"
-            onClose={() =>
-              setAlert((previous) => ({ ...previous, isVisible: false }))
-            }
+        <Controller
+          name="name"
+          control={control}
+          render={({ field }) => (
+            <Field
+              {...field}
+              label="Name"
+              autoComplete="name"
+              placeholder="What people call you"
+              maxLength={MAX_NAME}
+              counter={{ value: name.length, max: MAX_NAME }}
+              error={errors.name?.message}
+            />
+          )}
+        />
+        <Controller
+          name="username"
+          control={control}
+          render={({ field }) => (
+            <Field
+              {...field}
+              label="Username"
+              iconStart="at"
+              autoComplete="username"
+              autoCapitalize="none"
+              spellCheck={false}
+              placeholder="your.handle"
+              maxLength={MAX_NAME}
+              counter={{ value: username.length, max: MAX_NAME }}
+              ringColor={identity.color.hex}
+              error={errors.username?.message}
+            />
+          )}
+        />
+        <Controller
+          name="email"
+          control={control}
+          render={({ field }) => (
+            <Field
+              {...field}
+              label="Email"
+              type="email"
+              iconStart="mail"
+              autoComplete="email"
+              placeholder="you@example.com"
+              error={errors.email?.message}
+            />
+          )}
+        />
+        <div className="grid gap-3">
+          <Controller
+            name="password"
+            control={control}
+            render={({ field }) => (
+              <PasswordField
+                {...field}
+                label="Password"
+                autoComplete="new-password"
+                placeholder="Choose a password"
+                error={errors.password?.message}
+              />
+            )}
           />
-
-          <form noValidate className="mt-8 space-y-6" onSubmit={handleSubmit(onSubmit)}>
-            <Controller
-              name="name"
-              control={control}
-              render={({ field }) => (
-                <Field
-                  {...field}
-                  label="Name"
-                  autoComplete="name"
-                  placeholder="Your full name"
-                  error={errors.name?.message}
-                />
-              )}
+          <RuleList rules={passwordRules(password)} />
+        </div>
+        <Controller
+          name="rePassword"
+          control={control}
+          render={({ field }) => (
+            <PasswordField
+              {...field}
+              label="Repeat password"
+              autoComplete="new-password"
+              placeholder="Same again"
+              error={errors.rePassword?.message}
             />
-
-            <Controller
-              name="username"
-              control={control}
-              render={({ field }) => (
-                <Field
-                  {...field}
-                  label="Username"
-                  autoComplete="username"
-                  placeholder="your.handle"
-                  prefix={<span className="font-mono text-sm">@</span>}
-                  error={errors.username?.message}
-                />
-              )}
-            />
-
-            <Controller
-              name="email"
-              control={control}
-              render={({ field }) => (
-                <Field
-                  {...field}
-                  label="Email"
-                  type="email"
-                  autoComplete="email"
-                  placeholder="you@example.com"
-                  error={errors.email?.message}
-                />
-              )}
-            />
-
-            <div className="grid gap-6 sm:grid-cols-2">
-              <Controller
-                name="gender"
-                control={control}
-                render={({ field }) => (
-                  <SelectField
-                    label="Gender"
-                    options={GENDER_OPTIONS}
-                    placeholder="Select"
-                    value={field.value ?? ""}
-                    onChange={field.onChange}
-                    onBlur={field.onBlur}
-                    name={field.name}
-                    ref={field.ref}
-                    error={errors.gender?.message}
-                  />
-                )}
+          )}
+        />
+        <div className="grid gap-5 sm:grid-cols-2">
+          <Controller
+            name="dateOfBirth"
+            control={control}
+            render={({ field }) => (
+              <DateField
+                label="Date of birth"
+                name={field.name}
+                ref={field.ref}
+                onBlur={field.onBlur}
+                value={field.value ? toIsoDateOnly(field.value) : ""}
+                onChange={(event) => field.onChange(parseDateInput(event.target.value) ?? undefined)}
+                max={latestDateForMinimumAge(12)}
+                error={errors.dateOfBirth?.message}
               />
-
-              <Controller
-                name="dateOfBirth"
-                control={control}
-                render={({ field }) => (
-                  <Field
-                    label="Date of birth"
-                    type="date"
-                    name={field.name}
-                    ref={field.ref}
-                    onBlur={field.onBlur}
-                    value={field.value ? toIsoDateOnly(field.value) : ""}
-                    onChange={(event) => {
-                      field.onChange(parseDateInput(event.target.value) ?? undefined);
-                    }}
-                    max={latestDateForMinimumAge(12)}
-                    hint="Choose from the calendar. The displayed format follows your device settings."
-                    error={errors.dateOfBirth?.message}
-                  />
-                )}
+            )}
+          />
+          <Controller
+            name="gender"
+            control={control}
+            render={({ field }) => (
+              <RadioPills
+                label="Gender"
+                name={field.name}
+                ref={field.ref}
+                value={field.value}
+                options={GENDER_OPTIONS}
+                onChange={field.onChange}
+                onBlur={field.onBlur}
+                error={errors.gender?.message}
               />
-            </div>
-
-            <Controller
-              name="password"
-              control={control}
-              render={({ field }) => (
-                <Field
-                  {...field}
-                  label="Password"
-                  type="password"
-                  autoComplete="new-password"
-                  placeholder="Choose a password"
-                  hint="Eight characters or more, with an uppercase letter, a lowercase letter, a number and a symbol."
-                  error={errors.password?.message}
-                />
-              )}
-            />
-
-            <Controller
-              name="rePassword"
-              control={control}
-              render={({ field }) => (
-                <Field
-                  {...field}
-                  label="Confirm password"
-                  type="password"
-                  autoComplete="new-password"
-                  placeholder="Repeat it"
-                  error={errors.rePassword?.message}
-                />
-              )}
-            />
-
-            <Button
-              variant="primary"
-              type="submit"
-              isFullWidth
-              isBusy={isBusy}
-              busyLabel="Creating account"
-            >
-              Create account
-            </Button>
-          </form>
-        </Plate>
-
-        <p className="mt-6 text-center font-mono text-micro tracking-[0.12em] text-ink-3 uppercase">
-          Your username decides your colour.
-        </p>
-      </div>
-    </div>
+            )}
+          />
+        </div>
+        <Button type="submit" size="lg" fullWidth loading={isSubmitting} success={joined} disabled={joined} className="mt-1">
+          {joined ? "You’re in" : "Join Aura"}
+        </Button>
+      </form>
+    </AuthFrame>
   );
 }
