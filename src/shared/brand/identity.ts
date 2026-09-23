@@ -51,7 +51,7 @@ const cache = new Map<string, Identity>();
  * backend storage — spec §5.2.
  */
 export function identityFor(key: string): Identity {
-  const normalised = key.toLowerCase().trim() || "anon";
+  const normalised = key.toLowerCase().trim().replace(/^@/, "") || "anon";
   const hit = cache.get(normalised);
   if (hit) return hit;
 
