@@ -1,0 +1,164 @@
+/* LEGACY — the Accession Card styles still used by pages Phase 3 has not
+   rebuilt yet. The names the new system owns (--ground, --ink, --ink-2,
+   --ink-3) were removed from here on purpose so old pages pick up the new
+   ground and ink. Delete this file at the end of Phase 3. */
+
+:root,
+:root[data-theme="light"] {
+  --plate: #ffffff;
+  --recess: #efebe4;
+  --rail: #e4dfd6;
+  --rail-strong: #d3ccc0;
+  --verm: #e4572e;
+  --verm-ink: #b93d19;
+  --on-verm: #0b0a0a;
+  --gold-ink: #8a6304;
+  --plate-shadow: 0 1px 2px rgba(26, 22, 19, 0.05), 0 8px 24px rgba(26, 22, 19, 0.06);
+  --plate-shadow-lifted: 0 2px 6px rgba(26, 22, 19, 0.07), 0 20px 48px rgba(26, 22, 19, 0.11);
+}
+
+:root[data-theme="dark"] {
+  --plate: #141211;
+  --recess: #1c1917;
+  --rail: #292827;
+  --rail-strong: #3b3733;
+  --verm: #e4572e;
+  --verm-ink: #f06b45;
+  --on-verm: #0b0a0a;
+  --gold-ink: #f5b301;
+  --plate-shadow: 0 1px 2px rgba(0, 0, 0, 0.5), 0 8px 24px rgba(0, 0, 0, 0.4);
+  --plate-shadow-lifted: 0 2px 6px rgba(0, 0, 0, 0.55), 0 20px 48px rgba(0, 0, 0, 0.5);
+}
+
+@theme inline {
+  --color-plate: var(--plate);
+  --color-recess: var(--recess);
+  --color-rail: var(--rail);
+  --color-rail-strong: var(--rail-strong);
+  --color-verm: var(--verm);
+  --color-verm-ink: var(--verm-ink);
+  --color-on-verm: var(--on-verm);
+  --color-gold-ink: var(--gold-ink);
+
+  --font-mono: "Onest Variable", ui-monospace, monospace;
+  --font-serif: "Onest Variable", ui-serif, serif;
+  --font-wordmark: "Anybody Variable", sans-serif;
+
+  --text-micro: 0.6875rem;
+  --text-label: 0.75rem;
+  --text-sm: 0.8125rem;
+  --text-base: 0.9375rem;
+  --text-read: 1.0625rem;
+  --text-lg: 1.25rem;
+  --text-xl: 1.625rem;
+  --text-2xl: 2.25rem;
+  --text-3xl: 3rem;
+}
+
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+}
+input[type="range"]::-webkit-slider-runnable-track {
+  height: 2px;
+  background: var(--rail-strong);
+}
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  margin-top: -6px;
+  border-radius: 50%;
+  background: var(--verm);
+  cursor: grab;
+}
+input[type="range"]::-moz-range-track {
+  height: 2px;
+  background: var(--rail-strong);
+}
+input[type="range"]::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  border: none;
+  border-radius: 50%;
+  background: var(--verm);
+  cursor: grab;
+}
+
+@keyframes accession-shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
+.skeleton {
+  position: relative;
+  overflow: hidden;
+  background: var(--recess);
+}
+.skeleton::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--ink) 6%, transparent), transparent);
+  animation: accession-shimmer 1.6s ease-in-out infinite;
+}
+
+@keyframes toast-arrive {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes toast-retract {
+  from {
+    transform: scaleX(1);
+  }
+  to {
+    transform: scaleX(0);
+  }
+}
+.toast-note {
+  animation: toast-arrive 260ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.toast-timer {
+  animation: toast-retract linear both;
+}
+
+@keyframes fetch-sweep {
+  0% {
+    transform: translateX(-100%) scaleX(0.4);
+  }
+  50% {
+    transform: translateX(0%) scaleX(0.7);
+  }
+  100% {
+    transform: translateX(100%) scaleX(0.4);
+  }
+}
+.fetch-rule {
+  animation: fetch-sweep 1.15s cubic-bezier(0.65, 0, 0.35, 1) infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton::after {
+    display: none;
+  }
+  .toast-note {
+    animation: none;
+  }
+  .toast-timer {
+    animation: none;
+    transform: scaleX(0);
+  }
+  .fetch-rule {
+    animation: none;
+    opacity: 0.6;
+  }
+}

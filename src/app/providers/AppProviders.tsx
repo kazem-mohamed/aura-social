@@ -1,4 +1,4 @@
-import { HeroUIProvider } from "@heroui/react";
+import { MotionConfig } from "framer-motion";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { queryClient } from "@/shared/api/queryClient";
 import { ErrorBoundary } from "@/shared/ui/ErrorBoundary";
@@ -9,18 +9,18 @@ import { AuthProvider } from "@/features/auth/context/AuthProvider";
 /**
  * Provider stack for the whole app.
  *
- * `AuthProvider` sits inside `QueryClientProvider` because signing out clears
- * the query cache, and the error boundary wraps everything so a render failure
- * cannot blank the page.
+ * `MotionConfig reducedMotion="user"` makes every Motion animation honour
+ * `prefers-reduced-motion` by default; components still opt out of loops
+ * through `useMotionPrefs()`.
  *
- * `FetchRule` lives inside the query provider (it reads the in-flight count)
- * and `ToastProvider` wraps the tree so any screen can raise a condition
- * note without threading callbacks through.
+ * `AuthProvider` sits inside `QueryClientProvider` because signing out
+ * clears the query cache, and the error boundary wraps everything so a
+ * render failure cannot blank the page.
  */
 export function AppProviders({ children }: { children: React.ReactNode }) {
   return (
     <ErrorBoundary>
-      <HeroUIProvider>
+      <MotionConfig reducedMotion="user">
         <QueryClientProvider client={queryClient}>
           <AuthProvider>
             <ToastProvider>
@@ -29,7 +29,7 @@ export function AppProviders({ children }: { children: React.ReactNode }) {
             </ToastProvider>
           </AuthProvider>
         </QueryClientProvider>
-      </HeroUIProvider>
+      </MotionConfig>
     </ErrorBoundary>
   );
 }

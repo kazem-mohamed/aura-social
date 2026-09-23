@@ -23,9 +23,6 @@ export default defineConfig({
           forms: ["react-hook-form", "@hookform/resolvers", "zod"],
           motion: ["framer-motion"],
           http: ["axios"],
-          // @heroui/react is deliberately NOT grouped: leaving it to Rollup
-          // lets tree-shaking keep the calendar and date-picker out of the
-          // always-loaded chunk and inside the register route instead.
         },
       },
     },
