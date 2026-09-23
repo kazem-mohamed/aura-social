@@ -1330,7 +1330,10 @@ export function useFocusTrap(ref: RefObject<HTMLElement | null>, { initialFocus,
     const previous = document.activeElement instanceof HTMLElement ? document.activeElement : null;
     const focusables = () => Array.from(node.querySelectorAll<HTMLElement>(FOCUSABLE)).filter((el) => el.getClientRects().length > 0);
 
-    (initialFocus?.current ?? focusables()[0] ?? node).focus({ preventScroll: true });
+    // An explicit target wins; otherwise respect a field that already took
+    // focus (autoFocus) and only fall back to the first control.
+    const target = initialFocus?.current ?? (node.contains(document.activeElement) ? null : (focusables()[0] ?? node));
+    target?.focus({ preventScroll: true });
 
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape" && escapeRef.current) {

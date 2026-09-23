@@ -25,11 +25,11 @@ export function PosterHeader({ title, eyebrow, lede, actions, size = "poster", c
   const titleRef = useFitText<HTMLHeadingElement>(title);
 
   return (
-    <header className={cx("grid gap-5 pt-8 pb-8 sm:pt-12 sm:pb-10", className)}>
+    <header className={cx("grid grid-cols-[minmax(0,1fr)] gap-5 pt-8 pb-8 sm:pt-12 sm:pb-10", className)}>
       {eyebrow ? <div className="type-label text-ink-2">{eyebrow}</div> : null}
       <motion.h1
         ref={titleRef}
-        className={cx(size === "xl" ? "type-display-xl" : "type-poster", "whitespace-nowrap")}
+        className={cx(size === "xl" ? "type-display-xl" : "type-poster", "min-w-0 whitespace-nowrap")}
         style={{ transformOrigin: "0% 100%" }}
         initial={{ scaleY: 0.82, scaleX: 1.04 }}
         animate={{ scaleY: 1, scaleX: 1 }}
