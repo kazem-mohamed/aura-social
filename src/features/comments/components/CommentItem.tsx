@@ -98,7 +98,7 @@ export function CommentItem({ postId, comment, meId, meName }: CommentItemProps)
           onSave={(content) => void saveEdit(content)}
         />
       ) : comment.content ? (
-        <p className="break-words whitespace-pre-wrap type-body">{comment.content}</p>
+        <p className="wrap-anywhere whitespace-pre-wrap type-body">{comment.content}</p>
       ) : null}
 
       <div className="-ml-2.5 flex flex-wrap items-center gap-1">

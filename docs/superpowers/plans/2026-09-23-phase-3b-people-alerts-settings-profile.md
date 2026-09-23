@@ -71,6 +71,7 @@ export function useDebouncedValue<T>(value: T, delay = 300): T {
 
 ```tsx
 import { Link } from "react-router";
+import { useMediaQuery } from "@/shared/hooks/useMediaQuery";
 import { FollowButton } from "@/shared/kit/ActionButtons";
 import { Avatar } from "@/shared/kit/Avatar";
 import { Card } from "@/shared/kit/Card";
@@ -78,6 +79,10 @@ import { Counter } from "@/shared/kit/Counter";
 import { Skeleton } from "@/shared/kit/Skeleton";
 import { routes } from "@/app/router/routes";
 import type { DiscoveredUser } from "../model/user.types";
+
+/** A row on phones (a list you can scan), a centred sticker card from `sm` up (a wall). */
+const LAYOUT =
+  "flex items-center gap-3 p-4 text-left sm:grid sm:h-full sm:content-start sm:justify-items-center sm:gap-3 sm:p-6 sm:text-center";
 
 interface PersonCardProps {
   user: DiscoveredUser;
@@ -90,25 +95,27 @@ interface PersonCardProps {
 /** Someone worth following: their sticker, their name, one button. */
 export function PersonCard({ user, following, followers, pending, onToggleFollow }: PersonCardProps) {
   const href = routes.userProfile(user.id);
+  // The phone row gives the name the room; the card from `sm` up gives the sticker the room.
+  const isCard = useMediaQuery("(min-width: 640px)");
 
   return (
-    <Card variant="profile" className="h-full content-start">
-      <Link to={href} viewTransition tabIndex={-1} aria-hidden className="rounded-full">
-        <Avatar identityKey={user.username} name={user.name} photo={user.photo} size="lg" />
+    <Card variant="media" className={LAYOUT}>
+      <Link to={href} viewTransition tabIndex={-1} aria-hidden className="shrink-0 rounded-full">
+        <Avatar identityKey={user.username} name={user.name} photo={user.photo} size={isCard ? "lg" : "md"} />
       </Link>
-      <div className="grid w-full min-w-0 gap-0.5">
+      <div className="grid min-w-0 flex-1 gap-0.5 sm:w-full sm:flex-none">
         <Link
           to={href}
           viewTransition
-          className="truncate text-[17px] font-bold hover:underline hover:decoration-1 hover:underline-offset-4"
+          className="line-clamp-2 text-[17px] leading-tight font-bold wrap-anywhere hover:underline hover:decoration-1 hover:underline-offset-4 sm:line-clamp-1"
         >
           {user.name}
         </Link>
         <p className="truncate type-caption text-ink-2">@{user.username}</p>
+        <p className="type-caption text-ink-2">
+          <Counter value={followers} className="font-bold text-ink" /> {followers === 1 ? "follower" : "followers"}
+        </p>
       </div>
-      <p className="type-caption text-ink-2">
-        <Counter value={followers} className="font-bold text-ink" /> {followers === 1 ? "follower" : "followers"}
-      </p>
       <FollowButton size="sm" name={user.name} following={following} pending={pending} onToggle={onToggleFollow} />
     </Card>
   );
@@ -117,11 +124,13 @@ export function PersonCard({ user, following, followers, pending, onToggleFollow
 /** The loading shape of a person card. */
 export function PersonCardSkeleton() {
   return (
-    <div aria-hidden className="grid justify-items-center gap-3 rounded-card border border-line bg-surface p-5 sm:p-6">
-      <Skeleton shape="circle" className="h-16 w-16" />
-      <Skeleton className="w-28" />
-      <Skeleton className="w-20" />
-      <Skeleton className="mt-1 w-28" style={{ height: 36 }} />
+    <div aria-hidden className={`rounded-card border border-line bg-surface ${LAYOUT}`}>
+      <Skeleton shape="circle" className="h-16 w-16 shrink-0" />
+      <div className="grid flex-1 gap-2 sm:w-full sm:flex-none sm:justify-items-center">
+        <Skeleton className="w-28" />
+        <Skeleton className="w-36" />
+      </div>
+      <Skeleton className="w-28 shrink-0" style={{ height: 36 }} />
     </div>
   );
 }
@@ -163,7 +172,7 @@ export default function PeoplePage() {
   const isSettling = search.trim() !== term;
 
   return (
-    <div className="grid gap-8">
+    <div className="grid grid-cols-[minmax(0,1fr)] gap-8">
       <PosterHeader title="People" lede="Find someone worth following. Their posts land on your wall.">
         <SearchField
           label="Search people"
@@ -176,7 +185,7 @@ export default function PeoplePage() {
         />
       </PosterHeader>
 
-      <section aria-labelledby="people-heading" aria-busy={isPending} className="grid gap-5">
+      <section aria-labelledby="people-heading" aria-busy={isPending} className="grid grid-cols-[minmax(0,1fr)] gap-5">
         <h2 id="people-heading" className="type-label text-ink-2">
           {isSearching ? `Results for “${term}”` : "People to follow"}
         </h2>
@@ -319,7 +328,7 @@ export function NotificationItem({ notification, isMarking, onMarkRead }: Notifi
       </div>
 
       <div className="grid min-w-0 flex-1 gap-1">
-        <p className={cx("break-words type-body", isUnread ? "text-ink" : "text-ink-2")}>
+        <p className={cx("wrap-anywhere type-body", isUnread ? "text-ink" : "text-ink-2")}>
           {isUnread ? <span className="sr-only">Unread: </span> : null}
           {actorId ? (
             <Link
@@ -404,7 +413,7 @@ export function NotificationsPanel() {
     toast.show({ tone: "error", title: "That didn’t stick", description: getErrorMessage(failure, "Your alerts didn’t update. Try again.") });
 
   return (
-    <div className="mx-auto grid max-w-(--reading) gap-6">
+    <div className="mx-auto grid max-w-(--reading) grid-cols-[minmax(0,1fr)] gap-6">
       <PosterHeader
         title="Alerts"
         lede="Likes, comments, shares and follows."
@@ -460,7 +469,7 @@ export function NotificationsPanel() {
             }
           />
         ) : (
-          <ol className="grid gap-2">
+          <ol className="grid grid-cols-[minmax(0,1fr)] gap-2">
             {notifications.map((notification) => (
               <li key={notification.id || `${notification.actorName}-${notification.createdAt}`}>
                 <NotificationItem
@@ -584,10 +593,9 @@ import type { ReactNode } from "react";
 import { Button } from "@/shared/kit/Button";
 import { PosterHeader } from "@/shared/kit/PosterHeader";
 import { Toggle } from "@/shared/kit/Toggle";
-import { useToast } from "@/shared/kit/toast/useToast";
 import { useTheme } from "@/shared/lib/useTheme";
 import { ChangePasswordForm } from "@/features/auth/components/ChangePasswordForm";
-import { useAuth } from "@/features/auth/hooks/useAuth";
+import { useSignOut } from "@/features/auth/hooks/useSignOut";
 
 const THEME_TOGGLE_ID = "theme-toggle";
 
@@ -605,8 +613,7 @@ function SettingsSection({ id, title, children }: { id: string; title: string; c
 /** Your paper, your password, and the way out. */
 export default function SettingsPage() {
   const { theme, set } = useTheme();
-  const { signOut } = useAuth();
-  const toast = useToast();
+  const signOut = useSignOut();
 
   const setNight = (night: boolean) => {
     // The new paper peels on from the switch itself.
@@ -614,13 +621,8 @@ export default function SettingsPage() {
     set(night ? "dark" : "light", box ? { x: box.left + box.width / 2, y: box.top + box.height / 2 } : undefined);
   };
 
-  const leave = () => {
-    signOut();
-    toast.show({ title: "Signed out. See you soon." });
-  };
-
   return (
-    <div className="mx-auto grid max-w-(--reading) gap-6">
+    <div className="mx-auto grid max-w-(--reading) grid-cols-[minmax(0,1fr)] gap-6">
       <PosterHeader title="Settings" lede="Your paper, your password, and the way out." />
 
       <SettingsSection id="settings-paper" title="Paper">
@@ -640,7 +642,7 @@ export default function SettingsPage() {
       <SettingsSection id="settings-session" title="Session">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <p className="type-body text-ink-2">You’re signed in on this device.</p>
-          <Button variant="secondary" iconStart="logout" onClick={leave}>
+          <Button variant="secondary" iconStart="logout" onClick={() => void signOut()}>
             Sign out
           </Button>
         </div>
@@ -1387,7 +1389,7 @@ interface EmptyTab {
 
 function ProfileSkeleton() {
   return (
-    <div role="status" aria-label="Loading profile" className="grid gap-6 pt-4 sm:pt-6">
+    <div role="status" aria-label="Loading profile" className="grid grid-cols-[minmax(0,1fr)] gap-6 pt-4 sm:pt-6">
       <Skeleton shape="block" className="h-40 sm:h-56 lg:h-72" />
       <Skeleton shape="circle" className="-mt-20 ml-4 h-32 w-32" />
       <Skeleton shape="block" className="w-3/4" style={{ height: "clamp(72px, 16vw, 200px)" }} />
@@ -1482,7 +1484,7 @@ export default function ProfilePage() {
         : { object: "bubble-deflated", title: "Nothing posted yet.", body: "When they post, it shows up here." };
 
   return (
-    <div className="grid gap-10 pt-4 sm:pt-6">
+    <div className="grid grid-cols-[minmax(0,1fr)] gap-10 pt-4 sm:pt-6">
       <ProfileHeader
         profile={profile}
         avatarUrl={avatarUrl}
@@ -1513,7 +1515,7 @@ export default function ProfilePage() {
         onRemoveCover={images.removeCover}
       />
 
-      <div className="mx-auto grid w-full max-w-(--reading) gap-6">
+      <div className="mx-auto grid w-full max-w-(--reading) grid-cols-[minmax(0,1fr)] gap-6">
         <Tabs
           idBase={TABS_ID}
           label={`${profile.name}’s posts`}
@@ -1526,7 +1528,7 @@ export default function ProfilePage() {
           className="justify-self-start"
         />
 
-        <div role="tabpanel" id={tabPanelId(TABS_ID, tab)} aria-labelledby={tabId(TABS_ID, tab)} className="grid gap-5">
+        <div role="tabpanel" id={tabPanelId(TABS_ID, tab)} aria-labelledby={tabId(TABS_ID, tab)} className="grid grid-cols-[minmax(0,1fr)] gap-5">
           {tab === "posts" && postsQuery.isPending ? (
             <>
               <PostSkeleton />
@@ -1541,7 +1543,7 @@ export default function ProfilePage() {
           ) : shownPosts.length === 0 ? (
             <EmptyState object={empty.object} title={empty.title} body={empty.body} action={empty.action} />
           ) : (
-            <ol className="grid gap-5">
+            <ol className="grid grid-cols-[minmax(0,1fr)] gap-5">
               {shownPosts.map((post, index) => (
                 <li key={post.id}>
                   <PostCard post={post} index={index} />

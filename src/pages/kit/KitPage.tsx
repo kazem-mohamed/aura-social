@@ -32,7 +32,7 @@ export default function KitPage() {
           {theme === "dark" ? "Paper" : "Night paper"}
         </button>
       </header>
-      <main className="mx-auto grid max-w-(--page-max) gap-24 overflow-x-clip px-4 py-12 sm:px-8 sm:py-16">
+      <main className="mx-auto grid max-w-(--page-max) grid-cols-[minmax(0,1fr)] gap-24 overflow-x-clip px-4 py-12 sm:px-8 sm:py-16">
         <BrandSection />
         <ControlsSection />
         <SurfacesSection />

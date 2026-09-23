@@ -31,7 +31,7 @@ export function PostBody({ post, variant, onOpen }: PostBodyProps) {
       {post.body ? (
         <p
           className={cx(
-            "break-words whitespace-pre-wrap",
+            "wrap-anywhere whitespace-pre-wrap",
             isShout ? "type-heading-sm" : "type-body-lg",
             variant === "feed" && "line-clamp-[14]",
           )}

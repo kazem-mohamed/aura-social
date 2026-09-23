@@ -15,7 +15,7 @@ function ReplyItem({ postId, parentId, reply }: { postId: string; parentId: stri
 
   return (
     <CommentRow comment={reply}>
-      {reply.content ? <p className="break-words whitespace-pre-wrap type-body">{reply.content}</p> : null}
+      {reply.content ? <p className="wrap-anywhere whitespace-pre-wrap type-body">{reply.content}</p> : null}
       <div className="-ml-2.5">
         <LikeButton
           size="sm"

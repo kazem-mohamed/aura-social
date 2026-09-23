@@ -10,7 +10,7 @@ export function TopComment({ postId, comment, total }: { postId: string; comment
     <div className="flex items-start gap-3 rounded-chip bg-surface-2 p-3.5">
       <Avatar identityKey={comment.authorName} name={comment.authorName} photo={comment.authorPhoto} size="sm" frame={false} />
       <div className="grid min-w-0 flex-1 gap-1">
-        <p className="line-clamp-3 break-words type-body">
+        <p className="line-clamp-3 wrap-anywhere type-body">
           <span className="font-bold">{comment.authorName}</span> <span className="text-ink-2">{comment.content}</span>
         </p>
         <Link

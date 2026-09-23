@@ -719,7 +719,7 @@ export function PostBody({ post, variant, onOpen }: PostBodyProps) {
       {post.body ? (
         <p
           className={cx(
-            "break-words whitespace-pre-wrap",
+            "wrap-anywhere whitespace-pre-wrap",
             isShout ? "type-heading-sm" : "type-body-lg",
             variant === "feed" && "line-clamp-[14]",
           )}
@@ -772,7 +772,7 @@ export function QuotedPost({ post }: { post: Post }) {
           {formatRelativeShort(post.createdAt)}
         </time>
       </div>
-      {post.body ? <p className="line-clamp-6 break-words whitespace-pre-wrap type-body">{post.body}</p> : null}
+      {post.body ? <p className="line-clamp-6 wrap-anywhere whitespace-pre-wrap type-body">{post.body}</p> : null}
       {post.image ? (
         <img
           src={post.image}
@@ -838,7 +838,7 @@ export function TopComment({ postId, comment, total }: { postId: string; comment
     <div className="flex items-start gap-3 rounded-chip bg-surface-2 p-3.5">
       <Avatar identityKey={comment.authorName} name={comment.authorName} photo={comment.authorPhoto} size="sm" frame={false} />
       <div className="grid min-w-0 flex-1 gap-1">
-        <p className="line-clamp-3 break-words type-body">
+        <p className="line-clamp-3 wrap-anywhere type-body">
           <span className="font-bold">{comment.authorName}</span> <span className="text-ink-2">{comment.content}</span>
         </p>
         <Link
@@ -1031,7 +1031,7 @@ export function PostCard({ post, variant = "feed", index = 0, onComment, onDelet
   return (
     <motion.article
       aria-label={`Post by ${post.author.name}`}
-      className="grid gap-4 rounded-card border border-line bg-surface p-5 sm:p-6"
+      className="grid grid-cols-[minmax(0,1fr)] gap-4 rounded-card border border-line bg-surface p-5 sm:p-6"
       initial={arrives ? { opacity: 0, y: -18, rotate: tilt, scale: 1.06 } : false}
       whileInView={arrives ? { opacity: 1, y: 0, rotate: 0, scale: 1 } : undefined}
       viewport={{ once: true, margin: "0px 0px -10% 0px" }}
@@ -1302,7 +1302,7 @@ function ReplyItem({ postId, parentId, reply }: { postId: string; parentId: stri
 
   return (
     <CommentRow comment={reply}>
-      {reply.content ? <p className="break-words whitespace-pre-wrap type-body">{reply.content}</p> : null}
+      {reply.content ? <p className="wrap-anywhere whitespace-pre-wrap type-body">{reply.content}</p> : null}
       <div className="-ml-2.5">
         <LikeButton
           size="sm"
@@ -1460,7 +1460,7 @@ export function CommentItem({ postId, comment, meId, meName }: CommentItemProps)
           onSave={(content) => void saveEdit(content)}
         />
       ) : comment.content ? (
-        <p className="break-words whitespace-pre-wrap type-body">{comment.content}</p>
+        <p className="wrap-anywhere whitespace-pre-wrap type-body">{comment.content}</p>
       ) : null}
 
       <div className="-ml-2.5 flex flex-wrap items-center gap-1">
@@ -1596,7 +1596,7 @@ export function CommentsSection({ postId, composerRef, autoFocus }: CommentsSect
   };
 
   return (
-    <section id="comments" aria-labelledby="comments-title" className="grid gap-6">
+    <section id="comments" aria-labelledby="comments-title" className="grid grid-cols-[minmax(0,1fr)] gap-6">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <h2 id="comments-title" className="type-heading">
           Comments <span className="text-ink-3 tnum">{total}</span>
@@ -1626,7 +1626,7 @@ export function CommentsSection({ postId, composerRef, autoFocus }: CommentsSect
         <EmptyState compact titleAs="h3" object="bubble-deflated" title="No comments yet." body="Say the first thing." />
       ) : null}
       {isReady && sorted.length > 0 ? (
-        <ol className="grid gap-6">
+        <ol className="grid grid-cols-[minmax(0,1fr)] gap-6">
           {sorted.map((comment) => (
             <li key={comment.id}>
               <CommentItem postId={postId} comment={comment} meId={me?.id ?? null} meName={me?.name ?? "You"} />
@@ -1689,7 +1689,7 @@ export default function PostDetailsPage() {
   };
 
   return (
-    <div className="mx-auto grid max-w-(--reading) gap-8 pt-6 sm:pt-10">
+    <div className="mx-auto grid max-w-(--reading) grid-cols-[minmax(0,1fr)] gap-8 pt-6 sm:pt-10">
       <Button variant="ghost" size="sm" iconStart="arrow-left" onClick={back} className="-ml-3.5 justify-self-start">
         Back
       </Button>
@@ -1927,7 +1927,7 @@ export function PostsFeed() {
   const roomLabel = ROOMS.find((option) => option.value === room)?.label ?? "";
 
   return (
-    <div className="mx-auto grid max-w-(--reading) gap-6">
+    <div className="mx-auto grid max-w-(--reading) grid-cols-[minmax(0,1fr)] gap-6">
       <PosterHeader title="Wall" lede="What everyone’s sticking up today.">
         <Segmented label="Rooms" options={ROOMS} value={room} onChange={setRoom} className="justify-self-start" />
       </PosterHeader>
@@ -1936,7 +1936,7 @@ export function PostsFeed() {
         <PostComposer />
       </div>
 
-      <section aria-label={`${roomLabel} posts`} aria-busy={isPending} className="grid gap-5">
+      <section aria-label={`${roomLabel} posts`} aria-busy={isPending} className="grid grid-cols-[minmax(0,1fr)] gap-5">
         {isPending ? (
           <>
             <PostSkeleton />
@@ -1964,7 +1964,7 @@ export function PostsFeed() {
           />
         ) : (
           <>
-            <ol className="grid gap-5">
+            <ol className="grid grid-cols-[minmax(0,1fr)] gap-5">
               {posts.map((post, index) => (
                 <li key={post.id}>
                   <PostCard post={post} index={index} />

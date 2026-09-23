@@ -53,7 +53,7 @@ export function NotificationItem({ notification, isMarking, onMarkRead }: Notifi
       </div>
 
       <div className="grid min-w-0 flex-1 gap-1">
-        <p className={cx("break-words type-body", isUnread ? "text-ink" : "text-ink-2")}>
+        <p className={cx("wrap-anywhere type-body", isUnread ? "text-ink" : "text-ink-2")}>
           {isUnread ? <span className="sr-only">Unread: </span> : null}
           {actorId ? (
             <Link

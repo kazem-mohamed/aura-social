@@ -31,7 +31,7 @@ export default function SettingsPage() {
   };
 
   return (
-    <div className="mx-auto grid max-w-(--reading) gap-6">
+    <div className="mx-auto grid max-w-(--reading) grid-cols-[minmax(0,1fr)] gap-6">
       <PosterHeader title="Settings" lede="Your paper, your password, and the way out." />
 
       <SettingsSection id="settings-paper" title="Paper">

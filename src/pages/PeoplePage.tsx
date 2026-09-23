@@ -29,7 +29,7 @@ export default function PeoplePage() {
   const isSettling = search.trim() !== term;
 
   return (
-    <div className="grid gap-8">
+    <div className="grid grid-cols-[minmax(0,1fr)] gap-8">
       <PosterHeader title="People" lede="Find someone worth following. Their posts land on your wall.">
         <SearchField
           label="Search people"
@@ -42,7 +42,7 @@ export default function PeoplePage() {
         />
       </PosterHeader>
 
-      <section aria-labelledby="people-heading" aria-busy={isPending} className="grid gap-5">
+      <section aria-labelledby="people-heading" aria-busy={isPending} className="grid grid-cols-[minmax(0,1fr)] gap-5">
         <h2 id="people-heading" className="type-label text-ink-2">
           {isSearching ? `Results for “${term}”` : "People to follow"}
         </h2>
