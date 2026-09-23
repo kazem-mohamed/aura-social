@@ -53,7 +53,7 @@ export function ReplyList({ postId, parentId, replies, isLoading, error, hasNext
   const isReady = !isLoading && !error;
 
   return (
-    <div className="mt-1 grid gap-4 border-l-2 border-line pl-4">
+    <div className="mt-1 grid gap-4 border-l border-line pl-4">
       {isLoading ? <ListSkeleton rows={1} label="Loading replies" /> : null}
       {!isLoading && error ? (
         <ErrorState level="inline" message={getErrorMessage(error, "The replies didn’t load.")} onRetry={onRetry} />

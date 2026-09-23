@@ -5,7 +5,8 @@ import { spring } from "@/shared/motion/tokens";
 import { useMotionPrefs } from "@/shared/motion/useMotionPrefs";
 import { cx } from "./cx";
 
-const DIMENSIONS = { sm: "h-9 w-9", md: "h-11 w-11", lg: "h-13 w-13" } as const;
+/** `sm` draws at 36px but its invisible `::after` makes the touch target 44px. */
+const DIMENSIONS = { sm: "h-9 w-9 after:absolute after:-inset-1 after:content-['']", md: "h-11 w-11", lg: "h-13 w-13" } as const;
 const TONES = {
   primary: "border-action bg-action text-action-ink",
   secondary: "border-line bg-surface text-ink hover:bg-surface-2",

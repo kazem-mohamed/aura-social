@@ -6,8 +6,11 @@ export type StickerFill = "sun" | "mint" | "lavender" | "violet";
 const BASE =
   "relative inline-flex select-none items-center justify-center gap-2 whitespace-nowrap rounded-pill border font-bold uppercase tracking-[0.032em] transition-[background-color,color,border-color,opacity,translate,rotate,scale] disabled:cursor-not-allowed disabled:opacity-45";
 
+/** A 36px `sm` pill still gets a 44px touch target: an invisible `::after` reaches 4px past each edge. */
+const HIT_44 = "after:absolute after:-inset-1 after:content-['']";
+
 const SIZES: Record<ButtonSize, string> = {
-  sm: "h-9 px-3.5 text-[11px]",
+  sm: `h-9 px-3.5 text-[11px] ${HIT_44}`,
   md: "h-11 px-5 text-[13px]",
   lg: "h-14 px-7 text-[15px]",
 };

@@ -10,7 +10,11 @@ import { cx } from "./cx";
 type ActionSize = "sm" | "md";
 
 const PILL = "relative inline-flex items-center gap-2 rounded-pill px-2.5 font-bold text-ink transition-colors duration-200 hover:bg-surface-2 disabled:opacity-45";
-const PILL_SIZE: Record<ActionSize, string> = { sm: "h-9 text-[13px]", md: "h-10 text-[14px]" };
+/** Drawn at 36 / 40px; the invisible `::after` makes every action a 44px touch target. */
+const PILL_SIZE: Record<ActionSize, string> = {
+  sm: "h-9 text-[13px] after:absolute after:-inset-1 after:content-['']",
+  md: "h-10 text-[14px] after:absolute after:-inset-0.5 after:content-['']",
+};
 const ICON: Record<ActionSize, number> = { sm: 18, md: 22 };
 const BURST = ["var(--ember)", "var(--sun)", "var(--blue)", "var(--mint)", "var(--violet)", "var(--lavender)", "var(--ember)", "var(--sun)"];
 
@@ -220,15 +224,16 @@ export function FollowButton({ following, onToggle, pending = false, size = "md"
         if (next && !reduced && scope.current) animate(scope.current, { rotate: [0, -4, 0] }, { duration: 0.52, ease: [0.34, 1.56, 0.64, 1] });
       }}
       className={cx(
-        "kit-follow relative inline-grid shrink-0 overflow-hidden rounded-pill border border-line font-bold uppercase tracking-[0.032em] transition-[scale,opacity] duration-200 active:scale-95 disabled:cursor-wait disabled:opacity-60",
-        size === "sm" ? "h-9 min-w-28 text-[11px]" : "h-11 min-w-36 text-[13px]",
+        // No overflow clipping: the layers are rounded themselves, so the `sm` hit area (::after) can reach 44px.
+        "kit-follow relative inline-grid shrink-0 rounded-pill border border-line font-bold uppercase tracking-[0.032em] transition-[scale,opacity] duration-200 active:scale-95 disabled:cursor-wait disabled:opacity-60",
+        size === "sm" ? "h-9 min-w-28 text-[11px] after:absolute after:-inset-1 after:content-['']" : "h-11 min-w-36 text-[13px]",
       )}
     >
-      <span aria-hidden className="col-start-1 row-start-1 flex items-center justify-center gap-1.5 bg-mint px-4 text-carbon">
+      <span aria-hidden className="col-start-1 row-start-1 flex items-center justify-center gap-1.5 rounded-pill bg-mint px-4 text-carbon">
         <Glyph name="check" size={16} strokeWidth={2.5} />
         Following
       </span>
-      <span aria-hidden className="kit-follow-top col-start-1 row-start-1 flex items-center justify-center bg-action px-4 text-action-ink">
+      <span aria-hidden className="kit-follow-top col-start-1 row-start-1 flex items-center justify-center rounded-pill bg-action px-4 text-action-ink">
         Follow
       </span>
     </button>
