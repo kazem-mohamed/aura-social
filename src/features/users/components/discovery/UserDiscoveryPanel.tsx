@@ -5,7 +5,7 @@ import { StateMessage } from "@/shared/ui/StateMessage";
 import { SearchInput } from "@/shared/ui/SearchInput";
 import { ArrowLeftIcon } from "@/shared/ui/icons";
 import { useAuth } from "@/features/auth/hooks/useAuth";
-import { useScrollLock } from "../../hooks/useScrollLock";
+import { useScrollLock } from "@/shared/hooks/useScrollLock";
 import { useToggleFollow, type FollowOverride } from "../../hooks/useToggleFollow";
 import { useUserDiscovery } from "../../hooks/useUserDiscovery";
 import type { DiscoveredUser } from "../../model/user.types";
