@@ -21,10 +21,14 @@ const PostDetailsPage = lazy(() => import("@/pages/PostDetailsPage"));
 const LoginPage = lazy(() => import("@/pages/LoginPage"));
 const RegisterPage = lazy(() => import("@/pages/RegisterPage"));
 const NotFoundPage = lazy(() => import("@/pages/NotFoundPage"));
+/** Development-only design-system specimen page; compiled out of production builds. */
+const KitPage = import.meta.env.DEV ? lazy(() => import("@/pages/kit/KitPage")) : null;
 
 function lazyRoute(element: React.ReactNode) {
   return <Suspense fallback={<PageFallback />}>{element}</Suspense>;
 }
+
+const devRoutes = KitPage ? [{ path: "/__kit", element: lazyRoute(<KitPage />) }] : [];
 
 export const router = createBrowserRouter([
   {
@@ -65,4 +69,5 @@ export const router = createBrowserRouter([
       },
     ],
   },
+  ...devRoutes,
 ]);
