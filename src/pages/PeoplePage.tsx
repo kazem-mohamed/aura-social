@@ -1,165 +1,108 @@
 import { useState } from "react";
-import { Link } from "react-router";
 import { getErrorMessage } from "@/shared/api/errors";
-import { accessionNumber, auraRingColor } from "@/shared/lib/aura";
-import { Avatar } from "@/shared/ui/Avatar";
-import { Plate } from "@/shared/ui/Plate";
-import { SearchInput } from "@/shared/ui/SearchInput";
-import { PersonSkeleton } from "@/shared/ui/Skeleton";
-import { routes } from "@/app/router/routes";
+import { useDebouncedValue } from "@/shared/hooks/useDebouncedValue";
+import { Button } from "@/shared/kit/Button";
+import { EmptyState } from "@/shared/kit/EmptyState";
+import { ErrorState } from "@/shared/kit/ErrorState";
+import { PosterHeader } from "@/shared/kit/PosterHeader";
+import { SearchField } from "@/shared/kit/SearchField";
+import { useToast } from "@/shared/kit/toast/useToast";
+import { PersonCard, PersonCardSkeleton } from "@/features/users/components/PersonCard";
 import { useToggleFollow, type FollowOverride } from "@/features/users/hooks/useToggleFollow";
 import { useUserDiscovery } from "@/features/users/hooks/useUserDiscovery";
 
-/**
- * The index of contributors.
- *
- * User search already existed in the API but had no home of its own — it
- * was buried in a sidebar panel. Here it is a room: every person listed as
- * a catalogue entry, with the colour that belongs to them and the number
- * they were given.
- */
+const SEARCH_DELAY_MS = 300;
+const GRID = "grid gap-4 sm:grid-cols-2 lg:grid-cols-3";
+
+/** Find someone: suggestions until you type, then results. */
 export default function PeoplePage() {
-  const [searchValue, setSearchValue] = useState("");
+  const toast = useToast();
+  const [search, setSearch] = useState("");
+  const term = useDebouncedValue(search.trim(), SEARCH_DELAY_MS);
   const [followOverrides, setFollowOverrides] = useState<Record<string, FollowOverride>>({});
 
-  const discovery = useUserDiscovery(searchValue, true);
+  const discovery = useUserDiscovery(term, true);
   const follow = useToggleFollow(followOverrides, setFollowOverrides);
+  const { users, isPending, error, hasNextPage, isFetchingNextPage } = discovery;
 
-  const { users, isLoading, error, hasNextPage, isFetchingNextPage } = discovery;
-  const isSearching = searchValue.trim().length > 0;
+  const isSearching = term.length > 0;
+  const isSettling = search.trim() !== term;
 
   return (
-    <div className="min-h-screen bg-ground">
-      <div className="mx-auto max-w-[760px] px-5 py-8 sm:px-8 sm:py-12">
-        <header>
-          <h1 className="text-2xl font-semibold tracking-[-0.03em] text-ink">People</h1>
-          <p className="mt-2 max-w-[52ch] text-sm leading-relaxed text-ink-2">
-            Everyone in the collection. Each carries one colour and one number,
-            neither of which they chose.
-          </p>
-        </header>
+    <div className="grid gap-8">
+      <PosterHeader title="People" lede="Find someone worth following. Their posts land on your wall.">
+        <SearchField
+          label="Search people"
+          hideLabel
+          placeholder="Search by name or username"
+          value={search}
+          onValueChange={setSearch}
+          loading={isSettling || (isSearching && isPending)}
+          className="w-full max-w-(--reading)"
+        />
+      </PosterHeader>
 
-        <div className="mt-8">
-          <SearchInput
-            label="Search people"
-            placeholder="Search by name or username"
-            value={searchValue}
-            onChange={(event) => setSearchValue(event.target.value)}
-            onClear={() => setSearchValue("")}
+      <section aria-labelledby="people-heading" aria-busy={isPending} className="grid gap-5">
+        <h2 id="people-heading" className="type-label text-ink-2">
+          {isSearching ? `Results for “${term}”` : "People to follow"}
+        </h2>
+
+        {isPending ? (
+          <div role="status" aria-label="Loading people" className={GRID}>
+            {Array.from({ length: 6 }, (_, index) => (
+              <PersonCardSkeleton key={index} />
+            ))}
+          </div>
+        ) : error ? (
+          <ErrorState
+            title="People didn’t load"
+            message={getErrorMessage(error, "Check your connection and try again.")}
+            onRetry={() => void discovery.refetch()}
           />
-        </div>
+        ) : users.length === 0 ? (
+          <EmptyState
+            object="bubble-deflated"
+            title={isSearching ? "No one by that name." : "No one here yet."}
+            body={isSearching ? "Try a first name, or the start of a username." : "When people join, they show up here."}
+            action={isSearching ? { label: "Clear search", onClick: () => setSearch("") } : undefined}
+          />
+        ) : (
+          <ul className={GRID}>
+            {users.map((user) => {
+              const state = follow.resolve(user.id, user.isFollowing, user.followersCount);
+              return (
+                <li key={user.id}>
+                  <PersonCard
+                    user={user}
+                    following={state.isFollowing}
+                    followers={state.followersCount}
+                    pending={follow.pendingUserId === user.id}
+                    onToggleFollow={() =>
+                      follow.toggle(
+                        { userId: user.id, currentIsFollowing: state.isFollowing, currentFollowersCount: state.followersCount },
+                        {
+                          onError: (failure) =>
+                            toast.show({
+                              tone: "error",
+                              title: "That didn’t stick",
+                              description: getErrorMessage(failure, `Your follow for ${user.name} didn’t save.`),
+                            }),
+                        },
+                      )
+                    }
+                  />
+                </li>
+              );
+            })}
+          </ul>
+        )}
 
-        <div className="mt-6">
-          {isLoading ? (
-            <div aria-hidden="true">
-              {Array.from({ length: 6 }).map((_, index) => (
-                <PersonSkeleton key={index} />
-              ))}
-            </div>
-          ) : null}
-
-          {!isLoading && error ? (
-            <Plate className="border-l-2 border-l-verm p-5">
-              <p className="font-mono text-micro font-medium tracking-[0.16em] text-verm-ink uppercase">
-                Could not load people
-              </p>
-              <p className="mt-2 text-sm leading-relaxed text-ink-2">
-                {getErrorMessage(error, "The index did not respond. Try again.")}
-              </p>
-            </Plate>
-          ) : null}
-
-          {!isLoading && !error && users.length === 0 ? (
-            <Plate className="p-8 text-center">
-              <h2 className="text-lg font-semibold tracking-[-0.02em] text-ink">
-                {isSearching ? "No entry under that name" : "The index is empty"}
-              </h2>
-              <p className="mx-auto mt-2 max-w-[42ch] text-sm leading-relaxed text-ink-2">
-                {isSearching
-                  ? "Try a shorter search — a first name or the start of a username."
-                  : "Nobody has been catalogued yet."}
-              </p>
-            </Plate>
-          ) : null}
-
-          {!isLoading && !error
-            ? users.map((user) => {
-                const resolved = follow.resolve(user.id, user.isFollowing, user.followersCount);
-                return (
-                  <article
-                    key={user.id}
-                    className="flex items-center gap-3.5 border-b border-rail py-3.5"
-                  >
-                    <span
-                      aria-hidden="true"
-                      className="h-9 w-1.5 shrink-0 rounded-[1px]"
-                      style={{ background: auraRingColor(user.username) }}
-                    />
-
-                    <Link
-                      to={routes.userProfile(user.id)}
-                      viewTransition
-                      className="group/person flex min-w-0 flex-1 items-center gap-3"
-                    >
-                      <Avatar
-                        alt={user.name}
-                        seed={user.username}
-                        size={36}
-                        src={user.photo}
-                      />
-                      <div className="min-w-0">
-                        <p className="truncate text-sm font-semibold text-ink transition-colors duration-150 group-hover/person:text-verm-ink">
-                          {user.name}
-                        </p>
-                        <p className="truncate font-mono text-micro text-ink-3 tabular-nums">
-                          @{user.username} · {accessionNumber(user.username)}
-                        </p>
-                      </div>
-                    </Link>
-
-                    <button
-                      type="button"
-                      onClick={() =>
-                        follow.toggle({
-                          userId: user.id,
-                          currentIsFollowing: resolved.isFollowing,
-                          currentFollowersCount: resolved.followersCount,
-                        })
-                      }
-                      disabled={follow.pendingUserId === user.id}
-                      aria-pressed={resolved.isFollowing}
-                      className={[
-                        "shrink-0 cursor-pointer rounded-[2px] border px-3 py-1.5",
-                        "font-mono text-micro font-medium tracking-[0.12em] uppercase",
-                        "transition-colors duration-150 disabled:cursor-not-allowed disabled:opacity-45",
-                        resolved.isFollowing
-                          ? "border-rail text-ink-3 hover:border-verm hover:text-verm-ink"
-                          : "border-verm bg-verm text-on-verm hover:opacity-90",
-                      ].join(" ")}
-                    >
-                      {follow.pendingUserId === user.id
-                        ? "…"
-                        : resolved.isFollowing
-                          ? "Following"
-                          : "Follow"}
-                    </button>
-                  </article>
-                );
-              })
-            : null}
-
-          {!isLoading && !error && hasNextPage ? (
-            <button
-              type="button"
-              onClick={() => void discovery.fetchNextPage()}
-              disabled={isFetchingNextPage}
-              className="mt-5 w-full cursor-pointer rounded-[2px] border border-rail py-2.5 font-mono text-micro font-medium tracking-[0.14em] text-ink-2 uppercase transition-colors duration-150 hover:border-rail-strong hover:text-ink disabled:opacity-45"
-            >
-              {isFetchingNextPage ? "Loading" : "More people"}
-            </button>
-          ) : null}
-        </div>
-      </div>
+        {!isPending && !error && hasNextPage ? (
+          <Button variant="secondary" className="justify-self-center" loading={isFetchingNextPage} onClick={() => void discovery.fetchNextPage()}>
+            More people
+          </Button>
+        ) : null}
+      </section>
     </div>
   );
 }
