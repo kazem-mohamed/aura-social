@@ -1369,7 +1369,7 @@ export function useFocusTrap(ref: RefObject<HTMLElement | null>, { initialFocus,
 **File:** `src/shared/kit/Modal.tsx`
 
 ```tsx
-import { AnimatePresence, motion, useDragControls } from "framer-motion";
+import { AnimatePresence, motion, useDragControls, useIsPresent } from "framer-motion";
 import { useRef, type ReactNode, type RefObject } from "react";
 import { createPortal } from "react-dom";
 import { useMediaQuery } from "@/shared/hooks/useMediaQuery";
@@ -1422,9 +1422,12 @@ function ModalPanel({
   const dragControls = useDragControls();
   const titleId = useSafeId("modal-title");
   const descriptionId = useSafeId("modal-description");
+  // While the exit animation plays the panel is no longer "present": release
+  // the scroll lock and return focus at once instead of after the animation.
+  const isPresent = useIsPresent();
 
-  useScrollLock(true);
-  useFocusTrap(panelRef, { initialFocus, onEscape: dismissible ? onClose : undefined });
+  useScrollLock(isPresent);
+  useFocusTrap(panelRef, { initialFocus, onEscape: dismissible ? onClose : undefined, active: isPresent });
 
   const entrance = isPhone
     ? { initial: { y: "100%" }, animate: { y: 0 }, exit: { y: "100%" } }
@@ -1435,7 +1438,12 @@ function ModalPanel({
       };
 
   return (
-    <div className="fixed inset-0 z-(--z-modal) flex items-end justify-center sm:items-center sm:p-6">
+    <div
+      className={cx(
+        "fixed inset-0 z-(--z-modal) flex items-end justify-center sm:items-center sm:p-6",
+        !isPresent && "pointer-events-none",
+      )}
+    >
       <motion.div
         aria-hidden
         className="absolute inset-0 bg-(--scrim)"
