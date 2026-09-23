@@ -1,4 +1,5 @@
 import { motion } from "framer-motion";
+import { useState } from "react";
 import { matchPath, NavLink, useLocation } from "react-router";
 import { Glyph } from "@/shared/brand/Glyph";
 import type { GlyphName } from "@/shared/brand/glyphPaths";
@@ -52,6 +53,8 @@ function PostButton({ onClick }: { onClick: () => void }) {
  * button in the middle opens the composer from anywhere.
  */
 export function Dock() {
+  // Arriving through a sign-in, the dock travels from the guest nav instead of sliding up.
+  const [slidesIn] = useState(() => !document.documentElement.classList.contains("shell-swap"));
   const { pathname } = useLocation();
   const composer = useComposer();
   const { data: unread } = useUnreadNotificationCount();
@@ -107,7 +110,10 @@ export function Dock() {
   return (
     <nav
       aria-label="Primary"
-      className="dock-enter fixed bottom-[calc(env(safe-area-inset-bottom)+12px)] left-1/2 z-(--z-dock) -translate-x-1/2 [view-transition-name:dock]"
+      className={cx(
+        slidesIn && "dock-enter",
+        "fixed bottom-[calc(env(safe-area-inset-bottom)+12px)] left-1/2 z-(--z-dock) -translate-x-1/2 [view-transition-name:dock]",
+      )}
     >
       <div className="flex items-center gap-0.5 rounded-pill border border-line bg-action p-1.5 text-action-ink sm:gap-1">
         {LEFT.map(renderItem)}
