@@ -374,7 +374,7 @@ import { useFitText } from "./useFitText";
 interface PosterHeaderProps {
   /** The page's name in crushed display type — it is the page's `<h1>`. */
   title: string;
-  eyebrow?: ReactNode;
+  /** One line under the poster: context, or a person's handle. Never a label above it. */
   lede?: ReactNode;
   actions?: ReactNode;
   /** `xl` is for a person's name on their profile. */
@@ -388,12 +388,11 @@ interface PosterHeaderProps {
  * onto the page with a small squash as it lands. One line, always — it
  * shrinks to fit rather than wrap.
  */
-export function PosterHeader({ title, eyebrow, lede, actions, size = "poster", children, className }: PosterHeaderProps) {
+export function PosterHeader({ title, lede, actions, size = "poster", children, className }: PosterHeaderProps) {
   const titleRef = useFitText<HTMLHeadingElement>(title);
 
   return (
     <header className={cx("grid grid-cols-[minmax(0,1fr)] gap-5 pt-8 pb-8 sm:pt-12 sm:pb-10", className)}>
-      {eyebrow ? <div className="type-label text-ink-2">{eyebrow}</div> : null}
       <motion.h1
         ref={titleRef}
         className={cx(size === "xl" ? "type-display-xl" : "type-poster", "min-w-0 whitespace-nowrap")}
