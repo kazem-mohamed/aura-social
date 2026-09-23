@@ -1,4 +1,5 @@
 import type { CSSProperties } from "react";
+import { Sticker } from "@/shared/brand/Sticker";
 import { cx } from "./cx";
 
 interface MarqueeProps {
@@ -18,7 +19,7 @@ export function Marquee({ items, duration = 40, className }: MarqueeProps) {
       {items.map((item, index) => (
         <span key={index} className="flex items-center gap-7 pr-7">
           {item}
-          <span aria-hidden>✦</span>
+          <Sticker name="sparkle" fill="var(--sun)" size={18} />
         </span>
       ))}
     </span>
