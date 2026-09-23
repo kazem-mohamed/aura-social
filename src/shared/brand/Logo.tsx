@@ -164,7 +164,13 @@ function StickerLogo({
         <motion.g
           style={{ transformBox: "fill-box", transformOrigin: "50% 50%" }}
           initial={{ opacity: 0, y: -24, rotate: -10, scaleX: 1.3, scaleY: 1.3 }}
-          animate={{ opacity: 1, y: 0, rotate: 0, scaleX: [1.3, 1.07, 0.98, 1], scaleY: [1.3, 0.93, 1.02, 1] }}
+          animate={{
+            opacity: [0, 1, 1, 1],
+            y: [-24, 0, 0, 0],
+            rotate: [-10, 0, 0, 0],
+            scaleX: [1.3, 1.07, 0.98, 1],
+            scaleY: [1.3, 0.93, 1.02, 1],
+          }}
           transition={{ duration: 0.62, times: [0, 0.55, 0.78, 1], ease: [0.2, 0.8, 0.2, 1] }}
           onAnimationComplete={() => peelTo(spec.rest)}
         >

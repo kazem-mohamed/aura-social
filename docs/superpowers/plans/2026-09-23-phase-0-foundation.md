@@ -1421,7 +1421,13 @@ function StickerLogo({
         <motion.g
           style={{ transformBox: "fill-box", transformOrigin: "50% 50%" }}
           initial={{ opacity: 0, y: -24, rotate: -10, scaleX: 1.3, scaleY: 1.3 }}
-          animate={{ opacity: 1, y: 0, rotate: 0, scaleX: [1.3, 1.07, 0.98, 1], scaleY: [1.3, 0.93, 1.02, 1] }}
+          animate={{
+            opacity: [0, 1, 1, 1],
+            y: [-24, 0, 0, 0],
+            rotate: [-10, 0, 0, 0],
+            scaleX: [1.3, 1.07, 0.98, 1],
+            scaleY: [1.3, 0.93, 1.02, 1],
+          }}
           transition={{ duration: 0.62, times: [0, 0.55, 0.78, 1], ease: [0.2, 0.8, 0.2, 1] }}
           onAnimationComplete={() => peelTo(spec.rest)}
         >
@@ -1600,7 +1606,7 @@ export const STICKER_PATHS: Record<StickerName, StickerArt> = {
   },
   share: {
     body: [
-      "M24.02 65 A30 30 0 1 1 75.98 65 L81.61 68.25 L63.35 73.87 L59.09 55.25 L64.72 58.5 A17 17 0 1 0 35.28 58.5 A6.5 6.5 0 0 1 24.02 65 Z",
+      "M15.36 75 A40 40 0 1 1 84.64 75 L91.57 79 L67.85 86.09 L62.12 62 L69.05 66 A22 22 0 1 0 30.95 66 A9 9 0 0 1 15.36 75 Z",
     ],
   },
   sparkle: {
@@ -2393,17 +2399,17 @@ export function BrandSection() {
             <Logo key={slapKey} interactive slapIn className="w-full max-w-md" />
           </div>
           <div className="grid grid-cols-2 gap-4">
-            <div className="grid place-items-center rounded-card border border-line bg-surface p-6">
-              <Logo variant="symbol" interactive className="w-28" />
+            <div className="grid place-items-center rounded-card border border-line bg-surface p-4 sm:p-6">
+              <Logo variant="symbol" interactive className="w-full max-w-28" />
             </div>
-            <div className="grid place-items-center rounded-card border border-line bg-band-lav p-6">
-              <Logo variant="round" className="w-32" />
+            <div className="grid place-items-center rounded-card border border-line bg-band-lav p-4 sm:p-6">
+              <Logo variant="round" className="w-full max-w-32" />
             </div>
-            <div className="grid place-items-center rounded-card border border-line bg-surface p-6">
-              <Logo variant="symbol" mono interactive className="w-24" />
+            <div className="grid place-items-center rounded-card border border-line bg-surface p-4 sm:p-6">
+              <Logo variant="symbol" mono interactive className="w-full max-w-24" />
             </div>
-            <div className="grid place-items-center rounded-card border border-line bg-band-concrete p-6">
-              <Logo variant="horizontal" interactive className="w-44" />
+            <div className="grid place-items-center rounded-card border border-line bg-band-concrete p-4 sm:p-6">
+              <Logo variant="horizontal" interactive className="w-full max-w-44" />
             </div>
           </div>
         </div>
