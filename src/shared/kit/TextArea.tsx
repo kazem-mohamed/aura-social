@@ -9,11 +9,26 @@ export interface TextAreaProps extends TextareaHTMLAttributes<HTMLTextAreaElemen
   hint?: ReactNode;
   error?: string;
   hideLabel?: boolean;
+  /** `always` shows the count; `near` only from 80% of `maxLength` (long-form composers). */
+  counter?: "always" | "near";
   ref?: Ref<HTMLTextAreaElement>;
 }
 
 /** Auto-growing text area; the counter becomes a Sunburst sticker at 90% of the limit. */
-export function TextArea({ label, hint, error, hideLabel = false, id, className, maxLength, value, onInput, ref, ...rest }: TextAreaProps) {
+export function TextArea({
+  label,
+  hint,
+  error,
+  hideLabel = false,
+  counter = "always",
+  id,
+  className,
+  maxLength,
+  value,
+  onInput,
+  ref,
+  ...rest
+}: TextAreaProps) {
   const autoId = useId();
   const areaId = id ?? `area-${autoId}`;
   const messageId = `${areaId}-message`;
@@ -53,7 +68,7 @@ export function TextArea({ label, hint, error, hideLabel = false, id, className,
           }}
           {...rest}
         />
-        {maxLength !== undefined ? (
+        {maxLength !== undefined && (counter === "always" || length >= maxLength * 0.8) ? (
           <span
             className={cx(
               "mb-1 shrink-0 rounded-pill border px-2 py-0.5 type-caption tnum transition-colors duration-200",

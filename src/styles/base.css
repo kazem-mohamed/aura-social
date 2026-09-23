@@ -76,27 +76,6 @@
   }
 }
 
-/* Route transitions — the default cross-fade; the peel arrives in Phase 2. */
-::view-transition-old(root),
-::view-transition-new(root) {
-  animation-duration: var(--dur-route);
-  animation-timing-function: var(--ease-out-css);
-}
-
-/* Theme switch — kept from the old system until Phase 2 restyles it as a peel. */
-:root.theme-switching::view-transition-old(root) {
-  animation: none;
-}
-:root.theme-switching::view-transition-new(root) {
-  animation: theme-reveal 520ms var(--ease-out-css);
-  clip-path: circle(140% at var(--theme-origin-x, 50%) var(--theme-origin-y, 50%));
-}
-@keyframes theme-reveal {
-  from {
-    clip-path: circle(0% at var(--theme-origin-x, 50%) var(--theme-origin-y, 50%));
-  }
-}
-
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
@@ -108,9 +87,5 @@
     animation-iteration-count: 1 !important;
     transition-duration: 0.001s !important;
     scroll-behavior: auto !important;
-  }
-  ::view-transition-old(root),
-  ::view-transition-new(root) {
-    animation: none !important;
   }
 }

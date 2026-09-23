@@ -1,0 +1,81 @@
+/* View Transitions — spec §6.
+   Routes: the old page peels away from its top-right corner while the new
+   one waits underneath. Theme: the new theme peels on from the same corner.
+   The dock is its own layer and never moves. */
+
+::view-transition-old(root) {
+  z-index: 2;
+  animation: vt-peel-away var(--dur-route) var(--ease-out-css) both;
+}
+::view-transition-new(root) {
+  z-index: 1;
+  animation: vt-settle var(--dur-route) var(--ease-out-css) both;
+}
+
+@keyframes vt-peel-away {
+  0% {
+    clip-path: polygon(0 0, 100% 0, 100% 0, 100% 100%, 0 100%);
+  }
+  50% {
+    clip-path: polygon(0 0, 0 0, 100% 100%, 100% 100%, 0 100%);
+  }
+  100% {
+    clip-path: polygon(0 100%, 0 100%, 0 100%, 0 100%, 0 100%);
+  }
+}
+@keyframes vt-settle {
+  from {
+    transform: scale(0.985);
+  }
+}
+
+:root.theme-switching::view-transition-old(root) {
+  z-index: 1;
+  animation: none;
+}
+:root.theme-switching::view-transition-new(root) {
+  z-index: 2;
+  animation: vt-peel-on 620ms var(--ease-out-css) both;
+}
+@keyframes vt-peel-on {
+  0% {
+    clip-path: polygon(100% 0, 100% 0, 100% 0, 100% 0, 100% 0);
+  }
+  50% {
+    clip-path: polygon(0 0, 0 0, 100% 0, 100% 100%, 100% 100%);
+  }
+  100% {
+    clip-path: polygon(0 100%, 0 0, 100% 0, 100% 100%, 0 100%);
+  }
+}
+
+::view-transition-group(dock) {
+  animation: none;
+}
+::view-transition-old(dock) {
+  display: none;
+}
+::view-transition-new(dock) {
+  animation: none;
+}
+
+/* The dock slides up once, on first mount. */
+@keyframes dock-in {
+  from {
+    transform: translateY(140%);
+  }
+}
+.dock-enter {
+  animation: dock-in 620ms var(--ease-spring-css) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(root),
+  ::view-transition-new(root),
+  :root.theme-switching::view-transition-new(root) {
+    animation: none !important;
+  }
+  .dock-enter {
+    animation: none;
+  }
+}
