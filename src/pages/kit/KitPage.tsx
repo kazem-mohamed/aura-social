@@ -3,6 +3,9 @@ import { Logo } from "@/shared/brand/Logo";
 import { readTheme, setTheme, type Theme } from "@/shared/lib/theme";
 import { useMotionPrefs } from "@/shared/motion/useMotionPrefs";
 import { BrandSection } from "./BrandSection";
+import { ControlsSection } from "./ControlsSection";
+import { FeedbackSection } from "./FeedbackSection";
+import { SurfacesSection } from "./SurfacesSection";
 
 /** Development-only specimen page for the Aura design system. */
 export default function KitPage() {
@@ -28,6 +31,9 @@ export default function KitPage() {
       </header>
       <main className="mx-auto grid max-w-(--page-max) gap-24 px-4 py-12 sm:px-8 sm:py-16">
         <BrandSection />
+        <ControlsSection />
+        <SurfacesSection />
+        <FeedbackSection />
       </main>
     </div>
   );

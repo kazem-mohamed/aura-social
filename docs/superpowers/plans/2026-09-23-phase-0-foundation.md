@@ -2484,7 +2484,7 @@ export function BrandSection() {
             </div>
           ))}
           <div className="grid justify-items-center gap-2">
-            <IdentitySticker identityKey="broken.photo" name="Broken Photo" photo="https://invalid.example/nope.jpg" size={64} />
+            <IdentitySticker identityKey="broken.photo" name="Broken Photo" photo="data:image/png;base64,bm90LWFuLWltYWdl" size={64} />
             <span className="type-caption">photo fails → initials</span>
           </div>
         </div>
