@@ -28,5 +28,6 @@ export function useUserProfile(routeUserId: string | undefined, currentUser: Use
     activeUserId: routeUserId ?? currentUserId,
     isLoading: isOtherProfile && query.isLoading,
     error: isOtherProfile ? query.error : null,
+    refetch: query.refetch,
   };
 }

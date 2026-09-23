@@ -6,6 +6,7 @@ import { BrandSection } from "./BrandSection";
 import { ControlsSection } from "./ControlsSection";
 import { FeedbackSection } from "./FeedbackSection";
 import { PostsSection } from "./PostsSection";
+import { ProfileSection } from "./ProfileSection";
 import { ShellSection } from "./ShellSection";
 import { SurfacesSection } from "./SurfacesSection";
 
@@ -38,6 +39,7 @@ export default function KitPage() {
         <FeedbackSection />
         <ShellSection />
         <PostsSection />
+        <ProfileSection />
       </main>
     </div>
   );

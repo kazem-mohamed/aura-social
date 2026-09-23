@@ -1,163 +1,143 @@
-import { useRef, useState } from "react";
-import { Button } from "@/shared/ui/Button";
-import { Modal } from "@/shared/ui/Modal";
-import {
-  clamp,
-  clampOffset,
-  getCropScale,
-  PROFILE_CROP_SIZE,
-  type Offset,
-  type Size,
-} from "../../lib/imageCrop";
+import { useRef, useState, type KeyboardEvent, type PointerEvent, type SyntheticEvent } from "react";
+import { Button } from "@/shared/kit/Button";
+import { Modal } from "@/shared/kit/Modal";
+import { clamp, clampOffset, getCropScale, PROFILE_CROP_SIZE, type Offset, type Size } from "../../lib/imageCrop";
+
+const NUDGE = 12;
+const ARROWS: Record<string, Offset> = {
+  ArrowLeft: { x: -NUDGE, y: 0 },
+  ArrowRight: { x: NUDGE, y: 0 },
+  ArrowUp: { x: 0, y: -NUDGE },
+  ArrowDown: { x: 0, y: NUDGE },
+};
 
 interface ProfilePhotoEditorModalProps {
+  /** The picked image as a data URL; empty while the editor is closed. */
   imageUrl: string;
-  isSaving: boolean;
+  saving: boolean;
   onCancel: () => void;
   onSave: (zoom: number, offset: Offset) => void;
 }
 
 /**
- * Drag-and-zoom cropper for the profile photo.
- *
- * Owns only the framing state; the geometry lives in `lib/imageCrop` and the
- * upload in `useUploadProfilePhoto`. The privacy dropdown that used to sit
- * below the slider is gone — the endpoint has no privacy field, so it only
- * ever set an expectation the product could not keep.
+ * Frame the new photo: drag it (or use the arrow keys) and zoom. The circle is
+ * drawn at the crop's real size, so what you frame is exactly what is saved.
  */
-export function ProfilePhotoEditorModal({
-  imageUrl,
-  isSaving,
-  onCancel,
-  onSave,
-}: ProfilePhotoEditorModalProps) {
+export function ProfilePhotoEditorModal({ imageUrl, saving, onCancel, onSave }: ProfilePhotoEditorModalProps) {
+  const [source, setSource] = useState(imageUrl);
   const [zoom, setZoom] = useState(1);
   const [offset, setOffset] = useState<Offset>({ x: 0, y: 0 });
-  const [naturalSize, setNaturalSize] = useState<Size>({ width: 0, height: 0 });
+  const [natural, setNatural] = useState<Size>({ width: 0, height: 0 });
+  const drag = useRef({ active: false, startX: 0, startY: 0, originX: 0, originY: 0 });
 
-  const dragRef = useRef({ dragging: false, startX: 0, startY: 0, originX: 0, originY: 0 });
-  const scale = getCropScale(naturalSize, zoom);
+  // A new image starts centred at 1×.
+  if (imageUrl !== source) {
+    setSource(imageUrl);
+    setZoom(1);
+    setOffset({ x: 0, y: 0 });
+    setNatural({ width: 0, height: 0 });
+  }
 
-  function handlePointerDown(event: React.PointerEvent<HTMLDivElement>) {
-    if (!naturalSize.width || !naturalSize.height) return;
-    dragRef.current = {
-      dragging: true,
-      startX: event.clientX,
-      startY: event.clientY,
-      originX: offset.x,
-      originY: offset.y,
-    };
+  const scale = getCropScale(natural, zoom);
+  const hasSize = natural.width > 0 && natural.height > 0;
+
+  const onPointerDown = (event: PointerEvent<HTMLDivElement>) => {
+    if (!hasSize) return;
+    drag.current = { active: true, startX: event.clientX, startY: event.clientY, originX: offset.x, originY: offset.y };
     event.currentTarget.setPointerCapture(event.pointerId);
-  }
+  };
 
-  function handlePointerMove(event: React.PointerEvent<HTMLDivElement>) {
-    if (!dragRef.current.dragging) return;
-    setOffset(
-      clampOffset(
-        {
-          x: dragRef.current.originX + (event.clientX - dragRef.current.startX),
-          y: dragRef.current.originY + (event.clientY - dragRef.current.startY),
-        },
-        naturalSize,
-        zoom,
-      ),
-    );
-  }
+  const onPointerMove = (event: PointerEvent<HTMLDivElement>) => {
+    if (!drag.current.active) return;
+    const { startX, startY, originX, originY } = drag.current;
+    setOffset(clampOffset({ x: originX + event.clientX - startX, y: originY + event.clientY - startY }, natural, zoom));
+  };
 
-  function handlePointerUp(event: React.PointerEvent<HTMLDivElement>) {
-    dragRef.current.dragging = false;
-    event.currentTarget.releasePointerCapture(event.pointerId);
-  }
+  const onPointerUp = (event: PointerEvent<HTMLDivElement>) => {
+    drag.current.active = false;
+    if (event.currentTarget.hasPointerCapture(event.pointerId)) event.currentTarget.releasePointerCapture(event.pointerId);
+  };
 
-  function handleZoomChange(event: React.ChangeEvent<HTMLInputElement>) {
-    const nextZoom = clamp(Number(event.target.value) || 1, 1, 3);
-    setZoom(nextZoom);
-    setOffset((current) => clampOffset(current, naturalSize, nextZoom));
-  }
+  const onKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
+    const step = ARROWS[event.key];
+    if (!step || !hasSize) return;
+    event.preventDefault();
+    setOffset((current) => clampOffset({ x: current.x + step.x, y: current.y + step.y }, natural, zoom));
+  };
 
-  function handleImageLoad(event: React.SyntheticEvent<HTMLImageElement>) {
-    const nextSize: Size = {
-      width: event.currentTarget.naturalWidth || 0,
-      height: event.currentTarget.naturalHeight || 0,
-    };
-    setNaturalSize(nextSize);
-    setOffset((current) => clampOffset(current, nextSize, zoom));
-  }
+  const onLoad = (event: SyntheticEvent<HTMLImageElement>) => {
+    const size = { width: event.currentTarget.naturalWidth || 0, height: event.currentTarget.naturalHeight || 0 };
+    setNatural(size);
+    setOffset((current) => clampOffset(current, size, zoom));
+  };
 
   return (
     <Modal
-      title="Adjust photo"
+      open={Boolean(imageUrl)}
       onClose={onCancel}
-      isBusy={isSaving}
-      zIndexClassName="z-[90]"
-      widthClassName="max-w-[460px]"
+      title="Frame your photo"
+      description="Drag it into place, then zoom. The circle is what everyone sees."
       footer={
         <>
-          <Button variant="subtle" size="sm" onClick={onCancel} disabled={isSaving}>
+          <Button variant="secondary" onClick={onCancel} disabled={saving}>
             Cancel
           </Button>
-          <Button
-            variant="primary"
-            size="sm"
-            onClick={() => onSave(zoom, offset)}
-            isBusy={isSaving}
-            busyLabel="Saving"
-          >
+          <Button loading={saving} disabled={!hasSize} onClick={() => onSave(zoom, offset)}>
             Save photo
           </Button>
         </>
       }
     >
-      <div className="p-5">
-        <p className="text-sm leading-relaxed text-ink-2">
-          Drag to reposition. The circle is what everyone else sees.
-        </p>
-
-        <div className="mt-5 flex justify-center">
-          <div
-            className="relative h-[280px] w-[280px] touch-none overflow-hidden rounded-full bg-recess ring-1 ring-line"
-            onPointerDown={handlePointerDown}
-            onPointerMove={handlePointerMove}
-            onPointerUp={handlePointerUp}
-            onPointerCancel={handlePointerUp}
-          >
-            {imageUrl ? (
-              <img
-                alt="Crop preview"
-                draggable={false}
-                src={imageUrl}
-                onLoad={handleImageLoad}
-                className="pointer-events-none absolute top-1/2 left-1/2 cursor-grab select-none"
-                style={{
-                  width: `${naturalSize.width || PROFILE_CROP_SIZE}px`,
-                  height: `${naturalSize.height || PROFILE_CROP_SIZE}px`,
-                  maxWidth: "none",
-                  maxHeight: "none",
-                  transform: `translate(calc(-50% + ${offset.x}px), calc(-50% + ${offset.y}px)) scale(${scale})`,
-                  transformOrigin: "center center",
-                }}
-              />
-            ) : null}
-          </div>
+      <div className="grid justify-items-center gap-6">
+        <div
+          role="group"
+          tabIndex={0}
+          aria-label="Photo position. Drag it, or use the arrow keys."
+          className="relative shrink-0 cursor-grab touch-none overflow-hidden rounded-full bg-surface-2 ring-2 ring-carbon outline-offset-4 active:cursor-grabbing"
+          style={{ width: PROFILE_CROP_SIZE, height: PROFILE_CROP_SIZE }}
+          onPointerDown={onPointerDown}
+          onPointerMove={onPointerMove}
+          onPointerUp={onPointerUp}
+          onPointerCancel={onPointerUp}
+          onKeyDown={onKeyDown}
+        >
+          {imageUrl ? (
+            <img
+              alt=""
+              src={imageUrl}
+              draggable={false}
+              onLoad={onLoad}
+              className="pointer-events-none absolute top-1/2 left-1/2 max-w-none select-none"
+              style={{
+                width: natural.width || PROFILE_CROP_SIZE,
+                height: natural.height || PROFILE_CROP_SIZE,
+                transform: `translate(calc(-50% + ${offset.x}px), calc(-50% + ${offset.y}px)) scale(${scale})`,
+                transformOrigin: "center",
+              }}
+            />
+          ) : null}
         </div>
 
-        <div className="mt-6">
-          <div className="flex items-center justify-between font-mono text-micro font-medium tracking-[0.16em] text-ink-3 uppercase">
-            <label htmlFor="zoom">Zoom</label>
-            <span className="tabular-nums">{zoom.toFixed(2)}×</span>
-          </div>
+        <label className="grid w-full max-w-[320px] gap-2">
+          <span className="flex items-center justify-between type-label">
+            <span>Zoom</span>
+            <span className="text-ink-2 tnum">{zoom.toFixed(2)}×</span>
+          </span>
           <input
-            id="zoom"
             type="range"
-            min="1"
-            max="3"
-            step="0.01"
+            className="kit-range"
+            min={1}
+            max={3}
+            step={0.01}
             value={zoom}
-            onChange={handleZoomChange}
-            disabled={isSaving}
-            className="mt-3 w-full"
+            disabled={saving || !hasSize}
+            onChange={(event) => {
+              const next = clamp(Number(event.target.value) || 1, 1, 3);
+              setZoom(next);
+              setOffset((current) => clampOffset(current, natural, next));
+            }}
           />
-        </div>
+        </label>
       </div>
     </Modal>
   );
