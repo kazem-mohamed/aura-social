@@ -1587,7 +1587,7 @@ git commit -m "Add modal, bottom sheet and confirm dialog"
 
 ```tsx
 import { AnimatePresence, motion } from "framer-motion";
-import { useEffect, useRef, useState, type KeyboardEvent, type ReactNode, type Ref } from "react";
+import { useEffect, useRef, useState, type ComponentType, type KeyboardEvent, type Ref } from "react";
 import { Glyph } from "@/shared/brand/Glyph";
 import type { GlyphName } from "@/shared/brand/glyphPaths";
 import { useOutsideClick } from "@/shared/hooks/useOutsideClick";
@@ -1606,6 +1606,8 @@ export interface MenuItem {
 
 export interface MenuTriggerProps {
   ref: Ref<HTMLButtonElement>;
+  /** The menu's accessible name, for triggers without visible text. */
+  label: string;
   onClick: () => void;
   onKeyDown: (event: KeyboardEvent<HTMLButtonElement>) => void;
   "aria-haspopup": "menu";
@@ -1613,12 +1615,17 @@ export interface MenuTriggerProps {
   "aria-controls": string;
 }
 
+/** Default trigger: a ghost "more" icon button. */
+function MoreTrigger(props: MenuTriggerProps) {
+  return <IconButton glyph="more" variant="ghost" size="sm" {...props} />;
+}
+
 interface MenuProps {
   /** Accessible name of the trigger and the menu. */
   label: string;
   items: MenuItem[];
-  /** Custom trigger; defaults to a ghost "more" icon button. */
-  trigger?: (props: MenuTriggerProps) => ReactNode;
+  /** Custom trigger component; it must spread the props onto a <button>. Defaults to a "more" icon button. */
+  trigger?: ComponentType<MenuTriggerProps>;
   align?: "start" | "end";
   side?: "bottom" | "top";
   className?: string;
@@ -1695,18 +1702,19 @@ export function Menu({ label, items, trigger, align = "end", side = "bottom", cl
     }
   };
 
-  const triggerProps: MenuTriggerProps = {
-    ref: triggerRef,
-    onClick: () => (open ? close(true) : openAt(enabled[0] ?? 0)),
-    onKeyDown: onTriggerKeyDown,
-    "aria-haspopup": "menu",
-    "aria-expanded": open,
-    "aria-controls": menuId,
-  };
+  const Trigger = trigger ?? MoreTrigger;
 
   return (
     <div ref={rootRef} className={cx("relative inline-flex", className)}>
-      {trigger ? trigger(triggerProps) : <IconButton glyph="more" label={label} variant="ghost" size="sm" {...triggerProps} />}
+      <Trigger
+        ref={triggerRef}
+        label={label}
+        onClick={() => (open ? close(true) : openAt(enabled[0] ?? 0))}
+        onKeyDown={onTriggerKeyDown}
+        aria-haspopup="menu"
+        aria-expanded={open}
+        aria-controls={menuId}
+      />
       <AnimatePresence>
         {open ? (
           <motion.div
