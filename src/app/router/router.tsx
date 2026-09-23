@@ -1,17 +1,14 @@
 import { lazy, Suspense } from "react";
 import { createBrowserRouter, Navigate } from "react-router";
-import { PageFallback } from "@/shared/ui/PageFallback";
 import AuthLayout from "@/layouts/AuthLayout";
-import MainLayout from "@/layouts/MainLayout";
+import RootLayout from "@/layouts/RootLayout";
+import { RouteFallback } from "@/layouts/components/RouteFallback";
+import { HomeGate } from "./HomeGate";
 import { LegacyPostRedirect } from "./LegacyRedirect";
 import { RequireAuth, RequireGuest } from "./RouteGuards";
 import { routes } from "./routes";
 
-/**
- * Pages are code-split. The app used to ship as a single 1.3 MB bundle in which
- * every authenticated user still downloaded the sign-up form and its date
- * picker.
- */
+/** Pages are code-split; each downloads when its route is first visited. */
 const HomePage = lazy(() => import("@/pages/HomePage"));
 const ProfilePage = lazy(() => import("@/pages/ProfilePage"));
 const SettingsPage = lazy(() => import("@/pages/SettingsPage"));
@@ -25,7 +22,7 @@ const NotFoundPage = lazy(() => import("@/pages/NotFoundPage"));
 const KitPage = import.meta.env.DEV ? lazy(() => import("@/pages/kit/KitPage")) : null;
 
 function lazyRoute(element: React.ReactNode) {
-  return <Suspense fallback={<PageFallback />}>{element}</Suspense>;
+  return <Suspense fallback={<RouteFallback />}>{element}</Suspense>;
 }
 
 const devRoutes = KitPage ? [{ path: "/__kit", element: lazyRoute(<KitPage />) }] : [];
@@ -33,12 +30,13 @@ const devRoutes = KitPage ? [{ path: "/__kit", element: lazyRoute(<KitPage />) }
 export const router = createBrowserRouter([
   {
     path: routes.home,
-    element: <MainLayout />,
+    element: <RootLayout />,
     children: [
+      // Members see the wall; guests go to sign-in until the landing page ships (Phase 4).
+      { index: true, element: <HomeGate member={lazyRoute(<HomePage />)} guest={<Navigate to={routes.login} replace />} /> },
       {
         element: <RequireAuth />,
         children: [
-          { index: true, element: lazyRoute(<HomePage />) },
           { path: "profile", element: lazyRoute(<ProfilePage />) },
           { path: "profile/:userId", element: lazyRoute(<ProfilePage />) },
           { path: "settings", element: lazyRoute(<SettingsPage />) },
