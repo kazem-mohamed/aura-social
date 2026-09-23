@@ -1,19 +1,28 @@
 import { Outlet, useMatch } from "react-router";
-import { ShellHeader } from "./components/ShellHeader";
+import { GuestNav } from "./components/GuestNav";
 import { SkipLink } from "./components/SkipLink";
 
 /**
- * Signed-out visitors on app routes (the 404, for now). `/` renders bare —
- * the landing page (Phase 4) brings its own navigation.
+ * Signed-out visitors. The landing at `/` brings its own header, nav, main and
+ * footer; every other guest page (the 404) gets the guest nav and a main.
  */
 export function GuestLayout() {
   const isFrontDoor = useMatch({ path: "/", end: true });
 
+  if (isFrontDoor) {
+    return (
+      <>
+        <SkipLink />
+        <Outlet />
+      </>
+    );
+  }
+
   return (
     <>
       <SkipLink />
-      {isFrontDoor ? null : <ShellHeader />}
-      <main id="content" tabIndex={-1} className={isFrontDoor ? "outline-none" : "mx-auto w-full max-w-(--page-max) px-4 pb-16 outline-none sm:px-8"}>
+      <GuestNav className="mt-3" />
+      <main id="content" tabIndex={-1} className="mx-auto w-full max-w-(--page-max) px-4 pb-16 outline-none sm:px-8">
         <Outlet />
       </main>
     </>
