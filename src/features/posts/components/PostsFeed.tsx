@@ -51,7 +51,7 @@ export function PostsFeed() {
   const roomLabel = ROOMS.find((option) => option.value === room)?.label ?? "";
 
   return (
-    <div className="mx-auto grid max-w-(--reading) gap-6">
+    <div className="mx-auto grid max-w-(--reading) grid-cols-[minmax(0,1fr)] gap-6">
       <PosterHeader title="Wall" lede="What everyone’s sticking up today.">
         <Segmented label="Rooms" options={ROOMS} value={room} onChange={setRoom} className="justify-self-start" />
       </PosterHeader>
@@ -60,7 +60,7 @@ export function PostsFeed() {
         <PostComposer />
       </div>
 
-      <section aria-label={`${roomLabel} posts`} aria-busy={isPending} className="grid gap-5">
+      <section aria-label={`${roomLabel} posts`} aria-busy={isPending} className="grid grid-cols-[minmax(0,1fr)] gap-5">
         {isPending ? (
           <>
             <PostSkeleton />
@@ -88,7 +88,7 @@ export function PostsFeed() {
           />
         ) : (
           <>
-            <ol className="grid gap-5">
+            <ol className="grid grid-cols-[minmax(0,1fr)] gap-5">
               {posts.map((post, index) => (
                 <li key={post.id}>
                   <PostCard post={post} index={index} />

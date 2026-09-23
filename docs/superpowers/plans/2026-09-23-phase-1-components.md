@@ -1121,7 +1121,8 @@ export function Segmented<T extends string>({
       role={isTabs ? "tablist" : "radiogroup"}
       aria-label={label}
       className={cx(
-        "inline-flex max-w-full gap-1 overflow-x-auto rounded-pill border border-line bg-surface p-1 [scrollbar-width:none]",
+        // Tighter on phones so four rooms fit a 343px column without scrolling; the scroll stays as a fallback.
+        "inline-flex max-w-full gap-0.5 overflow-x-auto rounded-pill border border-line bg-surface p-1 [scrollbar-width:none] sm:gap-1",
         className,
       )}
     >
@@ -1143,7 +1144,7 @@ export function Segmented<T extends string>({
             onClick={() => onChange(option.value)}
             onKeyDown={(event) => onKeyDown(event, index)}
             className={cx(
-              "relative isolate inline-flex shrink-0 items-center gap-1.5 rounded-pill px-4 type-label transition-colors duration-200",
+              "relative isolate inline-flex shrink-0 items-center gap-1.5 rounded-pill px-3 type-label transition-colors duration-200 sm:px-4",
               // `sm` draws at 32px; the ::after grows the touch target to 44px vertically (neighbours sit side by side).
               size === "sm" ? "h-8 after:absolute after:inset-x-0 after:-inset-y-1.5 after:content-['']" : "h-10",
               selected ? "text-action-ink" : "text-ink hover:bg-surface-2",

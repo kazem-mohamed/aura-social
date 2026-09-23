@@ -39,7 +39,7 @@ interface EmptyTab {
 
 function ProfileSkeleton() {
   return (
-    <div role="status" aria-label="Loading profile" className="grid gap-6 pt-4 sm:pt-6">
+    <div role="status" aria-label="Loading profile" className="grid grid-cols-[minmax(0,1fr)] gap-6 pt-4 sm:pt-6">
       <Skeleton shape="block" className="h-40 sm:h-56 lg:h-72" />
       <Skeleton shape="circle" className="-mt-20 ml-4 h-32 w-32" />
       <Skeleton shape="block" className="w-3/4" style={{ height: "clamp(72px, 16vw, 200px)" }} />
@@ -134,7 +134,7 @@ export default function ProfilePage() {
         : { object: "bubble-deflated", title: "Nothing posted yet.", body: "When they post, it shows up here." };
 
   return (
-    <div className="grid gap-10 pt-4 sm:pt-6">
+    <div className="grid grid-cols-[minmax(0,1fr)] gap-10 pt-4 sm:pt-6">
       <ProfileHeader
         profile={profile}
         avatarUrl={avatarUrl}
@@ -165,7 +165,7 @@ export default function ProfilePage() {
         onRemoveCover={images.removeCover}
       />
 
-      <div className="mx-auto grid w-full max-w-(--reading) gap-6">
+      <div className="mx-auto grid w-full max-w-(--reading) grid-cols-[minmax(0,1fr)] gap-6">
         <Tabs
           idBase={TABS_ID}
           label={`${profile.name}’s posts`}
@@ -178,7 +178,7 @@ export default function ProfilePage() {
           className="justify-self-start"
         />
 
-        <div role="tabpanel" id={tabPanelId(TABS_ID, tab)} aria-labelledby={tabId(TABS_ID, tab)} className="grid gap-5">
+        <div role="tabpanel" id={tabPanelId(TABS_ID, tab)} aria-labelledby={tabId(TABS_ID, tab)} className="grid grid-cols-[minmax(0,1fr)] gap-5">
           {tab === "posts" && postsQuery.isPending ? (
             <>
               <PostSkeleton />
@@ -193,7 +193,7 @@ export default function ProfilePage() {
           ) : shownPosts.length === 0 ? (
             <EmptyState object={empty.object} title={empty.title} body={empty.body} action={empty.action} />
           ) : (
-            <ol className="grid gap-5">
+            <ol className="grid grid-cols-[minmax(0,1fr)] gap-5">
               {shownPosts.map((post, index) => (
                 <li key={post.id}>
                   <PostCard post={post} index={index} />

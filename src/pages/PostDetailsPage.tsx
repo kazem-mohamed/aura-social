@@ -33,7 +33,7 @@ export default function PostDetailsPage() {
   };
 
   return (
-    <div className="mx-auto grid max-w-(--reading) gap-8 pt-6 sm:pt-10">
+    <div className="mx-auto grid max-w-(--reading) grid-cols-[minmax(0,1fr)] gap-8 pt-6 sm:pt-10">
       <Button variant="ghost" size="sm" iconStart="arrow-left" onClick={back} className="-ml-3.5 justify-self-start">
         Back
       </Button>

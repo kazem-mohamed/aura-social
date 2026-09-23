@@ -34,7 +34,7 @@ export function NotificationsPanel() {
     toast.show({ tone: "error", title: "That didn’t stick", description: getErrorMessage(failure, "Your alerts didn’t update. Try again.") });
 
   return (
-    <div className="mx-auto grid max-w-(--reading) gap-6">
+    <div className="mx-auto grid max-w-(--reading) grid-cols-[minmax(0,1fr)] gap-6">
       <PosterHeader
         title="Alerts"
         lede="Likes, comments, shares and follows."
@@ -90,7 +90,7 @@ export function NotificationsPanel() {
             }
           />
         ) : (
-          <ol className="grid gap-2">
+          <ol className="grid grid-cols-[minmax(0,1fr)] gap-2">
             {notifications.map((notification) => (
               <li key={notification.id || `${notification.actorName}-${notification.createdAt}`}>
                 <NotificationItem

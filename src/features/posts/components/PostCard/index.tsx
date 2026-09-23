@@ -53,7 +53,7 @@ export function PostCard({ post, variant = "feed", index = 0, onComment, onDelet
   return (
     <motion.article
       aria-label={`Post by ${post.author.name}`}
-      className="grid gap-4 rounded-card border border-line bg-surface p-5 sm:p-6"
+      className="grid grid-cols-[minmax(0,1fr)] gap-4 rounded-card border border-line bg-surface p-5 sm:p-6"
       initial={arrives ? { opacity: 0, y: -18, rotate: tilt, scale: 1.06 } : false}
       whileInView={arrives ? { opacity: 1, y: 0, rotate: 0, scale: 1 } : undefined}
       viewport={{ once: true, margin: "0px 0px -10% 0px" }}

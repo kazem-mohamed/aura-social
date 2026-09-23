@@ -23,7 +23,7 @@ export function QuotedPost({ post }: { post: Post }) {
           {formatRelativeShort(post.createdAt)}
         </time>
       </div>
-      {post.body ? <p className="line-clamp-6 break-words whitespace-pre-wrap type-body">{post.body}</p> : null}
+      {post.body ? <p className="line-clamp-6 wrap-anywhere whitespace-pre-wrap type-body">{post.body}</p> : null}
       {post.image ? (
         <img
           src={post.image}

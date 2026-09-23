@@ -57,7 +57,7 @@ export function CommentsSection({ postId, composerRef, autoFocus }: CommentsSect
   };
 
   return (
-    <section id="comments" aria-labelledby="comments-title" className="grid gap-6">
+    <section id="comments" aria-labelledby="comments-title" className="grid grid-cols-[minmax(0,1fr)] gap-6">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <h2 id="comments-title" className="type-heading">
           Comments <span className="text-ink-3 tnum">{total}</span>
@@ -87,7 +87,7 @@ export function CommentsSection({ postId, composerRef, autoFocus }: CommentsSect
         <EmptyState compact titleAs="h3" object="bubble-deflated" title="No comments yet." body="Say the first thing." />
       ) : null}
       {isReady && sorted.length > 0 ? (
-        <ol className="grid gap-6">
+        <ol className="grid grid-cols-[minmax(0,1fr)] gap-6">
           {sorted.map((comment) => (
             <li key={comment.id}>
               <CommentItem postId={postId} comment={comment} meId={me?.id ?? null} meName={me?.name ?? "You"} />

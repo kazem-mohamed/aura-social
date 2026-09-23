@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { useState } from "react";
-import { matchPath, NavLink, useLocation } from "react-router";
+import { Link, matchPath, useLocation } from "react-router";
 import { Glyph } from "@/shared/brand/Glyph";
 import type { GlyphName } from "@/shared/brand/glyphPaths";
 import { useMediaQuery } from "@/shared/hooks/useMediaQuery";
@@ -67,8 +67,10 @@ export function Dock() {
     const isActive = activeKey === destination.key;
     const badge = destination.key === "alerts" ? unreadCount : 0;
 
+    // A plain Link: NavLink would only mark itself current on its own path,
+    // but You is also current on /settings.
     const link = (
-      <NavLink
+      <Link
         key={destination.key}
         to={destination.to}
         viewTransition
@@ -95,7 +97,7 @@ export function Dock() {
           ) : null}
         </span>
         <span className="text-[10px] font-bold tracking-[0.032em] uppercase sm:hidden lg:inline lg:text-[12px]">{destination.label}</span>
-      </NavLink>
+      </Link>
     );
 
     return isTablet ? (
