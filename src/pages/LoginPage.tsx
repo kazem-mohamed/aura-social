@@ -30,6 +30,8 @@ export default function LoginPage() {
     formState: { errors, isSubmitting },
   } = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
+    mode: "onBlur",
+    reValidateMode: "onChange",
     defaultValues: { email: "", password: "" },
   });
 
@@ -85,7 +87,7 @@ export default function LoginPage() {
             }
           />
 
-          <form className="mt-8 space-y-6" onSubmit={handleSubmit(onSubmit)}>
+          <form noValidate className="mt-8 space-y-6" onSubmit={handleSubmit(onSubmit)}>
             <Controller
               name="email"
               control={control}

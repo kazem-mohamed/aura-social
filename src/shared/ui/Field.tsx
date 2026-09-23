@@ -4,6 +4,7 @@ import {
   CONTROL_HINT_CLASS,
   CONTROL_LABEL_CLASS,
   CONTROL_PADDING,
+  CONTROL_SUPPORT_SLOT_CLASS,
   controlShell,
 } from "./controlStyles";
 
@@ -91,17 +92,21 @@ export const Field = forwardRef<HTMLInputElement, FieldProps>(function Field(
         ) : null}
       </div>
 
-      {hint ? (
-        <p id={hintId} className={CONTROL_HINT_CLASS}>
-          {hint}
-        </p>
-      ) : null}
+      {hint || error ? (
+        <div className={CONTROL_SUPPORT_SLOT_CLASS}>
+          {hint ? (
+            <p id={hintId} className={CONTROL_HINT_CLASS}>
+              {hint}
+            </p>
+          ) : null}
 
-      {error ? (
-        <p id={errorId} className={CONTROL_ERROR_CLASS}>
-          <span aria-hidden="true">—</span>
-          <span>{error}</span>
-        </p>
+          {error ? (
+            <p id={errorId} role="alert" className={CONTROL_ERROR_CLASS}>
+              <span aria-hidden="true">—</span>
+              <span>{error}</span>
+            </p>
+          ) : null}
+        </div>
       ) : null}
     </div>
   );

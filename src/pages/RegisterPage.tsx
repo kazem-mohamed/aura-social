@@ -3,7 +3,11 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Controller, useForm } from "react-hook-form";
 import { useNavigate } from "react-router";
 import { getErrorMessage } from "@/shared/api/errors";
-import { toIsoDateOnly } from "@/shared/lib/dates";
+import {
+  latestDateForMinimumAge,
+  parseDateInput,
+  toIsoDateOnly,
+} from "@/shared/lib/dates";
 import { Button } from "@/shared/ui/Button";
 import { FeedbackAlert } from "@/shared/ui/FeedbackAlert";
 import { Field } from "@/shared/ui/Field";
@@ -37,6 +41,8 @@ export default function RegisterPage() {
     formState: { errors, isSubmitting },
   } = useForm<RegisterFormValues>({
     resolver: zodResolver(registerSchema),
+    mode: "onBlur",
+    reValidateMode: "onChange",
     defaultValues: {
       name: "",
       username: "",
@@ -110,7 +116,7 @@ export default function RegisterPage() {
             }
           />
 
-          <form className="mt-8 space-y-6" onSubmit={handleSubmit(onSubmit)}>
+          <form noValidate className="mt-8 space-y-6" onSubmit={handleSubmit(onSubmit)}>
             <Controller
               name="name"
               control={control}
@@ -168,6 +174,7 @@ export default function RegisterPage() {
                     onChange={field.onChange}
                     onBlur={field.onBlur}
                     name={field.name}
+                    ref={field.ref}
                     error={errors.gender?.message}
                   />
                 )}
@@ -181,14 +188,14 @@ export default function RegisterPage() {
                     label="Date of birth"
                     type="date"
                     name={field.name}
+                    ref={field.ref}
                     onBlur={field.onBlur}
                     value={field.value ? toIsoDateOnly(field.value) : ""}
                     onChange={(event) => {
-                      const { value } = event.target;
-                      field.onChange(
-                        value ? new Date(`${value}T00:00:00`) : undefined,
-                      );
+                      field.onChange(parseDateInput(event.target.value) ?? undefined);
                     }}
+                    max={latestDateForMinimumAge(12)}
+                    hint="Choose from the calendar. The displayed format follows your device settings."
                     error={errors.dateOfBirth?.message}
                   />
                 )}

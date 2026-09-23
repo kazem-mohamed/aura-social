@@ -1,4 +1,5 @@
 import * as z from "zod";
+import { isAtLeastAge } from "@/shared/lib/dates";
 
 /**
  * The password rule was copy-pasted into Login, Register and Setting with a
@@ -35,10 +36,7 @@ export const registerSchema = z
     rePassword: z.string().min(1, "Repeat your password."),
     dateOfBirth: z
       .date({ message: "Select your date of birth." })
-      .refine(
-        (value) => new Date().getFullYear() - value.getFullYear() >= 12,
-        "You must be 12 or older to join.",
-      ),
+      .refine((value) => isAtLeastAge(value, 12), "You must be 12 or older to join."),
     gender: z.enum(["male", "female"], { message: "Select an option." }),
   })
   .refine((data) => data.password === data.rePassword, {

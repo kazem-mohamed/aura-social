@@ -194,7 +194,7 @@ textarea:-webkit-autofill {
 }
 
 input[type="date"]::-webkit-calendar-picker-indicator {
-  opacity: 0.45;
+  opacity: 0.62;
   cursor: pointer;
   transition: opacity 0.2s ease;
 }
@@ -202,7 +202,12 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   filter: invert(1);
 }
 input[type="date"]::-webkit-calendar-picker-indicator:hover {
-  opacity: 0.9;
+  opacity: 1;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator:focus-visible {
+  outline: 2px solid var(--verm);
+  outline-offset: 2px;
 }
 
 input[type="search"]::-webkit-search-cancel-button {

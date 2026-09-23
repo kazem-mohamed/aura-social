@@ -3,6 +3,7 @@ import {
   CONTROL_ERROR_CLASS,
   CONTROL_HINT_CLASS,
   CONTROL_LABEL_CLASS,
+  CONTROL_SUPPORT_SLOT_CLASS,
   controlShell,
 } from "./controlStyles";
 
@@ -63,7 +64,7 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(function 
       />
 
       <div className="flex items-start justify-between gap-4">
-        <div className="min-w-0 flex-1">
+        <div className={`min-w-0 flex-1 ${hint || error ? CONTROL_SUPPORT_SLOT_CLASS : ""}`}>
           {hint ? (
             <p id={hintId} className={CONTROL_HINT_CLASS}>
               {hint}
@@ -71,7 +72,7 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(function 
           ) : null}
 
           {error ? (
-            <p id={errorId} className={CONTROL_ERROR_CLASS}>
+            <p id={errorId} role="alert" className={CONTROL_ERROR_CLASS}>
               <span aria-hidden="true">—</span>
               <span>{error}</span>
             </p>

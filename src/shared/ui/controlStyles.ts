@@ -21,7 +21,7 @@ export function controlShell({ hasError, isDisabled }: ControlStateOptions = {})
     hasError
       ? "border-verm bg-verm/[0.045] focus:border-verm"
       : "border-rail hover:border-rail-strong focus:border-verm",
-    isDisabled ? "cursor-not-allowed opacity-50" : "",
+    isDisabled ? "cursor-not-allowed border-rail bg-recess text-ink-3 opacity-70" : "",
   ]
     .filter(Boolean)
     .join(" ");
@@ -37,6 +37,9 @@ export const CONTROL_HINT_CLASS = "mt-2 text-[12.5px] leading-relaxed text-ink-3
 /** Validation message under a control. */
 export const CONTROL_ERROR_CLASS =
   "mt-2 flex items-start gap-1.5 font-mono text-[10px] leading-[1.5] tracking-[0.08em] text-verm-ink";
+
+/** Keeps a field's supporting-copy footprint stable when validation appears. */
+export const CONTROL_SUPPORT_SLOT_CLASS = "min-h-[31px]";
 
 /** Comfortable hit area for a single-line control. */
 export const CONTROL_PADDING = "px-3.5 py-2.5";
