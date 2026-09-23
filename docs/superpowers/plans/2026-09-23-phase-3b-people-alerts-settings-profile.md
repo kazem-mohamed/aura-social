@@ -1322,7 +1322,7 @@ export function ProfileHeader({
         <div className="flex items-center gap-2 pb-2">{actions}</div>
       </div>
 
-      <PosterHeader size="xl" title={profile.name} eyebrow={profile.handle} />
+      <PosterHeader size="xl" title={profile.name} lede={profile.handle} />
 
       <dl className="flex flex-wrap gap-x-10 gap-y-4">
         {stats.map((stat) => (
