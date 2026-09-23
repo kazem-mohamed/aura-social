@@ -5,6 +5,7 @@ import { useMotionPrefs } from "@/shared/motion/useMotionPrefs";
 import { BrandSection } from "./BrandSection";
 import { ControlsSection } from "./ControlsSection";
 import { FeedbackSection } from "./FeedbackSection";
+import { ShellSection } from "./ShellSection";
 import { SurfacesSection } from "./SurfacesSection";
 
 /** Development-only specimen page for the Aura design system. */
@@ -34,6 +35,7 @@ export default function KitPage() {
         <ControlsSection />
         <SurfacesSection />
         <FeedbackSection />
+        <ShellSection />
       </main>
     </div>
   );
