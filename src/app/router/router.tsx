@@ -4,13 +4,12 @@ import AuthLayout from "@/layouts/AuthLayout";
 import RootLayout from "@/layouts/RootLayout";
 import { RouteFallback } from "@/layouts/components/RouteFallback";
 import { HomeGate } from "./HomeGate";
-import { loadLandingPage } from "./landing";
+import { LandingRoute } from "./LandingRoute";
 import { LegacyPostRedirect } from "./LegacyRedirect";
 import { RequireAuth, RequireGuest } from "./RouteGuards";
 import { routes } from "./routes";
 
 /** Pages are code-split; each downloads when its route is first visited. */
-const LandingPage = lazy(loadLandingPage);
 const HomePage = lazy(() => import("@/pages/HomePage"));
 const ProfilePage = lazy(() => import("@/pages/ProfilePage"));
 const SettingsPage = lazy(() => import("@/pages/SettingsPage"));
@@ -35,7 +34,7 @@ export const router = createBrowserRouter([
     element: <RootLayout />,
     children: [
       // Members see the wall; guests get the landing.
-      { index: true, element: <HomeGate member={lazyRoute(<HomePage />)} guest={lazyRoute(<LandingPage />)} /> },
+      { index: true, element: <HomeGate member={lazyRoute(<HomePage />)} guest={<LandingRoute />} /> },
       {
         element: <RequireAuth />,
         children: [

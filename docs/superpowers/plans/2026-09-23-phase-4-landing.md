@@ -48,7 +48,7 @@ Also in this phase:
 ### Task 4.1: The landing page
 
 **Files:**
-- Create: `src/layouts/components/GuestNav.tsx`, `src/app/router/landing.ts`, `src/pages/LandingPage.tsx`
+- Create: `src/layouts/components/GuestNav.tsx`, `src/app/router/landing.ts`, `src/app/router/LandingRoute.tsx`, `src/pages/LandingPage.tsx`
 - Create in `src/features/landing/`: `useSmoothScroll.ts`, `usePosterLines.ts`, and in `components/`: `Breathe.tsx`, `Hero.tsx`, `SamplePost.tsx`, `HowItFeels.tsx`, `YourSticker.tsx`, `FeatureWall.tsx`, `JoinBand.tsx`, `LandingFooter.tsx`
 - Modify: `src/shared/kit/Marquee.tsx` (a drawn sparkle sticker instead of the "✦" character), `src/layouts/GuestLayout.tsx` (the front door renders bare), `src/app/router/router.tsx` (guests get the landing)
 
@@ -779,7 +779,7 @@ export function FeatureWall() {
 **File:** `src/features/landing/components/JoinBand.tsx`
 
 ```tsx
-import { motion, useScroll, useTransform, type MotionValue } from "framer-motion";
+import { motion, transform, useScroll, useTransform, type MotionValue } from "framer-motion";
 import { useRef } from "react";
 import { Link } from "react-router";
 import type { ObjectName } from "@/assets/objects/manifest";
@@ -790,6 +790,9 @@ import { useMotionPrefs } from "@/shared/motion/useMotionPrefs";
 import { routes } from "@/app/router/routes";
 import { usePosterLines } from "../usePosterLines";
 import { Breathe } from "./Breathe";
+
+/** How full of breath an object is over the band's arrival. */
+const fill = transform([0.45, 0.8], [0, 1]);
 
 interface InflatingProps {
   /** The deflated render it starts as. */
@@ -811,8 +814,10 @@ interface InflatingProps {
 function Inflating({ flat, full, progress, tilt, delay = 0, sizes, className }: InflatingProps) {
   const { reduced } = useMotionPrefs();
   const scale = useTransform(progress, [0, 1], [0.8, 1]);
-  const flatOpacity = useTransform(progress, [0.45, 0.8], [1, 0]);
-  const fullOpacity = useTransform(progress, [0.45, 0.8], [0, 1]);
+  // Function transforms stay on the JS path: framer 12.34 hands a range-mapped
+  // opacity to a native scroll timeline that follows the page, not this band.
+  const fullOpacity = useTransform(progress, fill);
+  const flatOpacity = useTransform(progress, (p) => 1 - fill(p));
 
   return (
     <motion.div aria-hidden className={cx("absolute", className)} style={reduced ? { rotate: tilt } : { scale, rotate: tilt }}>
@@ -940,8 +945,15 @@ export function LandingFooter() {
 **File:** `src/app/router/landing.ts`
 
 ```ts
+type LandingModule = typeof import("@/pages/LandingPage");
+
+let loaded: LandingModule | undefined;
+
 /** The landing chunk. Shared by the router and by sign-out, which warms it before swapping the shell. */
-export const loadLandingPage = () => import("@/pages/LandingPage");
+export const loadLandingPage = () => import("@/pages/LandingPage").then((module) => (loaded = module));
+
+/** The landing page once its chunk has arrived, so it can render without suspending. */
+export const loadedLandingPage = () => loaded?.default;
 ```
 
 **File:** `src/pages/LandingPage.tsx`
@@ -990,9 +1002,34 @@ export default function LandingPage() {
 }
 ```
 
+**File:** `src/app/router/LandingRoute.tsx`
+
+```tsx
+import { lazy, Suspense, useState } from "react";
+import { RouteFallback } from "@/layouts/components/RouteFallback";
+import { loadedLandingPage, loadLandingPage } from "./landing";
+
+const LandingPage = lazy(loadLandingPage);
+
+/**
+ * The front door. Once sign-out has warmed its code it renders directly: as a
+ * lazy page it would suspend under the fresh guest shell, show its fallback,
+ * and React holds a fallback for 300ms before revealing what replaces it.
+ */
+export function LandingRoute() {
+  const [Loaded] = useState(() => loadedLandingPage());
+  if (Loaded) return <Loaded />;
+  return (
+    <Suspense fallback={<RouteFallback />}>
+      <LandingPage />
+    </Suspense>
+  );
+}
+```
+
 In `src/app/router/router.tsx`:
-- Add `import { loadLandingPage } from "./landing";` and `const LandingPage = lazy(loadLandingPage);` next to the other lazy pages.
-- Change the index route's guest element from `<Navigate to={routes.login} replace />` to `lazyRoute(<LandingPage />)`.
+- Add `import { LandingRoute } from "./LandingRoute";`.
+- Change the index route's guest element from `<Navigate to={routes.login} replace />` to `<LandingRoute />`.
 - Replace the comment above it with `// Members see the wall; guests get the landing.`
 
 - [ ] **Step 7: Verify and commit**
@@ -1098,7 +1135,10 @@ export function useSignOut() {
     // Warm the landing chunk first, so it is ready inside the transition.
     await loadLandingPage().catch(() => undefined);
     await swapShell(async () => {
-      await navigate(routes.home, { replace: true });
+      // The router commits navigations in a transition; without `flushSync` the
+      // session ends while the page is still a member route, and the auth guard
+      // sends you to sign-in instead of the front door.
+      await navigate(routes.home, { replace: true, flushSync: true });
       flushSync(signOut);
       await whenPresent("[data-landing]");
     });

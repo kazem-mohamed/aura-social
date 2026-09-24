@@ -68,16 +68,19 @@ Scored against what the recapture actually shows. Where the hidden pane can't sh
 | 3 | Touch targets | **resolved.** Computed `::after` insets: `sm` button 36px → 44px, `sm` icon button 36 → 44, action pill 40 → 44, `sm` follow 36 → 44 (it no longer clips with `overflow-hidden`; its layers are rounded themselves). The `sm` segments reach about 40px, because they are clipped by their own scroll container. |
 | 4 | Font preload and react-dom chunk | **resolved.** `dist/index.html` preloads the Anybody and Onest woff2 files. The entry chunk went from 255 kB to 74 kB (82.5 → 25.7 kB gzipped); react-dom now sits in the cached `react` chunk. |
 | 5 | Landing chunk for guests | **resolved.** An inline head script modulepreloads `LandingPage-*.js` when there's no stored token. |
-| 6 | Hero logo peel on hover | **resolved in code** (`interactive`). Hover can't be exercised in the hidden pane. |
-| 7 | Deflated → inflated join band | **partial.** The code swaps the deflated renders (bookmark, bubble) for the inflated ones as the band arrives. The scroll-linked crossfade couldn't be seen, because the pane is hidden and frames are paused. |
+| 6 | Hero logo peel on hover | **resolved** (2026-09-24, frames forced). The corner lifts on pointer enter (flap from x 336 to 313) and springs back on leave. |
+| 7 | Deflated → inflated join band | **resolved** (2026-09-24). The check found it broken: framer-motion 12.34 moved the range-mapped opacity onto a native scroll timeline that followed the whole page, not the band, and its end keyframes fell back to the base values, so the band always showed the deflated renders. Function transforms keep it on the JS path. Measured: deflated at band progress 0.2, 0.51/0.49 at 0.62, fully inflated at 1. |
 
 ### remaining
 
-- #7 needs a visual check in a visible browser.
 - The ceiling item "type that inflates" (animating the width axis) was not attempted.
 - The `sm` segments' 40px target.
 
-**disposition: fix** (one partial remains; the user decides whether to fund another round)
+**disposition: fix** (no partials left; the ceiling item is the user's call)
+
+## Sign-out, verified 2026-09-24
+
+Signing out from a member page landed on sign-in, not on `/`. Cause: React Router commits navigations inside `startTransition`, so `flushSync(signOut)` rendered before the move to `/`, and `RequireAuth` redirected with `from` set to the member page. Fix: `navigate(routes.home, { replace: true, flushSync: true })`. The first sign-out in a page's life also held the old screen for about 400ms: the landing mounted as a lazy page under the fresh guest shell, showed its fallback, and React holds a fallback for 300ms. `LandingRoute` now renders the warmed landing directly, and it arrives at about 150ms. Verified with the API held in the browser (nothing reached the server): it lands on `/`, the token is cleared, the dock morphs into the guest nav, and the toast shows.
 
 ## Detector
 

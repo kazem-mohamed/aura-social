@@ -32,7 +32,10 @@ export function useSignOut() {
     // Warm the landing chunk first, so it is ready inside the transition.
     await loadLandingPage().catch(() => undefined);
     await swapShell(async () => {
-      await navigate(routes.home, { replace: true });
+      // The router commits navigations in a transition; without `flushSync` the
+      // session ends while the page is still a member route, and the auth guard
+      // sends you to sign-in instead of the front door.
+      await navigate(routes.home, { replace: true, flushSync: true });
       flushSync(signOut);
       await whenPresent("[data-landing]");
     });
