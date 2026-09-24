@@ -1,4 +1,4 @@
-import { motion, useScroll, useTransform, type MotionValue } from "framer-motion";
+import { motion, transform, useScroll, useTransform, type MotionValue } from "framer-motion";
 import { useRef } from "react";
 import { Link } from "react-router";
 import type { ObjectName } from "@/assets/objects/manifest";
@@ -9,6 +9,9 @@ import { useMotionPrefs } from "@/shared/motion/useMotionPrefs";
 import { routes } from "@/app/router/routes";
 import { usePosterLines } from "../usePosterLines";
 import { Breathe } from "./Breathe";
+
+/** How full of breath an object is over the band's arrival. */
+const fill = transform([0.45, 0.8], [0, 1]);
 
 interface InflatingProps {
   /** The deflated render it starts as. */
@@ -30,8 +33,10 @@ interface InflatingProps {
 function Inflating({ flat, full, progress, tilt, delay = 0, sizes, className }: InflatingProps) {
   const { reduced } = useMotionPrefs();
   const scale = useTransform(progress, [0, 1], [0.8, 1]);
-  const flatOpacity = useTransform(progress, [0.45, 0.8], [1, 0]);
-  const fullOpacity = useTransform(progress, [0.45, 0.8], [0, 1]);
+  // Function transforms stay on the JS path: framer 12.34 hands a range-mapped
+  // opacity to a native scroll timeline that follows the page, not this band.
+  const fullOpacity = useTransform(progress, fill);
+  const flatOpacity = useTransform(progress, (p) => 1 - fill(p));
 
   return (
     <motion.div aria-hidden className={cx("absolute", className)} style={reduced ? { rotate: tilt } : { scale, rotate: tilt }}>
