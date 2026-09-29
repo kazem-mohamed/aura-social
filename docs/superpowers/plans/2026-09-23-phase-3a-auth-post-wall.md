@@ -731,7 +731,8 @@ export function PostBody({ post, variant, onOpen }: PostBodyProps) {
         <div className="overflow-hidden rounded-chip border border-line bg-surface-2">
           <img
             src={image}
-            alt=""
+            // The API carries no description; saying whose image it is beats silence.
+            alt={`Image posted by ${post.author.name}`}
             loading={variant === "detail" ? "eager" : "lazy"}
             decoding="async"
             className={cx("block w-full object-cover", variant === "feed" && "max-h-[560px]")}
@@ -776,7 +777,7 @@ export function QuotedPost({ post }: { post: Post }) {
       {post.image ? (
         <img
           src={post.image}
-          alt=""
+          alt={`Image posted by ${author.name}`}
           loading="lazy"
           decoding="async"
           className="block max-h-[360px] w-full rounded-chip border border-line object-cover"
@@ -977,8 +978,9 @@ export function ShareSheet({ open, post, sharing, onClose, onShare }: ShareSheet
 
 ```tsx
 import { motion } from "framer-motion";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useNavigate } from "react-router";
+import { useRefocusOnClose } from "@/shared/hooks/useRefocusOnClose";
 import { ConfirmDialog } from "@/shared/kit/ConfirmDialog";
 import type { MenuItem } from "@/shared/kit/Menu";
 import { spring } from "@/shared/motion/tokens";
@@ -1014,6 +1016,8 @@ export function PostCard({ post, variant = "feed", index = 0, onComment, onDelet
   const [isEditing, setIsEditing] = useState(false);
   const [isSharing, setIsSharing] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const cardRef = useRef<HTMLElement>(null);
+  useRefocusOnClose(isEditing, cardRef, '[aria-label="Post options"]');
 
   const isFeed = variant === "feed";
   const arrives = isFeed && !reduced;
@@ -1030,6 +1034,7 @@ export function PostCard({ post, variant = "feed", index = 0, onComment, onDelet
 
   return (
     <motion.article
+      ref={cardRef}
       aria-label={`Post by ${post.author.name}`}
       className="grid grid-cols-[minmax(0,1fr)] gap-4 rounded-card border border-line bg-surface p-5 sm:p-6"
       initial={arrives ? { opacity: 0, y: -18, rotate: tilt, scale: 1.06 } : false}
@@ -1098,7 +1103,7 @@ export function PostCard({ post, variant = "feed", index = 0, onComment, onDelet
 **File:** `src/features/comments/components/CommentRow.tsx`
 
 ```tsx
-import type { ReactNode } from "react";
+import type { ReactNode, Ref } from "react";
 import { Link } from "react-router";
 import { formatCommentTime, formatDateTime } from "@/shared/lib/dates";
 import { Avatar } from "@/shared/kit/Avatar";
@@ -1108,6 +1113,7 @@ import { routes } from "@/app/router/routes";
 import type { Comment } from "../model/comment.types";
 
 interface CommentRowProps {
+  ref?: Ref<HTMLDivElement>;
   comment: Comment;
   /** Owner actions behind a "more" button. */
   menu?: MenuItem[];
@@ -1116,11 +1122,11 @@ interface CommentRowProps {
 }
 
 /** Who said it and when, beside what they said. A comment still sending is dimmed and says so. */
-export function CommentRow({ comment, menu = [], children }: CommentRowProps) {
+export function CommentRow({ ref, comment, menu = [], children }: CommentRowProps) {
   const nameClass = "text-[15px] font-bold text-ink";
 
   return (
-    <div className={cx("flex items-start gap-3", comment.isOptimistic && "opacity-60")}>
+    <div ref={ref} className={cx("flex items-start gap-3", comment.isOptimistic && "opacity-60")}>
       <Avatar
         identityKey={comment.authorHandle || comment.authorName}
         name={comment.authorName}
@@ -1188,9 +1194,14 @@ export function CommentComposer({ label, placeholder, submitLabel, pending, onSu
 
   const submit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    const form = event.currentTarget;
     const trimmed = content.trim();
     if (!trimmed || pending) return;
-    if (await onSubmit(trimmed)) setContent("");
+    if (await onSubmit(trimmed)) {
+      setContent("");
+      // The emptied box disables the send button; focus that was on it goes back to the box.
+      if (form.contains(document.activeElement)) form.querySelector("textarea")?.focus();
+    }
   };
 
   return (
@@ -1360,8 +1371,9 @@ export function ReplyList({ postId, parentId, replies, isLoading, error, hasNext
 **File:** `src/features/comments/components/CommentItem.tsx`
 
 ```tsx
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { getErrorMessage } from "@/shared/api/errors";
+import { useRefocusOnClose } from "@/shared/hooks/useRefocusOnClose";
 import { queryKeys } from "@/shared/api/queryKeys";
 import { isSameEntity } from "@/shared/lib/values";
 import { LikeButton } from "@/shared/kit/ActionButtons";
@@ -1396,6 +1408,9 @@ export function CommentItem({ postId, comment, meId, meName }: CommentItemProps)
   const [showReplies, setShowReplies] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const rowRef = useRef<HTMLDivElement>(null);
+  useRefocusOnClose(isEditing, rowRef, '[aria-label="Comment options"]');
+  useRefocusOnClose(isReplying, rowRef, "[data-reply-toggle]");
 
   const like = useToggleCommentLike(postId, comment, queryKeys.comments.list(postId));
   const update = useUpdateComment(postId, comment.id);
@@ -1451,7 +1466,7 @@ export function CommentItem({ postId, comment, meId, meName }: CommentItemProps)
   };
 
   return (
-    <CommentRow comment={comment} menu={menu}>
+    <CommentRow ref={rowRef} comment={comment} menu={menu}>
       {isEditing ? (
         <CommentEditForm
           initialContent={comment.content}
@@ -1480,6 +1495,7 @@ export function CommentItem({ postId, comment, meId, meName }: CommentItemProps)
           size="sm"
           disabled={comment.isOptimistic}
           aria-expanded={isReplying}
+          data-reply-toggle
           onClick={() => setIsReplying((open) => !open)}
         >
           Reply

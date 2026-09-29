@@ -23,9 +23,14 @@ export function CommentComposer({ label, placeholder, submitLabel, pending, onSu
 
   const submit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    const form = event.currentTarget;
     const trimmed = content.trim();
     if (!trimmed || pending) return;
-    if (await onSubmit(trimmed)) setContent("");
+    if (await onSubmit(trimmed)) {
+      setContent("");
+      // The emptied box disables the send button; focus that was on it goes back to the box.
+      if (form.contains(document.activeElement)) form.querySelector("textarea")?.focus();
+    }
   };
 
   return (

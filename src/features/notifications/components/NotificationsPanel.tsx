@@ -45,7 +45,12 @@ export function NotificationsPanel() {
             iconStart="check"
             loading={markAll.isPending}
             disabled={unreadCount <= 0}
-            onClick={() => markAll.mutate(undefined, { onSuccess: () => toast.show({ title: "All caught up." }), onError: fail })}
+            onClick={() => {
+              // The count empties at once, which disables this button under the
+              // pointer and would drop focus to the page; it moves to the filter.
+              document.getElementById(tabId(TABS_ID, filter))?.focus();
+              markAll.mutate(undefined, { onSuccess: () => toast.show({ title: "All caught up." }), onError: fail });
+            }}
           >
             Mark all read
           </Button>

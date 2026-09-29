@@ -43,7 +43,8 @@ export function PostBody({ post, variant, onOpen }: PostBodyProps) {
         <div className="overflow-hidden rounded-chip border border-line bg-surface-2">
           <img
             src={image}
-            alt=""
+            // The API carries no description; saying whose image it is beats silence.
+            alt={`Image posted by ${post.author.name}`}
             loading={variant === "detail" ? "eager" : "lazy"}
             decoding="async"
             className={cx("block w-full object-cover", variant === "feed" && "max-h-[560px]")}

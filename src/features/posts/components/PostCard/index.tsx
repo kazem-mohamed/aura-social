@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useNavigate } from "react-router";
+import { useRefocusOnClose } from "@/shared/hooks/useRefocusOnClose";
 import { ConfirmDialog } from "@/shared/kit/ConfirmDialog";
 import type { MenuItem } from "@/shared/kit/Menu";
 import { spring } from "@/shared/motion/tokens";
@@ -36,6 +37,8 @@ export function PostCard({ post, variant = "feed", index = 0, onComment, onDelet
   const [isEditing, setIsEditing] = useState(false);
   const [isSharing, setIsSharing] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const cardRef = useRef<HTMLElement>(null);
+  useRefocusOnClose(isEditing, cardRef, '[aria-label="Post options"]');
 
   const isFeed = variant === "feed";
   const arrives = isFeed && !reduced;
@@ -52,6 +55,7 @@ export function PostCard({ post, variant = "feed", index = 0, onComment, onDelet
 
   return (
     <motion.article
+      ref={cardRef}
       aria-label={`Post by ${post.author.name}`}
       className="grid grid-cols-[minmax(0,1fr)] gap-4 rounded-card border border-line bg-surface p-5 sm:p-6"
       initial={arrives ? { opacity: 0, y: -18, rotate: tilt, scale: 1.06 } : false}

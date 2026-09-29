@@ -39,6 +39,7 @@ export function Button({
   type = "button",
   className,
   children,
+  onClick,
   ...rest
 }: ButtonProps) {
   const { reduced } = useMotionPrefs();
@@ -48,13 +49,18 @@ export function Button({
   return (
     <motion.button
       type={type}
-      disabled={disabled || loading}
+      // Loading blocks presses without `disabled`, which would drop the focus
+      // of whoever just pressed it to the page. A cancelled click also stops
+      // a submit, from the button or from Enter in a field.
+      disabled={disabled}
+      aria-disabled={loading || undefined}
       aria-busy={loading || undefined}
       className={cx(buttonClasses({ variant, size, fill }), fullWidth && "w-full", className)}
       whileHover={lively ? { y: -2, rotate: -1.5 } : undefined}
       whileTap={lively ? { scale: 0.94, transition: spring.press } : undefined}
       transition={spring.release}
       {...rest}
+      onClick={loading ? (event) => event.preventDefault() : onClick}
     >
       <span className={cx("inline-flex items-center gap-2", loading && "invisible")}>
         {success ? (

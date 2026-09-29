@@ -26,8 +26,11 @@ export function Counter({ value, className }: { value: number; className?: strin
 
   return (
     <span className={cx("relative inline-grid overflow-hidden tnum", className)}>
+      {/* While they roll, the old digits and the new are both in the page; assistive tech reads one value. */}
+      <span className="sr-only">{text}</span>
       <AnimatePresence initial={false} custom={direction}>
         <motion.span
+          aria-hidden
           key={value}
           custom={direction}
           variants={ROLL}

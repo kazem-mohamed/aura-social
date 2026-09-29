@@ -291,6 +291,7 @@ export function Button({
   type = "button",
   className,
   children,
+  onClick,
   ...rest
 }: ButtonProps) {
   const { reduced } = useMotionPrefs();
@@ -300,13 +301,18 @@ export function Button({
   return (
     <motion.button
       type={type}
-      disabled={disabled || loading}
+      // Loading blocks presses without `disabled`, which would drop the focus
+      // of whoever just pressed it to the page. A cancelled click also stops
+      // a submit, from the button or from Enter in a field.
+      disabled={disabled}
+      aria-disabled={loading || undefined}
       aria-busy={loading || undefined}
       className={cx(buttonClasses({ variant, size, fill }), fullWidth && "w-full", className)}
       whileHover={lively ? { y: -2, rotate: -1.5 } : undefined}
       whileTap={lively ? { scale: 0.94, transition: spring.press } : undefined}
       transition={spring.release}
       {...rest}
+      onClick={loading ? (event) => event.preventDefault() : onClick}
     >
       <span className={cx("inline-flex items-center gap-2", loading && "invisible")}>
         {success ? (
@@ -1305,7 +1311,7 @@ git commit -m "Add card and avatar"
 **File:** `src/shared/kit/useFocusTrap.ts`
 
 ```ts
-import { useEffect, useRef, type RefObject } from "react";
+import { useEffect, useRef, useState, type RefObject } from "react";
 
 const FOCUSABLE =
   'a[href], button:not([disabled]), input:not([disabled]):not([type="hidden"]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
@@ -1323,6 +1329,10 @@ interface FocusTrapOptions {
  */
 export function useFocusTrap(ref: RefObject<HTMLElement | null>, { initialFocus, onEscape, active = true }: FocusTrapOptions) {
   const escapeRef = useRef(onEscape);
+  // Read on the first render: by the time effects run, a field inside may
+  // already have taken focus with autoFocus, and that field isn't the opener.
+  const [previous] = useState(() => (document.activeElement instanceof HTMLElement ? document.activeElement : null));
+  const focusedOnOpen = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
     escapeRef.current = onEscape;
@@ -1333,13 +1343,16 @@ export function useFocusTrap(ref: RefObject<HTMLElement | null>, { initialFocus,
     const node = ref.current;
     if (!node) return;
 
-    const previous = document.activeElement instanceof HTMLElement ? document.activeElement : null;
     const focusables = () => Array.from(node.querySelectorAll<HTMLElement>(FOCUSABLE)).filter((el) => el.getClientRects().length > 0);
 
     // An explicit target wins; otherwise respect a field that already took
-    // focus (autoFocus) and only fall back to the first control.
-    const target = initialFocus?.current ?? (node.contains(document.activeElement) ? null : (focusables()[0] ?? node));
-    target?.focus({ preventScroll: true });
+    // focus (autoFocus) — also on a re-run of this effect, after the cleanup
+    // has handed focus back — and only fall back to the first control.
+    const autoFocused = node.contains(document.activeElement) ? (document.activeElement as HTMLElement) : null;
+    const remembered = focusedOnOpen.current && node.contains(focusedOnOpen.current) ? focusedOnOpen.current : null;
+    const target = initialFocus?.current ?? autoFocused ?? remembered ?? focusables()[0] ?? node;
+    focusedOnOpen.current = target;
+    target.focus({ preventScroll: true });
 
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape" && escapeRef.current) {
@@ -1367,9 +1380,12 @@ export function useFocusTrap(ref: RefObject<HTMLElement | null>, { initialFocus,
     document.addEventListener("keydown", onKeyDown);
     return () => {
       document.removeEventListener("keydown", onKeyDown);
-      previous?.focus({ preventScroll: true });
+      // What opened it may be gone (a deleted comment took its menu with it);
+      // then focus lands on the page's main region rather than the document.
+      const target = previous?.isConnected ? previous : document.getElementById("content");
+      target?.focus({ preventScroll: true });
     };
-  }, [active, ref, initialFocus]);
+  }, [active, ref, initialFocus, previous]);
 }
 ```
 
@@ -2396,8 +2412,11 @@ export function Counter({ value, className }: { value: number; className?: strin
 
   return (
     <span className={cx("relative inline-grid overflow-hidden tnum", className)}>
+      {/* While they roll, the old digits and the new are both in the page; assistive tech reads one value. */}
+      <span className="sr-only">{text}</span>
       <AnimatePresence initial={false} custom={direction}>
         <motion.span
+          aria-hidden
           key={value}
           custom={direction}
           variants={ROLL}
