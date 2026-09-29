@@ -1,5 +1,6 @@
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { getErrorMessage } from "@/shared/api/errors";
+import { useRefocusOnClose } from "@/shared/hooks/useRefocusOnClose";
 import { queryKeys } from "@/shared/api/queryKeys";
 import { isSameEntity } from "@/shared/lib/values";
 import { LikeButton } from "@/shared/kit/ActionButtons";
@@ -34,6 +35,9 @@ export function CommentItem({ postId, comment, meId, meName }: CommentItemProps)
   const [showReplies, setShowReplies] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const rowRef = useRef<HTMLDivElement>(null);
+  useRefocusOnClose(isEditing, rowRef, '[aria-label="Comment options"]');
+  useRefocusOnClose(isReplying, rowRef, "[data-reply-toggle]");
 
   const like = useToggleCommentLike(postId, comment, queryKeys.comments.list(postId));
   const update = useUpdateComment(postId, comment.id);
@@ -89,7 +93,7 @@ export function CommentItem({ postId, comment, meId, meName }: CommentItemProps)
   };
 
   return (
-    <CommentRow comment={comment} menu={menu}>
+    <CommentRow ref={rowRef} comment={comment} menu={menu}>
       {isEditing ? (
         <CommentEditForm
           initialContent={comment.content}
@@ -118,6 +122,7 @@ export function CommentItem({ postId, comment, meId, meName }: CommentItemProps)
           size="sm"
           disabled={comment.isOptimistic}
           aria-expanded={isReplying}
+          data-reply-toggle
           onClick={() => setIsReplying((open) => !open)}
         >
           Reply

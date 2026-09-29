@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import type { ReactNode, Ref } from "react";
 import { Link } from "react-router";
 import { formatCommentTime, formatDateTime } from "@/shared/lib/dates";
 import { Avatar } from "@/shared/kit/Avatar";
@@ -8,6 +8,7 @@ import { routes } from "@/app/router/routes";
 import type { Comment } from "../model/comment.types";
 
 interface CommentRowProps {
+  ref?: Ref<HTMLDivElement>;
   comment: Comment;
   /** Owner actions behind a "more" button. */
   menu?: MenuItem[];
@@ -16,11 +17,11 @@ interface CommentRowProps {
 }
 
 /** Who said it and when, beside what they said. A comment still sending is dimmed and says so. */
-export function CommentRow({ comment, menu = [], children }: CommentRowProps) {
+export function CommentRow({ ref, comment, menu = [], children }: CommentRowProps) {
   const nameClass = "text-[15px] font-bold text-ink";
 
   return (
-    <div className={cx("flex items-start gap-3", comment.isOptimistic && "opacity-60")}>
+    <div ref={ref} className={cx("flex items-start gap-3", comment.isOptimistic && "opacity-60")}>
       <Avatar
         identityKey={comment.authorHandle || comment.authorName}
         name={comment.authorName}

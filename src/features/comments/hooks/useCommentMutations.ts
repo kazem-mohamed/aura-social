@@ -3,6 +3,7 @@ import { queryKeys } from "@/shared/api/queryKeys";
 import { commentsApi } from "../api/commentsApi";
 import {
   adjustReplyCount,
+  flattenComments,
   mergeWithServerComment,
   patchComment,
   prependComment,
@@ -82,9 +83,16 @@ export function useCreateComment(
     },
 
     onSuccess: (payload, _content, context) => {
+      // The post's own comment counter comes from the post, as after an edit or delete.
+      void queryClient.invalidateQueries({ queryKey: queryKeys.posts.detail(postId) });
       const server = extractWrittenComment(payload, kind);
+      // A fetch that landed mid-request (opening a thread to reply starts one)
+      // can drop the placeholder; then the list is refetched instead.
+      const hasPlaceholder = flattenComments(queryClient.getQueryData<CommentPages>(listKey)).some(
+        (comment) => comment.id === context.optimisticId,
+      );
 
-      if (server) {
+      if (server && hasPlaceholder) {
         queryClient.setQueryData<CommentPages>(listKey, (pages) =>
           replaceComment(
             pages,

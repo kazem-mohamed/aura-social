@@ -1,4 +1,5 @@
 import { AnimatePresence, motion } from "framer-motion";
+import { useRef } from "react";
 import { Link } from "react-router";
 import { Sticker } from "@/shared/brand/Sticker";
 import type { StickerName } from "@/shared/brand/stickerPaths";
@@ -38,9 +39,19 @@ export function NotificationItem({ notification, isMarking, onMarkRead }: Notifi
   const isUnread = !notification.isRead;
   const kind = kindOf(notification.type);
   const nameClass = "font-bold text-ink";
+  const rowRef = useRef<HTMLElement>(null);
+
+  const markRead = () => {
+    // The button leaves with the dot; focus stays on this alert rather than falling to the page.
+    const row = rowRef.current;
+    (row?.querySelector<HTMLElement>("a") ?? row)?.focus();
+    onMarkRead(notification.id);
+  };
 
   return (
     <article
+      ref={rowRef}
+      tabIndex={-1}
       className={cx(
         "flex items-start gap-3.5 rounded-card border p-4 transition-colors duration-300 sm:p-5",
         isUnread ? "border-line bg-surface" : "border-transparent",
@@ -87,7 +98,7 @@ export function NotificationItem({ notification, isMarking, onMarkRead }: Notifi
               variant="ghost"
               size="sm"
               disabled={!notification.id || isMarking}
-              onClick={() => onMarkRead(notification.id)}
+              onClick={markRead}
             />
           </motion.div>
         ) : null}

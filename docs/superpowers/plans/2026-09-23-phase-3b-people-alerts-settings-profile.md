@@ -274,6 +274,7 @@ git commit -m "Rebuild People: debounced search and person cards with the peel f
 
 ```tsx
 import { AnimatePresence, motion } from "framer-motion";
+import { useRef } from "react";
 import { Link } from "react-router";
 import { Sticker } from "@/shared/brand/Sticker";
 import type { StickerName } from "@/shared/brand/stickerPaths";
@@ -313,9 +314,19 @@ export function NotificationItem({ notification, isMarking, onMarkRead }: Notifi
   const isUnread = !notification.isRead;
   const kind = kindOf(notification.type);
   const nameClass = "font-bold text-ink";
+  const rowRef = useRef<HTMLElement>(null);
+
+  const markRead = () => {
+    // The button leaves with the dot; focus stays on this alert rather than falling to the page.
+    const row = rowRef.current;
+    (row?.querySelector<HTMLElement>("a") ?? row)?.focus();
+    onMarkRead(notification.id);
+  };
 
   return (
     <article
+      ref={rowRef}
+      tabIndex={-1}
       className={cx(
         "flex items-start gap-3.5 rounded-card border p-4 transition-colors duration-300 sm:p-5",
         isUnread ? "border-line bg-surface" : "border-transparent",
@@ -362,7 +373,7 @@ export function NotificationItem({ notification, isMarking, onMarkRead }: Notifi
               variant="ghost"
               size="sm"
               disabled={!notification.id || isMarking}
-              onClick={() => onMarkRead(notification.id)}
+              onClick={markRead}
             />
           </motion.div>
         ) : null}
@@ -424,7 +435,12 @@ export function NotificationsPanel() {
             iconStart="check"
             loading={markAll.isPending}
             disabled={unreadCount <= 0}
-            onClick={() => markAll.mutate(undefined, { onSuccess: () => toast.show({ title: "All caught up." }), onError: fail })}
+            onClick={() => {
+              // The count empties at once, which disables this button under the
+              // pointer and would drop focus to the page; it moves to the filter.
+              document.getElementById(tabId(TABS_ID, filter))?.focus();
+              markAll.mutate(undefined, { onSuccess: () => toast.show({ title: "All caught up." }), onError: fail });
+            }}
           >
             Mark all read
           </Button>
@@ -1317,7 +1333,17 @@ export function ProfileHeader({
             <label className="absolute right-1 bottom-1 grid h-11 w-11 cursor-pointer place-items-center rounded-full border border-carbon bg-sun text-carbon transition-transform duration-200 hover:-rotate-6 has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-(--focus)">
               <span className="sr-only">Change your photo</span>
               {photoUploading ? <PeelLoader size={22} label="Uploading photo" /> : <Glyph name="camera" size={20} />}
-              <input type="file" accept="image/*" className="sr-only" disabled={photoUploading} onChange={onSelectPhoto} />
+              {/* Not `disabled`: focus returns here when the framer closes mid-upload, and a disabled input drops it. */}
+              <input
+                type="file"
+                accept="image/*"
+                className="sr-only"
+                aria-disabled={photoUploading || undefined}
+                onClick={(event) => {
+                  if (photoUploading) event.preventDefault();
+                }}
+                onChange={onSelectPhoto}
+              />
             </label>
           ) : null}
         </div>

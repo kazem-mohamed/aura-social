@@ -77,7 +77,17 @@ export function ProfileHeader({
             <label className="absolute right-1 bottom-1 grid h-11 w-11 cursor-pointer place-items-center rounded-full border border-carbon bg-sun text-carbon transition-transform duration-200 hover:-rotate-6 has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-(--focus)">
               <span className="sr-only">Change your photo</span>
               {photoUploading ? <PeelLoader size={22} label="Uploading photo" /> : <Glyph name="camera" size={20} />}
-              <input type="file" accept="image/*" className="sr-only" disabled={photoUploading} onChange={onSelectPhoto} />
+              {/* Not `disabled`: focus returns here when the framer closes mid-upload, and a disabled input drops it. */}
+              <input
+                type="file"
+                accept="image/*"
+                className="sr-only"
+                aria-disabled={photoUploading || undefined}
+                onClick={(event) => {
+                  if (photoUploading) event.preventDefault();
+                }}
+                onChange={onSelectPhoto}
+              />
             </label>
           ) : null}
         </div>

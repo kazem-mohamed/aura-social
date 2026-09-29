@@ -46,6 +46,18 @@ export function patchPostInCache(
   );
 }
 
+/**
+ * Takes a deleted post off every cached list at once, ahead of the refetch —
+ * so its card doesn't linger, and focus isn't handed back to a card that is
+ * about to vanish.
+ */
+export function removePostFromCache(queryClient: QueryClient, postId: string): void {
+  const drop = (cached: unknown) =>
+    Array.isArray(cached) ? (cached as Post[]).filter((post) => post.id !== postId) : cached;
+  queryClient.setQueriesData({ queryKey: queryKeys.posts.all }, drop);
+  queryClient.setQueriesData({ queryKey: queryKeys.users.all }, drop);
+}
+
 /** Reads the currently cached version of a post, from wherever it is held. */
 export function readPostFromCache(
   queryClient: QueryClient,

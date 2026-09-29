@@ -27,7 +27,7 @@ export function QuotedPost({ post }: { post: Post }) {
       {post.image ? (
         <img
           src={post.image}
-          alt=""
+          alt={`Image posted by ${author.name}`}
           loading="lazy"
           decoding="async"
           className="block max-h-[360px] w-full rounded-chip border border-line object-cover"

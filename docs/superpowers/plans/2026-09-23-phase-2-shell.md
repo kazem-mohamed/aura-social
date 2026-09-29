@@ -550,8 +550,9 @@ export function PostComposer({ onPosted, autoFocus = false, className }: PostCom
 
   const canPost = body.trim().length > 0 || image.file !== null;
 
-  const submit = (event: FormEvent) => {
+  const submit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    const form = event.currentTarget;
     const draft = postDraftSchema.safeParse({ body, imageFile: image.file });
     if (!draft.success) {
       setError(draft.error.issues[0]?.message ?? "This post can’t be sent yet.");
@@ -564,6 +565,8 @@ export function PostComposer({ onPosted, autoFocus = false, className }: PostCom
         onSuccess: () => {
           setBody("");
           image.clear();
+          // The emptied composer disables Post; focus that was on it goes back to the field.
+          if (form.contains(document.activeElement)) form.querySelector("textarea")?.focus();
           toast.show({ title: "Posted. It’s on the wall." });
           onPosted?.();
         },
