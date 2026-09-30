@@ -406,6 +406,11 @@
         "purpose": "Landing objects only; paused off screen."
       },
       {
+        "name": "type-breath",
+        "value": "font-stretch × --inflate: 0.62 → 1 on arrival (spring-arrive); 1 ↔ 0.94 over 4.8s ease-in-out",
+        "purpose": "Landing poster lines only; never past the resting width; paused off screen; still under reduced motion."
+      },
+      {
         "name": "route-peel",
         "value": "360ms",
         "purpose": "Old page peels away from the top-right corner."
@@ -510,6 +515,11 @@
       {
         "name": "The Handle Goes Under Rule",
         "body": "No label, kicker or eyebrow sits above a heading. Context, including a person's handle, goes in the line beneath the poster.",
+        "section": "typography"
+      },
+      {
+        "name": "The Breathing Type Rule",
+        "body": "On the landing, and only there, poster lines inflate along Anybody's width axis: the hero lines fill from 62% to 100% of their width as they slap on, BREATHES breathes (to 94% and back every 4.8s, only on screen), and \"Stick around\" fills with its balloons. Never past the resting width, never in lists, still under reduced motion.",
         "section": "typography"
       },
       {

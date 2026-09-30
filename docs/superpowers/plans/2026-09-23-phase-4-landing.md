@@ -49,7 +49,7 @@ Also in this phase:
 
 **Files:**
 - Create: `src/layouts/components/GuestNav.tsx`, `src/app/router/landing.ts`, `src/app/router/LandingRoute.tsx`, `src/pages/LandingPage.tsx`
-- Create in `src/features/landing/`: `useSmoothScroll.ts`, `usePosterLines.ts`, and in `components/`: `Breathe.tsx`, `Hero.tsx`, `SamplePost.tsx`, `HowItFeels.tsx`, `YourSticker.tsx`, `FeatureWall.tsx`, `JoinBand.tsx`, `LandingFooter.tsx`
+- Create in `src/features/landing/`: `useSmoothScroll.ts`, `usePosterLines.ts`, `breath.ts`, and in `components/`: `Breathe.tsx`, `Hero.tsx`, `SamplePost.tsx`, `HowItFeels.tsx`, `YourSticker.tsx`, `FeatureWall.tsx`, `JoinBand.tsx`, `LandingFooter.tsx`
 - Modify: `src/shared/kit/Marquee.tsx` (a drawn sparkle sticker instead of the "✦" character), `src/layouts/GuestLayout.tsx` (the front door renders bare), `src/app/router/router.tsx` (guests get the landing)
 
 - [ ] **Step 1: Guest nav, marquee separator, guest layout**
@@ -218,7 +218,8 @@ import { useLayoutEffect, useRef } from "react";
  * Poster setting: every `[data-line]` child is sized so it spans the box
  * exactly, capped at a share of the viewport height so the block always fits
  * the first screen. Re-fits on resize and once the web fonts arrive.
- * Lines need `display: block; width: max-content`.
+ * Lines need `display: block; width: max-content`; a line that inflates
+ * (`stretch-breath`) is always measured at rest.
  */
 export function usePosterLines<T extends HTMLElement>(heightShare = 0.3) {
   const ref = useRef<T | null>(null);
@@ -231,8 +232,14 @@ export function usePosterLines<T extends HTMLElement>(heightShare = 0.3) {
       const available = box.clientWidth;
       const cap = Math.max(40, window.innerHeight * heightShare);
       box.querySelectorAll<HTMLElement>("[data-line]").forEach((line) => {
+        // Measure at rest: a line that is still inflating is narrower than
+        // the width it settles at, and would be fitted too large.
+        const live = line.style.getPropertyValue("--inflate");
+        line.style.setProperty("--inflate", "1");
         line.style.fontSize = "100px";
         const natural = line.scrollWidth;
+        if (live) line.style.setProperty("--inflate", live);
+        else line.style.removeProperty("--inflate");
         if (natural > 0 && available > 0) {
           line.style.fontSize = `${Math.min(cap, Math.floor((100 * available) / natural))}px`;
         }
@@ -291,11 +298,26 @@ export function Breathe({ children, delay = 0, amount = 0.06 }: BreatheProps) {
 }
 ```
 
+**File:** `src/features/landing/breath.ts`
+
+```ts
+/**
+ * Type that inflates: `--inflate` is how full of breath a poster line is, as
+ * a share of its resting width. Lines are fitted at 1, so they never go wider.
+ */
+
+/** Before the air goes in. */
+export const DEFLATED = 0.62;
+
+/** The breathing line's exhale. */
+export const EXHALED = 0.94;
+```
+
 **File:** `src/features/landing/components/Hero.tsx`
 
 ```tsx
-import { motion, useScroll, useTransform, type MotionValue } from "framer-motion";
-import { useRef } from "react";
+import { animate, motion, useInView, useMotionValue, useScroll, useTransform, type MotionStyle, type MotionValue } from "framer-motion";
+import { useEffect, useRef, useState } from "react";
 import type { ObjectName } from "@/assets/objects/manifest";
 import { Logo } from "@/shared/brand/Logo";
 import { ObjectArt } from "@/shared/brand/ObjectArt";
@@ -304,6 +326,7 @@ import { cx } from "@/shared/kit/cx";
 import { spring } from "@/shared/motion/tokens";
 import { useMotionPrefs } from "@/shared/motion/useMotionPrefs";
 import { routes } from "@/app/router/routes";
+import { DEFLATED, EXHALED } from "../breath";
 import { usePosterLines } from "../usePosterLines";
 import { Breathe } from "./Breathe";
 
@@ -327,9 +350,61 @@ const OBJECTS: Slapped[] = [
 ];
 
 const LINES = [
-  { text: "Everything here", className: "" },
-  { text: "breathes", className: "sm:[font-stretch:124%]" },
+  { text: "Everything here", className: "", breathes: false },
+  { text: "breathes", className: "sm:[--rest-stretch:124%]", breathes: true },
 ];
+
+interface PosterLineProps {
+  text: string;
+  index: number;
+  breathes: boolean;
+  className: string;
+}
+
+/**
+ * One poster line. As it slaps on, its letters fill with air — the width axis
+ * inflates from narrow to full while the line squashes into place. The line
+ * that says "breathes" then keeps breathing while it's on screen: out and back
+ * in time with the objects, never wider than the width it was fitted at.
+ */
+function PosterLine({ text, index, breathes, className }: PosterLineProps) {
+  const { reduced } = useMotionPrefs();
+  const ref = useRef<HTMLSpanElement>(null);
+  const onScreen = useInView(ref);
+  const inflate = useMotionValue(reduced ? 1 : DEFLATED);
+  const [filled, setFilled] = useState(reduced);
+  const delay = 0.05 + index * 0.1;
+
+  useEffect(() => {
+    if (reduced) return;
+    const arrival = animate(inflate, 1, { ...spring.arrive, delay });
+    void arrival.then(() => setFilled(true));
+    return () => arrival.stop();
+  }, [reduced, inflate, delay]);
+
+  useEffect(() => {
+    if (reduced || !breathes || !filled || !onScreen) return;
+    const breath = animate(inflate, [1, EXHALED, 1], { duration: 4.8, ease: "easeInOut", repeat: Infinity });
+    return () => {
+      breath.stop();
+      inflate.set(1);
+    };
+  }, [reduced, breathes, filled, onScreen, inflate]);
+
+  return (
+    <motion.span
+      ref={ref}
+      data-line
+      className={cx("stretch-breath block w-max origin-bottom-left", className)}
+      style={reduced ? undefined : ({ "--inflate": inflate } as MotionStyle)}
+      initial={{ scaleY: 0.7 }}
+      animate={{ scaleY: 1 }}
+      transition={{ ...spring.release, delay }}
+    >
+      {text}
+    </motion.span>
+  );
+}
 
 function SlappedObject({ object, index, progress }: { object: Slapped; index: number; progress: MotionValue<number> }) {
   const { reduced } = useMotionPrefs();
@@ -380,16 +455,7 @@ export function Hero() {
           className="relative z-[5] grid grid-cols-[minmax(0,1fr)] font-display leading-[0.8] font-black tracking-[-0.01em] uppercase"
         >
           {LINES.map((line, index) => (
-            <motion.span
-              key={line.text}
-              data-line
-              className={cx("block w-max origin-bottom-left", line.className)}
-              initial={{ scaleY: 0.7 }}
-              animate={{ scaleY: 1 }}
-              transition={{ ...spring.release, delay: 0.05 + index * 0.1 }}
-            >
-              {line.text}
-            </motion.span>
+            <PosterLine key={line.text} text={line.text} index={index} breathes={line.breathes} className={line.className} />
           ))}
         </h1>
 
@@ -779,7 +845,7 @@ export function FeatureWall() {
 **File:** `src/features/landing/components/JoinBand.tsx`
 
 ```tsx
-import { motion, transform, useScroll, useTransform, type MotionValue } from "framer-motion";
+import { motion, transform, useScroll, useTransform, type MotionStyle, type MotionValue } from "framer-motion";
 import { useRef } from "react";
 import { Link } from "react-router";
 import type { ObjectName } from "@/assets/objects/manifest";
@@ -788,6 +854,7 @@ import { ButtonLink } from "@/shared/kit/ButtonLink";
 import { cx } from "@/shared/kit/cx";
 import { useMotionPrefs } from "@/shared/motion/useMotionPrefs";
 import { routes } from "@/app/router/routes";
+import { DEFLATED } from "../breath";
 import { usePosterLines } from "../usePosterLines";
 import { Breathe } from "./Breathe";
 
@@ -838,11 +905,14 @@ function Inflating({ flat, full, progress, tilt, delay = 0, sizes, className }: 
   );
 }
 
-/** The close: a Sunburst band, a two-line poster, and the way in. Its objects fill with breath as it arrives. */
+/** The close: a Sunburst band, a two-line poster, and the way in. Its objects and its type fill with breath as it arrives. */
 export function JoinBand() {
   const ref = useRef<HTMLElement>(null);
+  const { reduced } = useMotionPrefs();
   const titleRef = usePosterLines<HTMLHeadingElement>(0.22);
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start end", "end end"] });
+  // The poster takes the same breath as the balloons: narrow while they lie flat, full once they're filled.
+  const inflate = useTransform(scrollYProgress, (p) => DEFLATED + (1 - DEFLATED) * fill(p));
 
   return (
     <section ref={ref} aria-labelledby="join-title" className="relative overflow-hidden bg-sun text-carbon">
@@ -865,19 +935,20 @@ export function JoinBand() {
       />
 
       <div className="relative mx-auto grid max-w-(--page-max) grid-cols-[minmax(0,1fr)] justify-items-center gap-8 px-4 py-28 text-center sm:px-8 sm:py-36">
-        <h2
+        <motion.h2
           id="join-title"
           ref={titleRef}
-          className="grid w-full grid-cols-[minmax(0,1fr)] justify-items-center font-display leading-[0.8] font-black tracking-[-0.01em] uppercase [font-stretch:124%]"
+          style={reduced ? undefined : ({ "--inflate": inflate } as MotionStyle)}
+          className="grid w-full grid-cols-[minmax(0,1fr)] justify-items-center font-display leading-[0.8] font-black tracking-[-0.01em] uppercase [--rest-stretch:124%]"
         >
           {/* Two lines, each fitted: one line of it was too small to close on a phone. */}
-          <span data-line className="block w-max">
+          <span data-line className="stretch-breath block w-max">
             Stick
           </span>
-          <span data-line className="block w-max">
+          <span data-line className="stretch-breath block w-max">
             around
           </span>
-        </h2>
+        </motion.h2>
         <p className="max-w-[40ch] type-body-lg">Pick a username, get your sticker, and put something on the wall.</p>
         <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-3">
           <ButtonLink to={routes.register} viewTransition variant="sticker" fill="violet" size="lg" iconEnd="arrow-right">

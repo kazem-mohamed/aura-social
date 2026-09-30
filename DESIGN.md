@@ -206,6 +206,11 @@ A quiet paper ground carrying six loud sticker colours, with an ink action colou
 
 **The Handle Goes Under Rule.** No label, kicker or eyebrow sits above a heading. Context, including a person's handle, goes in the line beneath the poster.
 
+**The Breathing Type Rule.** On the landing, and only there, poster lines inflate along Anybody's width axis (`stretch-breath`: the resting stretch × `--inflate`).
+- **Hero:** the lines fill from 62% of their width to 100% as they slap on, and BREATHES keeps breathing, out to 94% and back every 4.8s, only while it is on screen.
+- **Join band:** "Stick around" fills in step with its balloons.
+- **Limits:** type never goes past its resting width (lines are fitted at rest), it never animates in lists, and it stays still under reduced motion.
+
 ## Layout
 
 - **Page:** a 1440px maximum width, with 16px gutters on phones and 32px from 640px up.

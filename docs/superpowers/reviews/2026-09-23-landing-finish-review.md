@@ -73,10 +73,22 @@ Scored against what the recapture actually shows. Where the hidden pane can't sh
 
 ### remaining
 
-- The ceiling item "type that inflates" (animating the width axis) was not attempted.
 - The `sm` segments' 40px target.
 
-**disposition: fix** (no partials left; the ceiling item is the user's call)
+**disposition: fix** (no partials left)
+
+## Ceiling item: type that inflates, done 2026-09-30
+
+The display face's width axis now carries the brand's breath on the landing.
+
+- **Hero:** the lines fill from 62% of their width as they slap on, and BREATHES breathes, out to 94% and back every 4.8s, only on screen.
+- **Join band:** "Stick around" fills in step with its balloons.
+
+Lines are always fitted at rest, so the type never outgrows its box. Measured:
+- **Hero at 1024:** the widest frame was 945px in a 945px box.
+- **Hero at 375:** the widest frame was 340px in 343px, with no page overflow.
+- **Join band:** 0.62 at band progress 0.2, 0.80 at 0.62, and 1.0 at 1.
+- **Off screen:** the loop stops and rests at 1.
 
 ## Sign-out, verified 2026-09-24
 
