@@ -1,4 +1,4 @@
-import { motion, transform, useScroll, useTransform, type MotionValue } from "framer-motion";
+import { motion, transform, useScroll, useTransform, type MotionStyle, type MotionValue } from "framer-motion";
 import { useRef } from "react";
 import { Link } from "react-router";
 import type { ObjectName } from "@/assets/objects/manifest";
@@ -7,6 +7,7 @@ import { ButtonLink } from "@/shared/kit/ButtonLink";
 import { cx } from "@/shared/kit/cx";
 import { useMotionPrefs } from "@/shared/motion/useMotionPrefs";
 import { routes } from "@/app/router/routes";
+import { DEFLATED } from "../breath";
 import { usePosterLines } from "../usePosterLines";
 import { Breathe } from "./Breathe";
 
@@ -57,11 +58,14 @@ function Inflating({ flat, full, progress, tilt, delay = 0, sizes, className }: 
   );
 }
 
-/** The close: a Sunburst band, a two-line poster, and the way in. Its objects fill with breath as it arrives. */
+/** The close: a Sunburst band, a two-line poster, and the way in. Its objects and its type fill with breath as it arrives. */
 export function JoinBand() {
   const ref = useRef<HTMLElement>(null);
+  const { reduced } = useMotionPrefs();
   const titleRef = usePosterLines<HTMLHeadingElement>(0.22);
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start end", "end end"] });
+  // The poster takes the same breath as the balloons: narrow while they lie flat, full once they're filled.
+  const inflate = useTransform(scrollYProgress, (p) => DEFLATED + (1 - DEFLATED) * fill(p));
 
   return (
     <section ref={ref} aria-labelledby="join-title" className="relative overflow-hidden bg-sun text-carbon">
@@ -84,19 +88,20 @@ export function JoinBand() {
       />
 
       <div className="relative mx-auto grid max-w-(--page-max) grid-cols-[minmax(0,1fr)] justify-items-center gap-8 px-4 py-28 text-center sm:px-8 sm:py-36">
-        <h2
+        <motion.h2
           id="join-title"
           ref={titleRef}
-          className="grid w-full grid-cols-[minmax(0,1fr)] justify-items-center font-display leading-[0.8] font-black tracking-[-0.01em] uppercase [font-stretch:124%]"
+          style={reduced ? undefined : ({ "--inflate": inflate } as MotionStyle)}
+          className="grid w-full grid-cols-[minmax(0,1fr)] justify-items-center font-display leading-[0.8] font-black tracking-[-0.01em] uppercase [--rest-stretch:124%]"
         >
           {/* Two lines, each fitted: one line of it was too small to close on a phone. */}
-          <span data-line className="block w-max">
+          <span data-line className="stretch-breath block w-max">
             Stick
           </span>
-          <span data-line className="block w-max">
+          <span data-line className="stretch-breath block w-max">
             around
           </span>
-        </h2>
+        </motion.h2>
         <p className="max-w-[40ch] type-body-lg">Pick a username, get your sticker, and put something on the wall.</p>
         <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-3">
           <ButtonLink to={routes.register} viewTransition variant="sticker" fill="violet" size="lg" iconEnd="arrow-right">

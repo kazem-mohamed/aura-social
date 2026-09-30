@@ -305,6 +305,8 @@ Run: `npm run typecheck` → exit 0.
 }
 
 @theme inline {
+  --color-*: initial;
+  /* Only Aura's colours exist — Tailwind's default palette is switched off. */
   --color-carbon: var(--carbon);
   --color-paper: var(--paper);
   --color-sky: var(--sky);
@@ -374,6 +376,12 @@ Run: `npm run typecheck` → exit 0.
   line-height: 0.78;
   letter-spacing: -0.01em;
   text-transform: uppercase;
+}
+
+/* Type that inflates (landing only — spec §14): the display face's width axis
+   is the line's resting width times how full of breath it is. */
+@utility stretch-breath {
+  font-stretch: calc(var(--rest-stretch, 100%) * var(--inflate, 1));
 }
 @utility type-heading {
   font-family: var(--font-sans);

@@ -157,6 +157,12 @@
   letter-spacing: -0.01em;
   text-transform: uppercase;
 }
+
+/* Type that inflates (landing only — spec §14): the display face's width axis
+   is the line's resting width times how full of breath it is. */
+@utility stretch-breath {
+  font-stretch: calc(var(--rest-stretch, 100%) * var(--inflate, 1));
+}
 @utility type-heading {
   font-family: var(--font-sans);
   font-weight: 700;

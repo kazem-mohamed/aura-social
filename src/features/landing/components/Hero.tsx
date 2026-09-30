@@ -1,5 +1,5 @@
-import { motion, useScroll, useTransform, type MotionValue } from "framer-motion";
-import { useRef } from "react";
+import { animate, motion, useInView, useMotionValue, useScroll, useTransform, type MotionStyle, type MotionValue } from "framer-motion";
+import { useEffect, useRef, useState } from "react";
 import type { ObjectName } from "@/assets/objects/manifest";
 import { Logo } from "@/shared/brand/Logo";
 import { ObjectArt } from "@/shared/brand/ObjectArt";
@@ -8,6 +8,7 @@ import { cx } from "@/shared/kit/cx";
 import { spring } from "@/shared/motion/tokens";
 import { useMotionPrefs } from "@/shared/motion/useMotionPrefs";
 import { routes } from "@/app/router/routes";
+import { DEFLATED, EXHALED } from "../breath";
 import { usePosterLines } from "../usePosterLines";
 import { Breathe } from "./Breathe";
 
@@ -31,9 +32,61 @@ const OBJECTS: Slapped[] = [
 ];
 
 const LINES = [
-  { text: "Everything here", className: "" },
-  { text: "breathes", className: "sm:[font-stretch:124%]" },
+  { text: "Everything here", className: "", breathes: false },
+  { text: "breathes", className: "sm:[--rest-stretch:124%]", breathes: true },
 ];
+
+interface PosterLineProps {
+  text: string;
+  index: number;
+  breathes: boolean;
+  className: string;
+}
+
+/**
+ * One poster line. As it slaps on, its letters fill with air — the width axis
+ * inflates from narrow to full while the line squashes into place. The line
+ * that says "breathes" then keeps breathing while it's on screen: out and back
+ * in time with the objects, never wider than the width it was fitted at.
+ */
+function PosterLine({ text, index, breathes, className }: PosterLineProps) {
+  const { reduced } = useMotionPrefs();
+  const ref = useRef<HTMLSpanElement>(null);
+  const onScreen = useInView(ref);
+  const inflate = useMotionValue(reduced ? 1 : DEFLATED);
+  const [filled, setFilled] = useState(reduced);
+  const delay = 0.05 + index * 0.1;
+
+  useEffect(() => {
+    if (reduced) return;
+    const arrival = animate(inflate, 1, { ...spring.arrive, delay });
+    void arrival.then(() => setFilled(true));
+    return () => arrival.stop();
+  }, [reduced, inflate, delay]);
+
+  useEffect(() => {
+    if (reduced || !breathes || !filled || !onScreen) return;
+    const breath = animate(inflate, [1, EXHALED, 1], { duration: 4.8, ease: "easeInOut", repeat: Infinity });
+    return () => {
+      breath.stop();
+      inflate.set(1);
+    };
+  }, [reduced, breathes, filled, onScreen, inflate]);
+
+  return (
+    <motion.span
+      ref={ref}
+      data-line
+      className={cx("stretch-breath block w-max origin-bottom-left", className)}
+      style={reduced ? undefined : ({ "--inflate": inflate } as MotionStyle)}
+      initial={{ scaleY: 0.7 }}
+      animate={{ scaleY: 1 }}
+      transition={{ ...spring.release, delay }}
+    >
+      {text}
+    </motion.span>
+  );
+}
 
 function SlappedObject({ object, index, progress }: { object: Slapped; index: number; progress: MotionValue<number> }) {
   const { reduced } = useMotionPrefs();
@@ -84,16 +137,7 @@ export function Hero() {
           className="relative z-[5] grid grid-cols-[minmax(0,1fr)] font-display leading-[0.8] font-black tracking-[-0.01em] uppercase"
         >
           {LINES.map((line, index) => (
-            <motion.span
-              key={line.text}
-              data-line
-              className={cx("block w-max origin-bottom-left", line.className)}
-              initial={{ scaleY: 0.7 }}
-              animate={{ scaleY: 1 }}
-              transition={{ ...spring.release, delay: 0.05 + index * 0.1 }}
-            >
-              {line.text}
-            </motion.span>
+            <PosterLine key={line.text} text={line.text} index={index} breathes={line.breathes} className={line.className} />
           ))}
         </h1>
 

@@ -71,6 +71,15 @@ Fixed:
    - `Counter` gives assistive tech one value while its digits roll.
    - Post and quoted images read "Image posted by …" instead of an empty `alt`.
 
+## Type that inflates (2026-09-30)
+
+The display face's width axis now carries the brand's breath on the landing, and only there, per spec §14.
+- **`stretch-breath`** (in `tokens.css`) sets `font-stretch` to the line's `--rest-stretch` times `--inflate`, which is 1 at rest. The constants are in `features/landing/breath.ts`.
+- **Hero:** each line fills from 0.62 to 1 as it slaps on (`spring.arrive`, alongside the existing squash). BREATHES then breathes, 1 → 0.94 → 1 over 4.8s, gated by `useInView`.
+- **Join band:** the poster's `--inflate` follows the same `fill` curve as its balloons.
+- **`usePosterLines`** always measures a line at `--inflate: 1`, so animation never skews the fit, and type never goes wider than it was fitted.
+- **Reduced motion:** no inflation at all.
+
 ## Still open
 
 - The `sm` segments' touch area stops at about 40px, clipped by their own scroll container.
