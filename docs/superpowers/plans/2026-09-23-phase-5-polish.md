@@ -80,6 +80,14 @@ The display face's width axis now carries the brand's breath on the landing, and
 - **`usePosterLines`** always measures a line at `--inflate: 1`, so animation never skews the fit, and type never goes wider than it was fitted.
 - **Reduced motion:** no inflation at all.
 
+## Segment touch areas (2026-10-01)
+
+The segmented group scrolls horizontally, so it clipped each segment's `::after` touch extension to its 4px padding. The `md` segments, the Wall's rooms, had no extension at all.
+- `sm` now draws at 36px (like an `sm` button) with a 4px extension.
+- `md` stays at 40px with a 2px extension.
+
+Hit-testing on the kit page measures every segment at 44px.
+
 ## Still open
 
-- The `sm` segments' touch area stops at about 40px, clipped by their own scroll container.
+Nothing.
