@@ -2,14 +2,24 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>Aura — Everything here breathes</title>
+    <meta
+      name="description"
+      content="Aura is a social network where every interaction has weight you can feel. Post, like, save and follow — everything here breathes."
+    />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#F7F4EF" media="(prefers-color-scheme: light)" />
-    <meta name="theme-color" content="#0B0A0A" media="(prefers-color-scheme: dark)" />
-    <title>Aura</title>
+    <link rel="icon" type="image/png" sizes="32x32" href="/icons/icon-32.png" />
+    <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
+    <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#111114" media="(prefers-color-scheme: dark)" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Aura — Everything here breathes" />
+    <meta property="og:description" content="A social network where every interaction has weight you can feel." />
+    <meta property="og:image" content="/og.png" />
+    <meta name="twitter:card" content="summary_large_image" />
     <script>
-      // Resolve the theme before first paint so a dark-mode visitor never
-      // sees a white flash, and a light-mode visitor never sees a black one.
+      // Resolve the theme before first paint so neither theme flashes the other.
       (function () {
         try {
           var saved = localStorage.getItem("aura-theme");
@@ -25,33 +35,12 @@
   </head>
   <body>
     <!--
-      AURA — DIRECTION CONTRACT (seed 05c6e942 · direction 5 of 7)
-
-      THESIS: Everyone here is a catalogued individual holding a number they
-      did not choose. Refuses the category default this project already
-      shipped and rejected: top bar, centre column, right rail.
-
-      OWN-WORLD: The museum accession record. Gallery-wall bone (#F7F4EF) or
-      night-vitrine ink (#0B0A0A), both designed, neither an inversion of the
-      other. Works are hung as plates; under each sits a tombstone label —
-      name, handle as catalogue number, date, and the author's aura as a
-      measured colour chip beside it, the way a colour-reference target sits
-      beside a photographed object. Archival rag, cotton tape, vitrine glass.
-      The look is catalogue-precise; the words stay plain — Post, Follow,
-      Save. A visual system, never a costume.
-
-      STORY: You browse a wall, not a column. A plate that holds you gets
-      taken down and examined as a full record, its label following it.
-
-      FIRST VIEWPORT: A catalogue index down the left edge lists the rooms.
-      The rest is wall: plates ranged at varying height, each labelled.
-      Text-only posts are plates too — the writing is the work, which is why
-      this world survives an API that returns poor images or none.
-
-      FORM: The Accession Card (assigned 5/7, seed 05c6e942).
-
-      FINISH: unreviewed and undocumented is unfinished; this build ends with
-      the finish review, the verdict, and DESIGN.md.
+      THESIS: Aura's front door is a poster wall you watch come alive: stickers and inflated objects slap onto an empty sky, and every action you'll take here is played out before you sign up. It refuses the category default of a screenshot hero and feature cards.
+      OWN-WORLD: Paper and Night-paper grounds, Sky/Lavender/Sunburst bands, 1px carbon outlines, crushed Anybody 900 poster type, Onest UI, pill controls, six sticker colours, inflated 3D action objects, no shadows or gradients.
+      STORY: See it breathe → feel a like, comment, save and share on a sample post → turn your username into your sticker → see everything that works → join.
+      FIRST VIEWPORT: marquee; floating ink pill nav; sky wall with bubble, heart, bookmark, share, bell and the logo slapped on; EVERYTHING HERE / BREATHES fitted full width; lede plus Join Aura (sun sticker) and Sign in.
+      FORM: user-pinned H2 "The slap" (spec §2); no seed roll.
+      FINISH: unreviewed and undocumented is unfinished; this build ends with the finish review, the verdict, and DESIGN.md
     -->
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>

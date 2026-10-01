@@ -1,0 +1,158 @@
+/* Kit component styles that depend on state selectors — spec §7. */
+
+/* ── the branded input system ─────────────────────────────────── */
+.field-box {
+  --field-ring: var(--focus);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 52px;
+  padding-inline: 18px 12px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--ink);
+  outline: 3px solid transparent;
+  outline-offset: 3px;
+  transition:
+    background-color var(--dur-quick) ease,
+    outline-color var(--dur-quick) ease;
+}
+.field-box:hover {
+  background: var(--surface-2);
+}
+.field-box:focus-within {
+  outline-color: var(--field-ring);
+}
+.field-box[data-invalid] {
+  outline-color: var(--ember);
+}
+.field-box[data-disabled] {
+  opacity: 0.5;
+  background: var(--band-mist);
+}
+.field-box[data-multiline] {
+  align-items: flex-end;
+  border-radius: 24px;
+  padding-block: 10px;
+}
+.field-box :is(input, textarea, select) {
+  flex: 1 1 auto;
+  width: 0;
+  min-width: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 1.35;
+  padding-block: 13px;
+}
+.field-box :is(input, textarea, select):focus-visible {
+  outline: none;
+}
+.field-box :is(input, textarea)::placeholder {
+  color: var(--ink-3);
+  opacity: 1;
+}
+.field-box textarea {
+  align-self: stretch;
+  min-height: 76px;
+  padding-block: 4px;
+  resize: none;
+}
+.field-box select {
+  appearance: none;
+  cursor: pointer;
+}
+
+/* ── skeletons breathe; they never shimmer ────────────────────── */
+.kit-skeleton {
+  background: var(--band-mist);
+  animation: kit-breathe 1.8s ease-in-out infinite;
+}
+@keyframes kit-breathe {
+  50% {
+    opacity: 0.45;
+    transform: scale(0.985);
+  }
+}
+
+/* ── marquee ──────────────────────────────────────────────────── */
+.kit-marquee-track {
+  animation: kit-marquee var(--marquee-duration, 40s) linear infinite;
+}
+.kit-marquee:hover .kit-marquee-track {
+  animation-play-state: paused;
+}
+@keyframes kit-marquee {
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+/* ── follow: the ink layer peels away diagonally ──────────────── */
+.kit-follow-top {
+  clip-path: polygon(0 0, 130% 0, 100% 100%, 0 100%);
+  transition: clip-path var(--dur-peel) var(--ease-out-css);
+}
+.kit-follow[aria-pressed="true"] .kit-follow-top {
+  clip-path: polygon(0 0, 0 0, -30% 100%, 0 100%);
+}
+
+/* ── range: a sun sticker on a pill track ─────────────────────── */
+.kit-range {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 32px;
+  background: transparent;
+  cursor: pointer;
+}
+.kit-range:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+.kit-range:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 4px;
+  border-radius: 999px;
+}
+.kit-range::-webkit-slider-runnable-track {
+  height: 8px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--surface-2);
+}
+.kit-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 24px;
+  height: 24px;
+  margin-top: -9px;
+  border: 1.5px solid var(--carbon);
+  border-radius: 50%;
+  background: var(--sun);
+  cursor: grab;
+}
+.kit-range::-moz-range-track {
+  height: 8px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--surface-2);
+}
+.kit-range::-moz-range-thumb {
+  width: 24px;
+  height: 24px;
+  border: 1.5px solid var(--carbon);
+  border-radius: 50%;
+  background: var(--sun);
+  cursor: grab;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kit-skeleton,
+  .kit-marquee-track {
+    animation: none;
+  }
+}

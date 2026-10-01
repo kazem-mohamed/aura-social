@@ -1,0 +1,110 @@
+/* View Transitions — spec §6.
+   Routes: the old page peels away from its top-right corner while the new
+   one waits underneath. Theme: the new theme peels on from the same corner.
+   The dock is its own layer and never moves. */
+
+::view-transition-old(root) {
+  z-index: 2;
+  animation: vt-peel-away var(--dur-route) var(--ease-out-css) both;
+}
+::view-transition-new(root) {
+  z-index: 1;
+  animation: vt-settle var(--dur-route) var(--ease-out-css) both;
+}
+
+@keyframes vt-peel-away {
+  0% {
+    clip-path: polygon(0 0, 100% 0, 100% 0, 100% 100%, 0 100%);
+  }
+  50% {
+    clip-path: polygon(0 0, 0 0, 100% 100%, 100% 100%, 0 100%);
+  }
+  100% {
+    clip-path: polygon(0 100%, 0 100%, 0 100%, 0 100%, 0 100%);
+  }
+}
+@keyframes vt-settle {
+  from {
+    transform: scale(0.985);
+  }
+}
+
+:root.theme-switching::view-transition-old(root) {
+  z-index: 1;
+  animation: none;
+}
+:root.theme-switching::view-transition-new(root) {
+  z-index: 2;
+  animation: vt-peel-on 620ms var(--ease-out-css) both;
+}
+@keyframes vt-peel-on {
+  0% {
+    clip-path: polygon(100% 0, 100% 0, 100% 0, 100% 0, 100% 0);
+  }
+  50% {
+    clip-path: polygon(0 0, 0 0, 100% 0, 100% 100%, 100% 100%);
+  }
+  100% {
+    clip-path: polygon(0 100%, 0 0, 100% 0, 100% 100%, 0 100%);
+  }
+}
+
+/* The dock sits in the same place on every member page, so its default group
+   animation moves nothing; only the old snapshot is hidden. */
+::view-transition-old(dock) {
+  display: none;
+}
+::view-transition-new(dock) {
+  animation: none;
+}
+
+/* Signing in or out: the guest nav and the dock share the name, so the pill
+   travels between the top and the bottom of the screen — it peels off one
+   edge and slaps back on at the other. */
+:root.shell-swap::view-transition-group(dock) {
+  animation-duration: 640ms;
+  animation-timing-function: var(--ease-spring-css);
+}
+:root.shell-swap::view-transition-old(dock) {
+  display: block;
+  animation: vt-pill-off 260ms var(--ease-out-css) both;
+}
+:root.shell-swap::view-transition-new(dock) {
+  animation: vt-pill-on 520ms 120ms var(--ease-spring-css) both;
+}
+@keyframes vt-pill-off {
+  to {
+    opacity: 0;
+    transform: rotate(-3deg) scale(0.96);
+  }
+}
+@keyframes vt-pill-on {
+  from {
+    opacity: 0;
+    transform: rotate(3deg) scale(1.08);
+  }
+}
+
+/* The dock slides up once, on first mount. */
+@keyframes dock-in {
+  from {
+    transform: translateY(140%);
+  }
+}
+.dock-enter {
+  animation: dock-in 620ms var(--ease-spring-css) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(root),
+  ::view-transition-new(root),
+  :root.theme-switching::view-transition-new(root),
+  ::view-transition-group(dock),
+  :root.shell-swap::view-transition-old(dock),
+  :root.shell-swap::view-transition-new(dock) {
+    animation: none !important;
+  }
+  .dock-enter {
+    animation: none;
+  }
+}

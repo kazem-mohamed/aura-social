@@ -1,47 +1,42 @@
 import { useState } from "react";
 import { MAX_COMMENT_LENGTH } from "@/shared/config/constants";
-import { Button } from "@/shared/ui/Button";
-import { Textarea } from "@/shared/ui/Textarea";
+import { Button } from "@/shared/kit/Button";
+import { TextArea } from "@/shared/kit/TextArea";
 
 interface CommentEditFormProps {
   initialContent: string;
-  isSaving: boolean;
+  saving: boolean;
   onCancel: () => void;
-  onSubmit: (content: string) => void;
+  onSave: (content: string) => void;
 }
 
-export function CommentEditForm({
-  initialContent,
-  isSaving,
-  onCancel,
-  onSubmit,
-}: CommentEditFormProps) {
+export function CommentEditForm({ initialContent, saving, onCancel, onSave }: CommentEditFormProps) {
   const [content, setContent] = useState(initialContent);
 
   return (
     <form
+      className="grid gap-2"
       onSubmit={(event) => {
         event.preventDefault();
-        onSubmit(content);
+        if (content.trim()) onSave(content.trim());
       }}
-      className="mt-3"
     >
-      <Textarea
+      <TextArea
         label="Edit comment"
-        value={content}
-        onChange={(event) => setContent(event.target.value)}
-        rows={2}
+        hideLabel
+        rows={1}
         autoFocus
+        value={content}
+        readOnly={saving}
         maxLength={MAX_COMMENT_LENGTH}
-        showCount
-        disabled={isSaving}
+        counter="near"
+        onChange={(event) => setContent(event.target.value)}
       />
-
-      <div className="mt-2.5 flex justify-end gap-2">
-        <Button variant="subtle" size="sm" onClick={onCancel} disabled={isSaving}>
+      <div className="flex justify-end gap-2">
+        <Button variant="ghost" size="sm" onClick={onCancel} disabled={saving}>
           Cancel
         </Button>
-        <Button variant="primary" size="sm" type="submit" isBusy={isSaving} busyLabel="Saving">
+        <Button type="submit" size="sm" loading={saving} disabled={!content.trim()}>
           Save
         </Button>
       </div>

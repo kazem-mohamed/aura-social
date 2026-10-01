@@ -1,242 +1,225 @@
 import { useMemo, useState } from "react";
 import { useParams } from "react-router";
+import type { ObjectName } from "@/assets/objects/manifest";
 import { getErrorMessage } from "@/shared/api/errors";
-import { FeedbackAlert } from "@/shared/ui/FeedbackAlert";
-import { Plate } from "@/shared/ui/Plate";
-import { WallSkeleton } from "@/shared/ui/Skeleton";
-import { useAuth } from "@/features/auth/hooks/useAuth";
-import { Wall } from "@/features/posts/components/Wall";
-import { WorkPlate } from "@/features/posts/components/WorkPlate";
+import { DEFAULT_PROFILE_IMAGE } from "@/shared/config/constants";
+import { FollowButton } from "@/shared/kit/ActionButtons";
+import { ConfirmDialog } from "@/shared/kit/ConfirmDialog";
+import { EmptyState } from "@/shared/kit/EmptyState";
+import { ErrorState } from "@/shared/kit/ErrorState";
+import { Tabs } from "@/shared/kit/Segmented";
+import { PostSkeleton, Skeleton } from "@/shared/kit/Skeleton";
+import { tabId, tabPanelId } from "@/shared/kit/tabIds";
+import { useToast } from "@/shared/kit/toast/useToast";
+import { routes } from "@/app/router/routes";
+import { PostCard } from "@/features/posts/components/PostCard";
+import { useComposer } from "@/features/posts/composer/useComposer";
 import { useUserPosts } from "@/features/posts/hooks/usePostsQueries";
 import { extractSavedPostsFromProfile } from "@/features/posts/model/post.normalize";
-import { CollectionHeader } from "@/features/users/components/profile/CollectionHeader";
-import { CoverPrivacyModal } from "@/features/users/components/profile/CoverPrivacyModal";
 import { ImageViewerModal } from "@/features/users/components/profile/ImageViewerModal";
+import { OwnProfileActions } from "@/features/users/components/profile/OwnProfileActions";
+import { ProfileHeader } from "@/features/users/components/profile/ProfileHeader";
 import { ProfilePhotoEditorModal } from "@/features/users/components/profile/ProfilePhotoEditorModal";
-import { ProfileTabs, type ProfileTab } from "@/features/users/components/profile/ProfileTabs";
 import { useCurrentUser } from "@/features/users/hooks/useCurrentUser";
 import { useProfileImages } from "@/features/users/hooks/useProfileImages";
 import { useToggleFollow, type FollowOverride } from "@/features/users/hooks/useToggleFollow";
 import { useUserProfile } from "@/features/users/hooks/useUserProfile";
 
-type ImageViewer = { kind: "avatar" | "cover"; url: string } | null;
+type ProfileTab = "posts" | "saved";
+type ImageView = { url: string; alt: string } | null;
 
-/**
- * A personal collection.
- *
- * The same wall as the main room, filtered to one contributor — so a
- * profile is not a different kind of page, it is the collection seen from
- * one person's shelf.
- */
+const TABS_ID = "profile";
+
+interface EmptyTab {
+  object: ObjectName;
+  title: string;
+  body: string;
+  action?: { label: string; onClick: () => void };
+}
+
+function ProfileSkeleton() {
+  return (
+    <div role="status" aria-label="Loading profile" className="grid grid-cols-[minmax(0,1fr)] gap-6 pt-4 sm:pt-6">
+      <Skeleton shape="block" className="h-40 sm:h-56 lg:h-72" />
+      <Skeleton shape="circle" className="-mt-20 ml-4 h-32 w-32" />
+      <Skeleton shape="block" className="w-3/4" style={{ height: "clamp(72px, 16vw, 200px)" }} />
+      <div className="flex gap-10">
+        <Skeleton className="w-16" />
+        <Skeleton className="w-16" />
+        <Skeleton className="w-16" />
+      </div>
+    </div>
+  );
+}
+
+/** A person's page: their band, their sticker, their name as a poster, and their posts. */
 export default function ProfilePage() {
   const { userId: routeUserId } = useParams();
-  const { isAuthenticated } = useAuth();
-  const [activeTab, setActiveTab] = useState<ProfileTab>("posts");
-  const [imageViewer, setImageViewer] = useState<ImageViewer>(null);
+  const toast = useToast();
+  const composer = useComposer();
+  const [tab, setTab] = useState<ProfileTab>("posts");
+  const [imageView, setImageView] = useState<ImageView>(null);
   const [followOverrides, setFollowOverrides] = useState<Record<string, FollowOverride>>({});
 
   const currentUserQuery = useCurrentUser();
-  const { profile, isOtherProfile, activeUserId, isLoading, error } = useUserProfile(
-    routeUserId,
-    currentUserQuery.data ?? null,
-  );
+  const { profile, isOtherProfile, activeUserId, isLoading, error, refetch } = useUserProfile(routeUserId, currentUserQuery.data ?? null);
+  // The route sits behind RequireAuth, so "not someone else's" means yours.
+  const canEdit = !isOtherProfile;
 
-  const canEdit = isAuthenticated && !isOtherProfile;
   const images = useProfileImages(activeUserId ?? "me", canEdit);
   const follow = useToggleFollow(followOverrides, setFollowOverrides);
-
   const postsQuery = useUserPosts(activeUserId);
-  const savedPosts = useMemo(
-    () => extractSavedPostsFromProfile(profile?.raw ?? null),
-    [profile],
-  );
+  const savedPosts = useMemo(() => extractSavedPostsFromProfile(profile?.raw ?? null), [profile]);
 
   const userPosts = postsQuery.data ?? [];
-  const shownPosts = activeTab === "saved" ? savedPosts : userPosts;
+  const shownPosts = tab === "saved" ? savedPosts : userPosts;
 
-  const isProfileLoading = currentUserQuery.isLoading || isLoading;
+  if (currentUserQuery.isLoading || isLoading) return <ProfileSkeleton />;
+
   const profileError = isOtherProfile ? error : currentUserQuery.error;
+  if (profileError) {
+    return (
+      <ErrorState
+        className="mt-8"
+        title="This profile didn’t load"
+        message={getErrorMessage(profileError, "Check your connection and try again.")}
+        onRetry={() => void (isOtherProfile ? refetch() : currentUserQuery.refetch())}
+      />
+    );
+  }
 
-  const displayAvatar = images.avatarPreview || profile?.photo || "";
-  const displayCover = images.isCoverRemoved
-    ? images.coverPreview
-    : images.coverPreview || (profile?.coverPhoto ?? "");
+  if (!profile) {
+    return (
+      <EmptyState
+        className="mt-8"
+        object="bubble-popped"
+        title="This profile popped."
+        body="The account may be gone, or the link is wrong."
+        action={{ label: "Find people", to: routes.people }}
+      />
+    );
+  }
 
-  const followState = follow.resolve(
-    isOtherProfile ? (profile?.id ?? null) : null,
-    profile?.isFollowing ?? false,
-    profile?.followersCount ?? 0,
-  );
+  const avatarUrl = images.avatarPreview || profile.photo || "";
+  const coverUrl = images.isCoverRemoved ? images.coverPreview : images.coverPreview || (profile.coverPhoto ?? "");
+  const hasPhoto = Boolean(avatarUrl) && avatarUrl !== DEFAULT_PROFILE_IMAGE;
+  const followState = follow.resolve(isOtherProfile ? profile.id : null, profile.isFollowing, profile.followersCount);
+  const profileId = profile.id;
+
+  const toggleFollow = () => {
+    if (!profileId) return;
+    follow.toggle(
+      { userId: profileId, currentIsFollowing: followState.isFollowing, currentFollowersCount: followState.followersCount },
+      {
+        onError: (failure) =>
+          toast.show({ tone: "error", title: "That didn’t stick", description: getErrorMessage(failure, "Your follow didn’t save. Try again.") }),
+      },
+    );
+  };
+
+  const empty: EmptyTab =
+    tab === "saved"
+      ? {
+          object: "bookmark-deflated",
+          title: "Nothing saved yet.",
+          body: canEdit ? "Tap the bookmark on any post to keep it here." : "Posts they save show up here.",
+        }
+      : canEdit
+        ? {
+            object: "bubble-deflated",
+            title: "You haven’t posted yet.",
+            body: "Say something — words alone are plenty.",
+            action: { label: "Write a post", onClick: composer.open },
+          }
+        : { object: "bubble-deflated", title: "Nothing posted yet.", body: "When they post, it shows up here." };
 
   return (
-    <div className="min-h-screen bg-ground">
-      <div className="mx-auto max-w-[1180px] px-5 pb-16 sm:px-8">
-        {isProfileLoading ? (
-          <div className="pt-10">
-            <div className="skeleton h-36 rounded-[3px] sm:h-48" />
-            <div className="mt-6 flex gap-4">
-              <div className="skeleton h-[72px] w-[72px] rounded-full" />
-              <div className="flex-1 space-y-2 pt-2">
-                <div className="skeleton h-5 w-48 rounded-[2px]" />
-                <div className="skeleton h-3 w-64 rounded-[2px]" />
-              </div>
-            </div>
-          </div>
-        ) : null}
+    <div className="grid grid-cols-[minmax(0,1fr)] gap-10 pt-4 sm:pt-6">
+      <ProfileHeader
+        profile={profile}
+        avatarUrl={avatarUrl}
+        coverUrl={coverUrl}
+        canEdit={canEdit}
+        postsCount={userPosts.length}
+        followersCount={followState.followersCount}
+        actions={
+          canEdit ? (
+            <OwnProfileActions />
+          ) : (
+            <FollowButton
+              name={profile.name}
+              following={followState.isFollowing}
+              pending={follow.pendingUserId === profileId}
+              onToggle={toggleFollow}
+            />
+          )
+        }
+        photoUploading={images.isPhotoPending}
+        coverUpdating={images.isCoverPending}
+        onViewPhoto={hasPhoto ? () => setImageView({ url: avatarUrl, alt: `${profile.name}’s photo` }) : undefined}
+        onSelectPhoto={(event) => void images.selectPhotoFile(event)}
+        onViewCover={() => {
+          if (coverUrl) setImageView({ url: coverUrl, alt: `${profile.name}’s cover` });
+        }}
+        onSelectCover={images.selectCoverFile}
+        onRemoveCover={images.removeCover}
+      />
 
-        {!isProfileLoading && profileError ? (
-          <Plate className="mt-10 border-l-2 border-l-verm p-6">
-            <p className="font-mono text-micro font-medium tracking-[0.16em] text-verm-ink uppercase">
-              Could not open this collection
-            </p>
-            <p className="mt-2 text-sm leading-relaxed text-ink-2">
-              {isAuthenticated
-                ? getErrorMessage(profileError, "The record did not respond.")
-                : "Sign in to view collections."}
-            </p>
-          </Plate>
-        ) : null}
+      <div className="mx-auto grid w-full max-w-(--reading) grid-cols-[minmax(0,1fr)] gap-6">
+        <Tabs
+          idBase={TABS_ID}
+          label={`${profile.name}’s posts`}
+          options={[
+            { value: "posts", label: "Posts", count: userPosts.length },
+            { value: "saved", label: "Saved", count: savedPosts.length },
+          ]}
+          value={tab}
+          onChange={setTab}
+          className="justify-self-start"
+        />
 
-        {!isProfileLoading && !profileError && profile ? (
-          <>
-            <div className="-mx-5 sm:-mx-8">
-              <CollectionHeader
-                name={profile.name}
-                handle={profile.handle}
-                email={profile.email}
-                avatarUrl={displayAvatar}
-                coverUrl={displayCover}
-                followersCount={followState.followersCount}
-                followingCount={profile.followingCount}
-                worksCount={userPosts.length}
-                canEdit={canEdit}
-                isFollowing={followState.isFollowing}
-                isFollowUpdating={follow.pendingUserId === profile.id}
-                onToggleFollow={
-                  isOtherProfile && profile.id
-                    ? () =>
-                        follow.toggle({
-                          userId: profile.id as string,
-                          currentIsFollowing: followState.isFollowing,
-                          currentFollowersCount: followState.followersCount,
-                        })
-                    : undefined
-                }
-                isPhotoUploading={images.isPhotoPending}
-                isCoverUpdating={images.isCoverPending}
-                onViewPhoto={() =>
-                  displayAvatar && setImageViewer({ kind: "avatar", url: displayAvatar })
-                }
-                onSelectPhoto={images.selectPhotoFile}
-                onViewCover={() =>
-                  displayCover && setImageViewer({ kind: "cover", url: displayCover })
-                }
-                onSelectCover={images.selectCoverFile}
-                onRemoveCover={images.removeCover}
-              />
-            </div>
-
-            {canEdit ? (
-              <FeedbackAlert
-                state={images.alert}
-                wrapperClassName="mt-6"
-                onClose={images.dismissAlert}
-              />
-            ) : null}
-
-            {follow.error ? (
-              <p
-                role="alert"
-                className="mt-4 border-l-2 border-l-verm py-2 pl-3 font-mono text-micro text-verm-ink"
-              >
-                {getErrorMessage(follow.error, "Could not update that follow.")}
-              </p>
-            ) : null}
-
-            <div className="mt-8">
-              <ProfileTabs
-                activeTab={activeTab}
-                count={shownPosts.length}
-                onTabChange={setActiveTab}
-              />
-            </div>
-
-            <div className="mt-6">
-              {activeTab === "posts" && postsQuery.isLoading ? (
-                <div className="mx-auto flex w-full max-w-[640px] flex-col gap-6">
-                  <WallSkeleton count={3} />
-                </div>
-              ) : null}
-
-              {activeTab === "posts" && !postsQuery.isLoading && postsQuery.error ? (
-                <Plate className="mx-auto max-w-[640px] border-l-2 border-l-verm p-6">
-                  <p className="font-mono text-micro font-medium tracking-[0.16em] text-verm-ink uppercase">
-                    Could not load these works
-                  </p>
-                  <p className="mt-2 text-sm leading-relaxed text-ink-2">
-                    {getErrorMessage(postsQuery.error, "Try again in a moment.")}
-                  </p>
-                </Plate>
-              ) : null}
-
-              {shownPosts.length > 0 ? (
-                <Wall
-                  items={shownPosts}
-                  getKey={(post) => post.id}
-                  renderItem={(post, index) => <WorkPlate post={post} index={index} />}
-                />
-              ) : null}
-
-              {shownPosts.length === 0 &&
-              !(activeTab === "posts" && (postsQuery.isLoading || postsQuery.error)) ? (
-                <Plate className="mx-auto max-w-[640px] p-8 text-center">
-                  <h2 className="text-lg font-semibold tracking-[-0.02em] text-ink">
-                    {activeTab === "saved"
-                      ? "Nothing set aside yet"
-                      : canEdit
-                        ? "Your wall is bare"
-                        : "Nothing hung here yet"}
-                  </h2>
-                  <p className="mx-auto mt-2 max-w-[42ch] text-sm leading-relaxed text-ink-2">
-                    {activeTab === "saved"
-                      ? "The bookmark on any plate keeps it here, visible only to you."
-                      : canEdit
-                        ? "Post from the blank plate on the wall and your first work lands here."
-                        : "When they post, their work appears on this wall."}
-                  </p>
-                </Plate>
-              ) : null}
-            </div>
-          </>
-        ) : null}
+        <div role="tabpanel" id={tabPanelId(TABS_ID, tab)} aria-labelledby={tabId(TABS_ID, tab)} className="grid grid-cols-[minmax(0,1fr)] gap-5">
+          {tab === "posts" && postsQuery.isPending ? (
+            <>
+              <PostSkeleton />
+              <PostSkeleton />
+            </>
+          ) : tab === "posts" && postsQuery.error ? (
+            <ErrorState
+              title="Posts didn’t load"
+              message={getErrorMessage(postsQuery.error, "Check your connection and try again.")}
+              onRetry={() => void postsQuery.refetch()}
+            />
+          ) : shownPosts.length === 0 ? (
+            <EmptyState object={empty.object} title={empty.title} body={empty.body} action={empty.action} />
+          ) : (
+            <ol className="grid grid-cols-[minmax(0,1fr)] gap-5">
+              {shownPosts.map((post, index) => (
+                <li key={post.id}>
+                  <PostCard post={post} index={index} />
+                </li>
+              ))}
+            </ol>
+          )}
+        </div>
       </div>
 
-      {imageViewer ? (
-        <ImageViewerModal
-          src={imageViewer.url}
-          alt={`${profile?.name ?? "Profile"} ${imageViewer.kind}`}
-          closeLabel={`Close ${imageViewer.kind}`}
-          useAvatarFallback={imageViewer.kind === "avatar"}
-          onClose={() => setImageViewer(null)}
-        />
-      ) : null}
-
-      {images.isCoverDialogOpen ? (
-        <CoverPrivacyModal
-          isSaving={images.isCoverPending}
-          onCancel={images.cancelCoverUpload}
-          onSave={() => void images.confirmCoverUpload()}
-        />
-      ) : null}
-
-      {images.photoEditorUrl ? (
-        <ProfilePhotoEditorModal
-          imageUrl={images.photoEditorUrl}
-          isSaving={images.isPhotoPending}
-          onCancel={images.cancelPhotoEditor}
-          onSave={(zoom, offset) => void images.saveCroppedPhoto(zoom, offset)}
-        />
-      ) : null}
+      <ImageViewerModal image={imageView} onClose={() => setImageView(null)} />
+      <ConfirmDialog
+        open={images.isCoverDialogOpen}
+        onClose={images.cancelCoverUpload}
+        onConfirm={() => void images.confirmCoverUpload()}
+        title="Use this cover?"
+        description="It replaces your current cover, and a post about the change appears on your profile."
+        confirmLabel="Use cover"
+        loading={images.isCoverPending}
+      />
+      <ProfilePhotoEditorModal
+        imageUrl={images.photoEditorUrl}
+        saving={images.isPhotoPending}
+        onCancel={images.cancelPhotoEditor}
+        onSave={(zoom, offset) => void images.saveCroppedPhoto(zoom, offset)}
+      />
     </div>
   );
 }

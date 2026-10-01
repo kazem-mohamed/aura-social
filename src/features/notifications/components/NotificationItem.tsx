@@ -1,91 +1,108 @@
+import { AnimatePresence, motion } from "framer-motion";
+import { useRef } from "react";
 import { Link } from "react-router";
-import { formatRelativeShort } from "@/shared/lib/dates";
-import { auraRingColor } from "@/shared/lib/aura";
-import { Avatar } from "@/shared/ui/Avatar";
+import { Sticker } from "@/shared/brand/Sticker";
+import type { StickerName } from "@/shared/brand/stickerPaths";
+import { formatDateTime, formatRelativeShort } from "@/shared/lib/dates";
+import { Avatar } from "@/shared/kit/Avatar";
+import { cx } from "@/shared/kit/cx";
+import { IconButton } from "@/shared/kit/IconButton";
 import { routes } from "@/app/router/routes";
 import type { AppNotification } from "../model/notification.types";
-import { NotificationTypeIcon } from "./NotificationTypeIcon";
+
+interface Kind {
+  sticker: StickerName;
+  fill: string;
+  label: string;
+}
+
+/** What happened, as the matching sticker on the actor's avatar. */
+function kindOf(type: string): Kind {
+  if (type.includes("follow")) return { sticker: "sparkle", fill: "var(--mint)", label: "Follow" };
+  if (type.includes("like")) return { sticker: "heart", fill: "var(--ember)", label: "Like" };
+  if (type.includes("share")) return { sticker: "share", fill: "var(--violet)", label: "Share" };
+  return { sticker: "bubble", fill: "var(--blue)", label: "Comment" };
+}
 
 interface NotificationItemProps {
   notification: AppNotification;
-  isMutating: boolean;
+  isMarking: boolean;
   onMarkRead: (notificationId: string) => void;
 }
 
 /**
- * One entry in the daybook.
- *
- * Unread is marked by the person's own colour standing at the leading edge
- * rather than by tinting the whole row — the text keeps full contrast
- * either way, and the mark tells you whose notice it is at the same time.
+ * One alert. An unread one sits on a surface with an ember dot. Marking it
+ * read pops the dot, and the row settles into the page.
  */
-export function NotificationItem({
-  notification,
-  isMutating,
-  onMarkRead,
-}: NotificationItemProps) {
-  const profileHref = notification.actorId
-    ? routes.userProfile(notification.actorId)
-    : routes.profile;
+export function NotificationItem({ notification, isMarking, onMarkRead }: NotificationItemProps) {
+  const { actorId, actorName, actorPhoto, content, createdAt } = notification;
   const isUnread = !notification.isRead;
+  const kind = kindOf(notification.type);
+  const nameClass = "font-bold text-ink";
+  const rowRef = useRef<HTMLElement>(null);
+
+  const markRead = () => {
+    // The button leaves with the dot; focus stays on this alert rather than falling to the page.
+    const row = rowRef.current;
+    (row?.querySelector<HTMLElement>("a") ?? row)?.focus();
+    onMarkRead(notification.id);
+  };
 
   return (
-    <article className="group/note flex items-start gap-3.5 border-b border-rail py-4">
-      <span
-        aria-hidden="true"
-        className="mt-1 h-8 w-1.5 shrink-0 rounded-[1px] transition-opacity duration-150"
-        style={{
-          background: auraRingColor(notification.actorName),
-          opacity: isUnread ? 1 : 0.28,
-        }}
-      />
-
+    <article
+      ref={rowRef}
+      tabIndex={-1}
+      className={cx(
+        "flex items-start gap-3.5 rounded-card border p-4 transition-colors duration-300 sm:p-5",
+        isUnread ? "border-line bg-surface" : "border-transparent",
+      )}
+    >
       <div className="relative shrink-0">
-        <Link to={profileHref} viewTransition aria-label={notification.actorName}>
-          <Avatar
-            alt={notification.actorName}
-            seed={notification.actorName}
-            size={36}
-            src={notification.actorPhoto}
-          />
-        </Link>
-        <span className="absolute -right-1 -bottom-1 grid h-[17px] w-[17px] place-items-center rounded-full border border-rail bg-plate text-ink-2">
-          <NotificationTypeIcon type={notification.type} />
-        </span>
+        {/* Alerts carry no handle, so no identity frame — just the face. */}
+        <Avatar identityKey={actorName} name={actorName} photo={actorPhoto} frame={false} />
+        <Sticker name={kind.sticker} fill={kind.fill} size={22} title={kind.label} className="absolute -right-2 -bottom-1.5" />
       </div>
 
-      <div className="min-w-0 flex-1">
-        <p className={`text-sm leading-relaxed ${isUnread ? "text-ink" : "text-ink-2"}`}>
-          <Link
-            to={profileHref}
-            viewTransition
-            className="font-semibold text-ink transition-colors duration-150 hover:text-verm-ink"
-          >
-            {notification.actorName}
-          </Link>{" "}
-          {notification.content}
-        </p>
-
-        <div className="mt-1.5 flex items-center gap-4">
-          <time
-            dateTime={notification.createdAt ?? undefined}
-            className="font-mono text-micro text-ink-3 tabular-nums"
-          >
-            {formatRelativeShort(notification.createdAt)}
-          </time>
-
-          {isUnread ? (
-            <button
-              type="button"
-              onClick={() => onMarkRead(notification.id)}
-              disabled={!notification.id || isMutating}
-              className="cursor-pointer font-mono text-micro font-medium tracking-[0.12em] text-ink-3 uppercase transition-colors duration-150 hover:text-ink disabled:cursor-not-allowed disabled:opacity-45"
+      <div className="grid min-w-0 flex-1 gap-1">
+        <p className={cx("wrap-anywhere type-body", isUnread ? "text-ink" : "text-ink-2")}>
+          {isUnread ? <span className="sr-only">Unread: </span> : null}
+          {actorId ? (
+            <Link
+              to={routes.userProfile(actorId)}
+              viewTransition
+              className={cx(nameClass, "hover:underline hover:decoration-1 hover:underline-offset-4")}
             >
-              {isMutating ? "Marking" : "Mark read"}
-            </button>
-          ) : null}
-        </div>
+              {actorName}
+            </Link>
+          ) : (
+            <span className={nameClass}>{actorName}</span>
+          )}{" "}
+          {content}
+        </p>
+        <time dateTime={createdAt ?? undefined} title={formatDateTime(createdAt)} className="type-caption text-ink-2 tnum">
+          {formatRelativeShort(createdAt)}
+        </time>
       </div>
+
+      <AnimatePresence initial={false}>
+        {isUnread ? (
+          <motion.div
+            key="unread"
+            className="flex shrink-0 items-center gap-1"
+            exit={{ scale: 0.3, opacity: 0, transition: { duration: 0.2 } }}
+          >
+            <span aria-hidden className="h-2.5 w-2.5 rounded-full border border-carbon bg-ember" />
+            <IconButton
+              glyph="check"
+              label={`Mark as read: ${actorName}`}
+              variant="ghost"
+              size="sm"
+              disabled={!notification.id || isMarking}
+              onClick={markRead}
+            />
+          </motion.div>
+        ) : null}
+      </AnimatePresence>
     </article>
   );
 }

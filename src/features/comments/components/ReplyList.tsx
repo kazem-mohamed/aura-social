@@ -1,126 +1,69 @@
 import { getErrorMessage } from "@/shared/api/errors";
 import { queryKeys } from "@/shared/api/queryKeys";
-import { formatCommentTime } from "@/shared/lib/dates";
-import { Avatar } from "@/shared/ui/Avatar";
-import { PersonSkeleton } from "@/shared/ui/Skeleton";
-import { StateMessage } from "@/shared/ui/StateMessage";
+import { LikeButton } from "@/shared/kit/ActionButtons";
+import { Button } from "@/shared/kit/Button";
+import { ErrorState } from "@/shared/kit/ErrorState";
+import { ListSkeleton } from "@/shared/kit/Skeleton";
+import { useToast } from "@/shared/kit/toast/useToast";
 import { useToggleCommentLike } from "../hooks/useCommentMutations";
 import type { Comment } from "../model/comment.types";
+import { CommentRow } from "./CommentRow";
 
-interface ReplyItemProps {
-  postId: string;
-  parentCommentId: string;
-  reply: Comment;
-}
-
-function ReplyItem({ postId, parentCommentId, reply }: ReplyItemProps) {
-  const likeMutation = useToggleCommentLike(
-    postId,
-    reply,
-    queryKeys.comments.replies(postId, parentCommentId),
-  );
+function ReplyItem({ postId, parentId, reply }: { postId: string; parentId: string; reply: Comment }) {
+  const toast = useToast();
+  const like = useToggleCommentLike(postId, reply, queryKeys.comments.replies(postId, parentId));
 
   return (
-    <article
-      className={`flex items-start gap-2.5 py-3 ${reply.isOptimistic ? "opacity-55" : ""}`}
-    >
-      <Avatar alt={reply.authorName} seed={reply.authorHandle} size={24} src={reply.authorPhoto} />
-
-      <div className="min-w-0 flex-1">
-        <div className="flex flex-wrap items-baseline gap-x-2">
-          <p className="text-label font-semibold text-ink">{reply.authorName}</p>
-          <time
-            dateTime={reply.createdAt ?? undefined}
-            className="font-mono text-micro tracking-[0.06em] text-ink-3 tabular-nums"
-          >
-            {formatCommentTime(reply.createdAt)}
-          </time>
-        </div>
-
-        {reply.content ? (
-          <p className="mt-1 text-sm leading-relaxed whitespace-pre-wrap text-ink-2">
-            {reply.content}
-          </p>
-        ) : null}
-
-        <button
-          type="button"
-          onClick={() => likeMutation.mutate()}
-          disabled={likeMutation.isPending || reply.isOptimistic}
-          aria-pressed={reply.isLiked}
-          className={`mt-2 cursor-pointer font-mono text-micro font-medium tracking-[0.14em] uppercase tabular-nums transition-colors duration-200 disabled:cursor-not-allowed disabled:opacity-45 ${
-            reply.isLiked ? "text-verm-ink" : "text-ink-3 hover:text-ink"
-          }`}
-        >
-          {likeMutation.isPending ? "Liking" : `Like ${reply.likesCount || ""}`}
-        </button>
+    <CommentRow comment={reply}>
+      {reply.content ? <p className="wrap-anywhere whitespace-pre-wrap type-body">{reply.content}</p> : null}
+      <div className="-ml-2.5">
+        <LikeButton
+          size="sm"
+          label="Like reply"
+          liked={reply.isLiked}
+          count={reply.likesCount}
+          disabled={reply.isOptimistic}
+          onToggle={() => {
+            if (like.isPending) return;
+            like.mutate(undefined, {
+              onError: (error) =>
+                toast.show({ tone: "error", title: "That didn’t stick", description: getErrorMessage(error, "Your like didn’t save. Try again.") }),
+            });
+          }}
+        />
       </div>
-    </article>
+    </CommentRow>
   );
 }
 
 interface ReplyListProps {
   postId: string;
-  parentCommentId: string;
+  parentId: string;
   replies: Comment[];
   isLoading: boolean;
   error: unknown;
   hasNextPage: boolean;
   isFetchingNextPage: boolean;
   onLoadMore: () => void;
+  onRetry: () => void;
 }
 
-/** Replies sit one further indent in, behind their own rule. */
-export function ReplyList({
-  postId,
-  parentCommentId,
-  replies,
-  isLoading,
-  error,
-  hasNextPage,
-  isFetchingNextPage,
-  onLoadMore,
-}: ReplyListProps) {
+/** Replies hang one step in, behind a rule. */
+export function ReplyList({ postId, parentId, replies, isLoading, error, hasNextPage, isFetchingNextPage, onLoadMore, onRetry }: ReplyListProps) {
   const isReady = !isLoading && !error;
 
   return (
-    <div className="mt-3 border-l border-rail pl-4">
-      {isLoading ? (
-        <div aria-hidden="true">
-          <PersonSkeleton />
-        </div>
-      ) : null}
-
+    <div className="mt-1 grid gap-4 border-l border-line pl-4">
+      {isLoading ? <ListSkeleton rows={1} label="Loading replies" /> : null}
       {!isLoading && error ? (
-        <StateMessage variant="error" size="compact">
-          {getErrorMessage(error, "Could not load replies.")}
-        </StateMessage>
+        <ErrorState level="inline" message={getErrorMessage(error, "The replies didn’t load.")} onRetry={onRetry} />
       ) : null}
-
-      {isReady && replies.length === 0 ? (
-        <StateMessage size="compact">No replies yet</StateMessage>
-      ) : null}
-
-      {isReady
-        ? replies.map((reply) => (
-            <ReplyItem
-              key={reply.id}
-              postId={postId}
-              parentCommentId={parentCommentId}
-              reply={reply}
-            />
-          ))
-        : null}
-
+      {isReady && replies.length === 0 ? <p className="type-caption text-ink-2">No replies yet.</p> : null}
+      {isReady ? replies.map((reply) => <ReplyItem key={reply.id} postId={postId} parentId={parentId} reply={reply} />) : null}
       {isReady && hasNextPage ? (
-        <button
-          type="button"
-          onClick={onLoadMore}
-          disabled={isFetchingNextPage}
-          className="cursor-pointer py-2 font-mono text-micro font-medium tracking-[0.16em] text-ink-3 uppercase transition-colors duration-200 hover:text-ink disabled:opacity-45"
-        >
-          {isFetchingNextPage ? "Loading" : "More replies"}
-        </button>
+        <Button variant="ghost" size="sm" className="justify-self-start" loading={isFetchingNextPage} onClick={onLoadMore}>
+          More replies
+        </Button>
       ) : null}
     </div>
   );

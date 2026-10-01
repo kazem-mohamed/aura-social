@@ -1,12 +1,15 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Controller, useForm } from "react-hook-form";
+import { Controller, useForm, useWatch } from "react-hook-form";
 import { getErrorMessage } from "@/shared/api/errors";
-import { Button } from "@/shared/ui/Button";
-import { Field } from "@/shared/ui/Field";
-import { useToast } from "@/shared/ui/toast";
+import { Button } from "@/shared/kit/Button";
+import { PasswordField } from "@/shared/kit/PasswordField";
+import { RuleList } from "@/shared/kit/RuleList";
+import { useToast } from "@/shared/kit/toast/useToast";
 import { useChangePassword } from "../hooks/useAuthMutations";
 import { changePasswordSchema, type ChangePasswordFormValues } from "../model/auth.schemas";
+import { passwordRules } from "../model/passwordRules";
 
+/** Change the password. The new token is kept, so the session carries on. */
 export function ChangePasswordForm() {
   const changePassword = useChangePassword();
   const toast = useToast();
@@ -21,95 +24,51 @@ export function ChangePasswordForm() {
     mode: "onChange",
     defaultValues: { currentPassword: "", newPassword: "", confirmPassword: "" },
   });
+  const newPassword = useWatch({ control, name: "newPassword" });
 
-  function onSubmit(values: ChangePasswordFormValues) {
-    changePassword.mutate(
-      { password: values.currentPassword, newPassword: values.newPassword },
-      {
-        onSuccess: (result) => {
-          reset();
-          toast.push({
-            title: "Password changed",
-            body: result.message ?? "Use the new one next time you sign in.",
-          });
-        },
-        onError: (error) =>
-          toast.push({
-            tone: "problem",
-            title: "Could not change password",
-            body: getErrorMessage(error, "Check your current password and try again."),
-          }),
-      },
-    );
-  }
-
-  const isBusy = isSubmitting || changePassword.isPending;
+  const onSubmit = async (values: ChangePasswordFormValues) => {
+    try {
+      const result = await changePassword.mutateAsync({ password: values.currentPassword, newPassword: values.newPassword });
+      reset();
+      toast.show({ tone: "success", title: "Password changed.", description: result.message ?? "Use the new one next time you sign in." });
+    } catch (error) {
+      toast.show({
+        tone: "error",
+        title: "Couldn’t change your password",
+        description: getErrorMessage(error, "Check your current password and try again."),
+      });
+    }
+  };
 
   return (
-    <section>
-      <div>
-        <h2 className="font-mono text-micro font-medium tracking-[0.16em] text-ink-3 uppercase">
-          Password
-        </h2>
-
-        <form noValidate className="mt-7 max-w-[400px] space-y-6" onSubmit={handleSubmit(onSubmit)}>
-          <Controller
-            name="currentPassword"
-            control={control}
-            render={({ field }) => (
-              <Field
-                {...field}
-                label="Current password"
-                type="password"
-                autoComplete="current-password"
-                placeholder="Your current password"
-                error={errors.currentPassword?.message}
-              />
-            )}
-          />
-
-          <Controller
-            name="newPassword"
-            control={control}
-            render={({ field }) => (
-              <Field
-                {...field}
-                label="New password"
-                type="password"
-                autoComplete="new-password"
-                placeholder="Choose a new password"
-                hint="Eight characters or more, with an uppercase letter, a lowercase letter, a number and a symbol."
-                error={errors.newPassword?.message}
-              />
-            )}
-          />
-
-          <Controller
-            name="confirmPassword"
-            control={control}
-            render={({ field }) => (
-              <Field
-                {...field}
-                label="Confirm new password"
-                type="password"
-                autoComplete="new-password"
-                placeholder="Repeat the new password"
-                error={errors.confirmPassword?.message}
-              />
-            )}
-          />
-
-          <Button
-            variant="primary"
-            type="submit"
-            isFullWidth
-            isBusy={isBusy}
-            busyLabel="Updating"
-          >
-            Update password
-          </Button>
-        </form>
+    <form noValidate aria-label="Change password" onSubmit={handleSubmit(onSubmit)} className="grid gap-5">
+      <Controller
+        name="currentPassword"
+        control={control}
+        render={({ field }) => (
+          <PasswordField {...field} label="Current password" autoComplete="current-password" error={errors.currentPassword?.message} />
+        )}
+      />
+      <div className="grid gap-3">
+        <Controller
+          name="newPassword"
+          control={control}
+          render={({ field }) => (
+            <PasswordField {...field} label="New password" autoComplete="new-password" error={errors.newPassword?.message} />
+          )}
+        />
+        <RuleList rules={passwordRules(newPassword)} />
       </div>
-    </section>
+      <Controller
+        name="confirmPassword"
+        control={control}
+        render={({ field }) => (
+          <PasswordField {...field} label="Repeat new password" autoComplete="new-password" error={errors.confirmPassword?.message} />
+        )}
+      />
+      <Button type="submit" loading={isSubmitting} className="justify-self-start">
+        Update password
+      </Button>
+    </form>
   );
 }

@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { queryKeys } from "@/shared/api/queryKeys";
 import { postsApi } from "../api/postsApi";
-import { patchPostInCache, readPostFromCache } from "../model/post.cache";
+import { patchPostInCache, readPostFromCache, removePostFromCache } from "../model/post.cache";
 import {
   resolveBookmarkResult,
   resolveLikeResult,
@@ -38,11 +38,15 @@ export function useUpdatePost() {
 }
 
 export function useDeletePost() {
+  const queryClient = useQueryClient();
   const invalidatePosts = useInvalidatePosts();
 
   return useMutation({
     mutationFn: (postId: string) => postsApi.deletePost(postId),
-    onSuccess: invalidatePosts,
+    onSuccess: (_data, postId) => {
+      removePostFromCache(queryClient, postId);
+      invalidatePosts();
+    },
   });
 }
 

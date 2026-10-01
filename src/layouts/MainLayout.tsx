@@ -1,47 +1,20 @@
 import { Outlet } from "react-router";
-import { DocumentTitle } from "@/shared/ui/DocumentTitle";
-import { ThemeToggle } from "@/shared/ui/ThemeToggle";
-import { Wordmark } from "@/shared/ui/Wordmark";
-import { NavLink } from "react-router";
-import { routes } from "@/app/router/routes";
-import { CatalogueIndex } from "./components/CatalogueIndex";
-import { MobileDock } from "./components/MobileDock";
+import { ComposerProvider } from "@/features/posts/composer/ComposerProvider";
+import { Dock } from "./components/Dock";
+import { ShellHeader } from "./components/ShellHeader";
+import { SkipLink } from "./components/SkipLink";
 
-/**
- * The gallery.
- *
- * Desktop: the catalogue index is a fixed column down the left edge and the
- * wall takes the rest. Phone: a slim plate at the top carries the mark and
- * the lighting, and the index becomes a dock at the bottom.
- *
- * There is no top navigation bar on any breakpoint — that arrangement is
- * what this direction exists to refuse.
- */
-export default function MainLayout() {
+/** The member shell: logo top-left, the page, and the dock. No top bar. */
+export function MainLayout() {
   return (
-    <>
-      <DocumentTitle />
-
-      <div className="min-h-screen lg:grid lg:grid-cols-[248px_minmax(0,1fr)]">
-        {/* Desktop: the index */}
-        <aside className="sticky top-0 hidden h-screen border-r border-rail bg-plate lg:block">
-          <CatalogueIndex />
-        </aside>
-
-        {/* Phone: the mark and the lighting */}
-        <header className="sticky top-0 z-30 flex items-center justify-between gap-3 border-b border-rail bg-plate/92 px-5 py-3 backdrop-blur-lg lg:hidden">
-          <NavLink to={routes.home} aria-label="Aura, the wall">
-            <Wordmark className="block w-[62px]" />
-          </NavLink>
-          <ThemeToggle />
-        </header>
-
-        <main className="min-w-0 pb-24 lg:pb-0">
-          <Outlet />
-        </main>
-      </div>
-
-      <MobileDock />
-    </>
+    <ComposerProvider>
+      <SkipLink />
+      <ShellHeader />
+      {/* overflow-x-clip: cards arrive tilted and scaled, and must not widen the page while they do. */}
+      <main id="content" tabIndex={-1} className="mx-auto w-full max-w-(--page-max) overflow-x-clip px-4 pb-36 outline-none sm:px-8">
+        <Outlet />
+      </main>
+      <Dock />
+    </ComposerProvider>
   );
 }

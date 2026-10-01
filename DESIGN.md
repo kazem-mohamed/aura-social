@@ -1,216 +1,320 @@
-# Design — The Accession Card
-
-The visual system as **built** in `app/src`. Brand law lives in
-[`docs/brand-guidelines.md`](docs/brand-guidelines.md); this file records how
-it was resolved into a working interface.
-
-Direction seed `05c6e942`, candidate 5 of 7. The contract is the first
-comment inside `<body>` in [`app/index.html`](app/index.html) and survives
-the production build.
-
-Surface mode: **Operate**, with expression permitted to lead on ties.
-
+---
+name: Aura
+description: The sticker wall — everything here breathes.
+colors:
+  carbon: "#000000"
+  paper: "#ffffff"
+  electric-blue: "#4da2ff"
+  ember: "#fb4903"
+  sunburst: "#ffd731"
+  voltage-violet: "#5c4ade"
+  mint-pop: "#55db9c"
+  lavender: "#e9ccff"
+  sky-wash: "#dceeff"
+  concrete: "#cccccc"
+  mist: "#e9e9e9"
+  paper-surface-2: "#f2f2f2"
+  ink-2: "#3a3a3a"
+  ink-3: "#6b6b6b"
+  night: "#111114"
+  night-sky: "#0d1826"
+  night-lavender: "#1d1729"
+  night-surface: "#18181c"
+  night-surface-2: "#222227"
+  bone: "#f6f5f0"
+  bone-2: "#b8b7b0"
+  bone-3: "#8a8984"
+typography:
+  display-xl:
+    fontFamily: "Anybody Variable, Arial Black, Impact, system-ui, sans-serif"
+    fontSize: "clamp(96px, 21vw, 360px)"
+    fontWeight: 900
+    lineHeight: 0.76
+    letterSpacing: "-0.015em"
+    fontVariation: "'wdth' 124"
+  display:
+    fontFamily: "Anybody Variable, Arial Black, Impact, system-ui, sans-serif"
+    fontSize: "clamp(52px, 9vw, 150px)"
+    fontWeight: 900
+    lineHeight: 0.8
+    letterSpacing: "-0.01em"
+    fontVariation: "'wdth' 112"
+  poster:
+    fontFamily: "Anybody Variable, Arial Black, Impact, system-ui, sans-serif"
+    fontSize: "clamp(56px, 11vw, 176px)"
+    fontWeight: 900
+    lineHeight: 0.78
+    letterSpacing: "-0.01em"
+    fontVariation: "'wdth' 112"
+  headline:
+    fontFamily: "Onest Variable, ui-sans-serif, system-ui, sans-serif"
+    fontSize: "clamp(30px, 3.4vw, 52px)"
+    fontWeight: 700
+    lineHeight: 1.02
+    letterSpacing: "-0.03em"
+  title:
+    fontFamily: "Onest Variable, ui-sans-serif, system-ui, sans-serif"
+    fontSize: "clamp(22px, 2vw, 28px)"
+    fontWeight: 700
+    lineHeight: 1.1
+    letterSpacing: "-0.02em"
+  body-lg:
+    fontFamily: "Onest Variable, ui-sans-serif, system-ui, sans-serif"
+    fontSize: "17px"
+    fontWeight: 500
+    lineHeight: 1.4
+    letterSpacing: "-0.01em"
+  body:
+    fontFamily: "Onest Variable, ui-sans-serif, system-ui, sans-serif"
+    fontSize: "15px"
+    fontWeight: 500
+    lineHeight: 1.45
+    letterSpacing: "-0.01em"
+  caption:
+    fontFamily: "Onest Variable, ui-sans-serif, system-ui, sans-serif"
+    fontSize: "13px"
+    fontWeight: 500
+    lineHeight: 1.5
+  label:
+    fontFamily: "Onest Variable, ui-sans-serif, system-ui, sans-serif"
+    fontSize: "12px"
+    fontWeight: 700
+    lineHeight: 1
+    letterSpacing: "0.032em"
+rounded:
+  chip: "16px"
+  card: "24px"
+  card-lg: "40px"
+  pill: "999px"
+spacing:
+  gutter-phone: "16px"
+  gutter: "32px"
+  card-padding: "24px"
+  reading: "640px"
+  page-max: "1440px"
+components:
+  button-primary:
+    backgroundColor: "{colors.carbon}"
+    textColor: "{colors.paper}"
+    typography: "{typography.label}"
+    rounded: "{rounded.pill}"
+    height: "44px"
+    padding: "0 20px"
+  button-sticker:
+    backgroundColor: "{colors.sunburst}"
+    textColor: "{colors.carbon}"
+    typography: "{typography.label}"
+    rounded: "{rounded.pill}"
+    height: "44px"
+    padding: "0 20px"
+  button-secondary:
+    backgroundColor: "{colors.paper}"
+    textColor: "{colors.carbon}"
+    typography: "{typography.label}"
+    rounded: "{rounded.pill}"
+    height: "44px"
+    padding: "0 20px"
+  field:
+    backgroundColor: "{colors.paper}"
+    textColor: "{colors.carbon}"
+    rounded: "{rounded.pill}"
+    height: "52px"
+    padding: "0 12px 0 18px"
+  card:
+    backgroundColor: "{colors.paper}"
+    textColor: "{colors.carbon}"
+    rounded: "{rounded.card}"
+    padding: "{spacing.card-padding}"
+  dock:
+    backgroundColor: "{colors.carbon}"
+    textColor: "{colors.paper}"
+    rounded: "{rounded.pill}"
+    padding: "6px"
 ---
 
-## 1 · The thesis
+# Design System: Aura
 
-**Everyone here is a catalogued individual holding a number they did not
-choose.**
+## Overview
 
-That is the aura's premise stated as a museum states it. An accession number
-is assigned on entry, never chosen, never reused — exactly what a handle
-hashing to one colour already was.
+**Creative North Star: "The Sticker Wall"**
 
-**What this refuses:** top bar, centre column, right rail. The previous
-build kept that arrangement and re-skinned it, which is why it read as the
-same layout in new paint.
+Aura is a wall of paper that people cover in stickers. Every surface is paper, and every piece of content or control is a die-cut sticker: a flat shape with a 1px carbon outline, slapped on at a slight tilt. The six sticker colours are loud because they are the objects, not the background. The grounds stay quiet: white Paper by day and near-black Night paper by night, with washes of sky, lavender or concrete marking the big bands.
 
-**Why this world and not another:** it is the only candidate that survives an
-API returning poor images or none. A museum tombstone card with no
-photograph is still a correct, dignified record — so a text-only post is a
-first-class work here, not a degraded one.
+Depth never comes from shadows. It comes from overlap, tilt, and the inflated 3D objects (bubble, heart, bookmark, share loop, bell), which stand for the social actions and swell with scroll and breath. Type does the shouting: crushed, uppercase Anybody 900 is set as a poster and fitted edge to edge. The Onest UI text beneath it stays calm and readable.
 
----
+Motion is sticker physics. Things slap on from a tilt, squash, settle, peel at a corner, inflate when loved and deflate when empty. Every loop pauses off screen, and everything collapses to an instant state change under reduced motion.
 
-## 2 · Structure
+**Key Characteristics:**
+- Paper grounds, 1px carbon outlines, no shadows, no gradients.
+- Six sticker fills (blue, ember, sun, violet, mint, lavender) that belong to objects, never to backgrounds of text.
+- Poster type (Anybody 900, uppercase, 0.76–0.8 leading), fitted to its box and never wrapped.
+- Pills and rounded die-cuts: `pill` controls, `card` surfaces, `card-lg` sheets.
+- Identity stickers: each person's colour, shape and tilt come from their handle.
+- Inflated 3D renders as the signature imagery; deflated and popped variants for empty and missing states.
 
-| Surface | Arrangement |
-|---|---|
-| **Desktop shell** | A **248px catalogue index** fixed down the left edge. No top navigation bar exists on this breakpoint. |
-| **Phone shell** | A slim plate carrying the mark and the lighting switch, plus a **dock** of four destinations at thumb height. |
-| **The wall** | One hanging line: works stacked in a single 640px reading column, newest first. |
-| **Rooms** | Following / Everyone / Yours / Saved are a **filter of one wall**, at its head — not four destinations. Destinations live in the index. |
-| **A work** | A plate headed by its **tombstone label**: the author's portrait ringed in their aura, name, handle, date. On a record the accession number (`AUR-A247`) is stated too. The label sits at the *head* — on a wall you read the card after the painting, but in a feed you need to know whose voice it is before you start reading. |
-| **A record** | The work taken off the wall — its image carries a `view-transition-name`, so it travels rather than the page replacing itself. |
-| **A profile** | A *collection*: the same wall filtered to one contributor. Holdings, not stat tiles. An empty cover falls back to that person's own aura. |
-| **`/people`** | New. User search existed in the API but had no home; it is now a room of catalogue entries. |
+## Colors
 
-Deleted as superseded: `AppNavbar`, `ProfileCover`, `ProfileIdentity`,
-`ProfileStats`, `OtherProfileHeader`.
+A quiet paper ground carrying six loud sticker colours, with an ink action colour that flips between the themes.
 
-### Phones are not the desktop, scaled
+### Primary
+- **Carbon** (#000000): ink, outlines, and the action colour on Paper — the dock, primary buttons, the guest nav pill and the marquee band. Night paper swaps it for Bone.
+- **Electric Blue** (#4da2ff): the logo sticker, always. Also the comment bubble and one identity colour. Never an action colour.
 
-Plates go **full-bleed** below `sm`: no side borders, no corner radius, no
-shadow, and the works hang flush with a single hairline between them. A
-mounted work on a wall has an edge; a sheet held in the hand meets the edge
-of the screen. Action targets grow to 44px there and shrink back on pointer
-devices.
+### Secondary
+- **Sunburst** (#ffd731): the landing's call-to-action sticker ("Join Aura"), the composer's + button in the dock, the save fill, the counter's warning, "Sample" tags, and the closing band on the landing.
+- **Ember** (#fb4903): like and alert fills, error rings and unread dots. Carbon text only.
 
-### The masonry that was tried and rejected
+### Tertiary
+- **Voltage Violet** (#5c4ade): the share fill and the violet call-to-action sticker. The only sticker colour that takes Paper-white text.
+- **Mint Pop** (#55db9c): "Following", met password rules, the success tick and the toggle when on.
+- **Lavender** (#e9ccff): the Your-sticker band on Paper and one identity colour.
 
-The wall was first built as a round-robin masonry across 1/2/3 columns. It
-was replaced with a single column on review: a feed is read rather than
-scanned, and multi-column burying of recency costs more than the
-arrangement gains. `Wall.tsx` is now a hanging line.
+### Neutral
+- **Paper** (#ffffff): the Paper ground and surface.
+- **Paper Surface 2** (#f2f2f2): hover fills and inset rows (the top comment, the quoted post).
+- **Ink 2** (#3a3a3a) / **Ink 3** (#6b6b6b): secondary and tertiary text on Paper (5.3:1 or better).
+- **Sky Wash** (#dceeff), **Concrete** (#cccccc), **Mist** (#e9e9e9): band grounds.
+- **Night** (#111114), **Night Sky** (#0d1826), **Night Lavender** (#1d1729), **Night Surface** (#18181c), **Night Surface 2** (#222227): the Night paper equivalents.
+- **Bone** (#f6f5f0) with **Bone 2** (#b8b7b0) and **Bone 3** (#8a8984): ink, outlines and the action colour on Night paper. In Night, a sticker's die-cut edge also turns Bone.
 
----
+### Named Rules
+**The Sticker Colours Are Objects Rule.** Sticker fills colour things you can touch — buttons, badges, shapes, 3D objects — and whole bands. They never tint body text, and gray is never used on a coloured surface: text on a sticker is Carbon (Paper only on Violet).
 
-## 3 · Two themes, both designed
+**The Blue Is The Logo Rule.** Electric Blue is never a call to action. The Sunburst sticker and the ink pill carry actions.
 
-Neither is an inversion of the other. Light is a gallery wall in daylight;
-dark is the same object in a night vitrine.
+## Typography
 
-| Token | Light | Dark |
-|---|---|---|
-| `--ground` | `#F7F4EF` bone wall | `#0B0A0A` |
-| `--plate` | `#FFFFFF` | `#141211` |
-| `--recess` | `#EFEBE4` | `#1C1917` |
-| `--rail` | `#E4DFD6` | `#292827` |
-| `--ink` | `#1A1613` warm, not pure black | `#F5F1EA` |
-| `--ink-2` | `#57514A` | `#A79E93` |
-| `--ink-3` | `#726B64` | `#877E74` |
-| `--verm` | `#E4572E` (locked, constant) | same |
-| `--verm-ink` | `#B93D19` | `#F06B45` |
-| `--on-verm` | `#0B0A0A` | same |
+**Display Font:** Anybody Variable (with Arial Black, Impact)
+**Body Font:** Onest Variable (with the system UI sans)
 
-Resolution before first paint via an inline script, so neither theme flashes
-the other on boot. Follows the OS until someone chooses, then remembers.
-`@theme inline` keeps the utilities pointing at the variables, so one
-attribute flips the whole system.
+**Character:** A crushed, extended, uppercase display face set as poster lettering, over a friendly round-shouldered grotesque that keeps every sentence effortless.
 
-### Two brand values were overridden, both for contrast
+### Hierarchy
+- **Display XL** (900, clamp(96px, 21vw, 360px), 0.76, wdth 124): a person's name on their profile.
+- **Display** (900, clamp(52px, 9vw, 150px), 0.8, wdth 112): landing section titles, 404, "This one popped".
+- **Poster** (900, clamp(56px, 11vw, 176px), 0.78, wdth 112): every member page's `h1` (Wall, People, Alerts, Settings, Welcome back).
+- **Fitted poster lines** (900, wdth 100–124): landing headlines. Each line is sized to span its box exactly, capped at 22–30% of the viewport height.
+- **Headline** (700, clamp(30px, 3.4vw, 52px), 1.02): section headings such as "Comments" and the story steps.
+- **Title** (700, clamp(22px, 2vw, 28px), 1.1): card and sheet titles, and short text-only posts.
+- **Body large** (500, 17px, 1.4): post text and ledes, at most 44–56ch.
+- **Body** (500, 15px, 1.45): comments and UI copy.
+- **Caption** (500, 13px, 1.5): handles, times and hints.
+- **Label** (700, 12px, 0.032em, uppercase): buttons, chips, tabs and the marquee.
 
-1. **`--ink-3` in dark** — the brand's `#6E665D` measured **3.31:1** on a
-   plate. Raised to `#877E74` (4.68:1 plate, 4.96:1 ground).
-2. **White on vermilion** — the brand board set the primary button as white
-   on `#E4572E`, which is **3.68:1** and fails AA for text at button size.
-   Vermilion is locked, so the *foreground* moved: `--on-verm` is near-black
-   at **5.37:1**. Dark on a vermilion field is also closer to the print
-   register than white was.
+### Named Rules
+**The One Line Poster Rule.** Poster type never wraps: it shrinks to fit its box (`useFitText`, `usePosterLines`). A poster headline that breaks across lines is a bug, unless it is deliberately set as separate fitted lines.
 
-Measured, both themes:
+**The Handle Goes Under Rule.** No label, kicker or eyebrow sits above a heading. Context, including a person's handle, goes in the line beneath the poster.
 
-| Pair | Light | Dark |
-|---|---|---|
-| ink on plate | 17.98 | 16.59 |
-| ink-2 on plate | 7.83 | 7.08 |
-| ink-3 on plate | 5.25 | 4.68 |
-| ink-3 on ground | 4.78 | 4.96 |
-| verm-ink on plate | 5.61 | 6.13 |
-| on-verm on verm | 5.37 | 5.37 |
+**The Breathing Type Rule.** On the landing, and only there, poster lines inflate along Anybody's width axis (`stretch-breath`: the resting stretch × `--inflate`).
+- **Hero:** the lines fill from 62% of their width to 100% as they slap on, and BREATHES keeps breathing, out to 94% and back every 4.8s, only while it is on screen.
+- **Join band:** "Stick around" fills in step with its balloons.
+- **Limits:** type never goes past its resting width (lines are fitted at rest), it never animates in lists, and it stays still under reduced motion.
 
----
+## Layout
 
-## 4 · Type
+- **Page:** a 1440px maximum width, with 16px gutters on phones and 32px from 640px up.
+- **Reading pages** (Wall, Post, Alerts, Settings) sit in a 640px column. People and Profile use the full width, and Profile's tabs and posts return to the 640px column.
+- **Member pages** open with a poster header: 32px above it on phones, 48px from 640px up. There is no top bar. The floating dock owns navigation, so `main` keeps 144px of bottom padding to clear it.
+- **Guest pages** share a floating pill nav at the top. On the landing it floats over the hero's sky band.
+- **Landing:** full-bleed bands (Sky, Paper, Lavender, Paper, Sunburst, then the ink footer), each with 80–144px of vertical padding. "How it feels" is a 360vh section with a one-screen sticky stage.
+- **Rhythm:** posts and cards are spaced 20px apart in lists; forms stack at 20px; poster headers leave 20px between the title and the lede.
+- **Overflow:** tilted, arriving content never widens the page — `main` clips horizontally without becoming a scroll container.
 
-Fixed rem scale, not `clamp()` — product UI is read at consistent DPI, and a
-heading that shrinks inside a column looks worse, not better.
+## Elevation & Depth
 
-`--text-micro` 11px · `--text-label` 12px · `--text-sm` 13px ·
-`--text-base` 15px · `--text-read` 17px · `--text-lg` 20px ·
-`--text-xl` 26px · `--text-2xl` 36px
+Aura is flat. There are no box shadows anywhere. Depth comes from four things:
+- **Overlap:** stickers and 3D objects slapped over headlines and card corners.
+- **Tilt:** resting angles of ±3–12°, and −4° for the logo.
+- **Scale:** the inflated objects swell with scroll and breathe.
+- **The die-cut edge:** a Bone border that appears around stickers on Night paper.
 
-Inter carries the interface. JetBrains Mono carries catalogue notation —
-numbers, handles, accession codes, dates — always `tabular-nums`, so a
-changing count never shifts a row. Bricolage Grotesque is the wordmark only.
+Modals and sheets sit on a scrim (42% black on Paper, 60% on Night paper), never on a shadow.
 
----
+### Named Rules
+**The No Shadow Rule.** Nothing casts a shadow. When something must feel lifted, it overlaps, tilts or scales.
 
-## 5 · Motion
+## Shapes
 
-**Focal moment:** a work coming off the wall. The plate's image holds a
-`view-transition-name`, so opening a record moves the piece rather than
-swapping the page.
+Everything is a pill or a rounded die-cut:
+- **Pills** (999px): controls — buttons, fields, chips, segmented controls, the dock and the nav.
+- **Chips** (16px): inset rows and images inside cards.
+- **Cards** (24px): surfaces.
+- **Large cards** (40px): sheets, auth cards, and the profile cover band.
 
-**Signature:** the lighting switch runs `startViewTransition` with a circle
-clipped to the button's own coordinates — the new theme opens from under
-your finger.
+Outlines are 1px Carbon (Bone on Night paper). The logo is a rounded die-cut rectangle with a peeling top-right corner.
 
-Everything else is feedback and continuity, at Operate timings: 100–150ms
-for acknowledgement, 150–300ms for routine state, 300–500ms for view
-transitions. No page-load choreography. Every one collapses under
-`prefers-reduced-motion`.
+Identity stickers use seven generated silhouettes: circle, squircle, flower, burst, clover, scallop and blob.
 
-**Loading has two registers.** Skeletons own first paint — plate-shaped, so
-nothing jumps when content lands. The **fetch rule**, a 2px vermilion
-hairline across the top of the window, accounts for the background work a
-skeleton cannot show: a refetch, a like in flight, an upload. It waits 220ms
-before appearing, so a fast request never causes a flash of loading chrome,
-and it is deliberately indeterminate — the API reports no progress, and a
-bar that pretended to know would be lying.
+### Named Rules
+**The One Pixel Rule.** Every outline, rule and thread line is 1px. Weight comes from fill and scale, never from thicker strokes.
 
-**Hover on a work:** the plate lifts 3px, its shadow deepens, the image
-leans 2.5% inside its frame, and the colour chip reaches further down the
-label — one gesture of stepping toward a piece, not four separate effects.
-Pressing settles it back against the wall.
+## Components
 
----
+### Buttons
+Tactile and sticker-like: they lift and tilt on hover, squish on press, and spring back.
+- **Shape:** pill (999px). Heights: 36px (`sm`, with a 44px touch area), 44px (`md`) and 56px (`lg`). Label type, uppercase.
+- **Primary:** the ink pill (Carbon on Paper, Bone on Night paper) with inverse text.
+- **Sticker:** Sunburst, Mint, Lavender or Violet fill with a Carbon outline — landing calls to action only.
+- **Secondary / Ghost:** a Paper surface with a 1px outline, or transparent; both fill Surface 2 on hover.
+- **Destructive:** Ember with Carbon text.
+- **Loading:** the peel loader replaces the label and the width holds. **Success:** a tick replaces the leading icon.
 
-## 6 · Components
+### Chips
+- **Style:** pill tags, outlined, in Label type. The **Sample** tag is Sunburst with Carbon text.
+- **State:** the password rule list turns each met rule Mint with a tick.
 
-`shared/ui/` — features compose these rather than styling from scratch.
+### Cards / Containers
+- **Corner Style:** 24px, or 40px for sheets.
+- **Background:** Surface (Paper, or Night Surface).
+- **Shadow Strategy:** none (see Elevation & Depth).
+- **Border:** 1px line.
+- **Internal Padding:** 20px on phones, 24px from 640px up.
 
-`Plate` (the only container) · `TombstoneLabel` · `Wordmark` · `Avatar` ·
-`ThemeToggle` · `Button` · `Field` / `SelectField` / `Textarea` (one shared
-shell in `controlStyles.ts`) · `InlineSelect` · `SearchInput` · `Skeleton` ·
-`Modal` · `ConfirmDialog` · `FeedbackAlert` · `Label` · `StateMessage`
+### Inputs / Fields
+- **Style:** a 52px pill with a 1px outline on Surface, and 16px text. Text areas grow with their content, with 24px corners.
+- **Focus:** a 3px outline 3px outside the pill. On sign-up and "Your sticker" it takes the person's identity colour.
+- **Error / Disabled:** an Ember outline, a shake, and a message with a cross sticker. Disabled fields are 50% opacity on Mist.
 
-**Skeletons, not spinners.** Plate-shaped, with varying line counts so a
-loading wall reads as different works rather than a repeating pattern.
+### Navigation
+- **Dock (members):** a floating ink pill at the bottom centre on every breakpoint — Wall, People, a Sunburst + (new post), Alerts and You.
+  - The current page wears a ground-coloured sticker that slides between items.
+  - Labels show at 10px on phones, as tooltips on tablets, and inline from 1024px.
+  - Items are 48px or larger.
+- **Guest nav:** the dock's twin at the top — the logo, section links from 768px up, Sign in, and a Sunburst "Join Aura". It shares the dock's view-transition name, so signing in carries the pill down into the dock.
 
-**Condition notes** (`shared/ui/toast`). An action result — posted, saved,
-withdrawn, shared, failed — is a small plate that arrives bottom-right,
-states the fact, and files itself away. Its remaining time retracts along
-the bottom rule. Three tones: `note` (neutral), `saved` (gold, the one state
-gold owns), `problem` (vermilion, and it waits 7s rather than 3). At most
-three stack; problems announce via `role="alert"`, the rest are polite. On a
-phone the shelf clears the dock rather than sitting on it.
+### Post card
+A sticker on the wall.
+- **Arrival:** on a feed it slaps on from −18px, ±6–7° and 1.06 scale as it scrolls into view, with a 70ms stagger.
+- **Layout:** a 40px avatar in the identity frame, then words and one picture. A short text-only post is set as a Title.
+- **Shared posts:** nested as a smaller Paper-ground sticker.
+- **Actions:** like, comment and share on the left; save on the right.
 
-**Where a toast is right, and where it is not.** Toasts carry *transient
-action results* that could originate anywhere. `FeedbackAlert` stays for
-*form- and section-level* feedback that belongs beside its context — a
-sign-in failure sits with the sign-in form, not in a corner the eye has
-already left.
+### Identity sticker
+A person's colour, shape and tilt, derived from their handle, sit behind their photo or their initials. It appears at 32, 40, 64 and 128px, and larger in previews. Only alerts omit the frame, because they carry no handle.
 
-**Empty states teach.** Each room says what it collects and how something
-gets into it, rather than announcing a void.
+### Inflated objects
+Rendered 3D objects (AVIF, WebP or PNG with intrinsic sizes) mark the big moments:
+- **Hero and bands:** inflated objects.
+- **Empty states:** deflated objects ("waiting for breath").
+- **Missing things:** the popped bubble (404, deleted post).
 
----
+On the landing they breathe (a 1.06 swell every 4.8s, only on screen) and inflate with scroll.
 
-## 7 · Content honesty
+## Do's and Don'ts
 
-`PRODUCT.md` forbids unprovable claims. Removed rather than restyled: the
-auth showcase's fabricated user counts and feature grid, `"1 mutual"`
-hardcoded onto every person, three privacy dropdowns the endpoints ignore,
-and two buttons wired to nothing.
+### Do:
+- **Do** outline every surface and sticker at 1px in Carbon (Bone on Night paper).
+- **Do** set page titles in poster type fitted to one line, with context underneath.
+- **Do** give every control a touch area of at least 44px (48px in the dock), even when it draws smaller.
+- **Do** use the overshoot spring (`cubic-bezier(0.34, 1.56, 0.64, 1)`) for things you touch and things that land, and the ease-out (`cubic-bezier(0.16, 1, 0.3, 1)`) for things that arrive.
+- **Do** label sample content "Sample", and show empty states as a deflated object with one useful action.
+- **Do** collapse every animation to an instant state under reduced motion, and pause every loop off screen.
 
----
-
-## 8 · Known state
-
-- **Verified mostly without screenshots.** The Browser pane would not
-  composite frames for most of this build, so the shell, both themes, the
-  toggle, and every contrast pair were verified by DOM and computed-style
-  inspection. Two screenshots from the user covered the record page and
-  caught a duplicated label that inspection had missed.
-- `react-icons` has been removed.
-- HeroUI is used only by the provider; no visible control comes from it.
-- Two icon files still exist (`shared/ui/icons.tsx` and
-  `profile/profileIcons.tsx`) with a duplicated wrapper.
-- A view transition exposes three promises (`ready`, `updateCallbackDone`,
-  `finished`) and an interrupted one rejects more than just `finished`.
-  All three are caught in `shared/lib/theme.ts`; attaching only to
-  `finished` surfaced an unhandled `InvalidStateError` on rapid toggling.
-- The design detector reports one warning: Inter as an overused face. It is
-  a locked brand commitment and is kept deliberately; the distinctive face
-  is Bricolage Grotesque on the mark.
+### Don't:
+- **Don't** use box shadows, gradients, glass or blur.
+- **Don't** make Electric Blue a call to action, or put coloured text on a sticker fill.
+- **Don't** put a label, kicker or eyebrow above a heading.
+- **Don't** draw outlines, rules or thread lines thicker than 1px.
+- **Don't** use Unicode characters as icons. Glyphs are drawn SVG line icons at one stroke; sticker marks are drawn stickers.
+- **Don't** let tilted or arriving content widen the page. Clip horizontally at `main`.
