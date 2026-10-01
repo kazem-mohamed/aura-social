@@ -94,8 +94,11 @@ export function Segmented<T extends string>({
             onKeyDown={(event) => onKeyDown(event, index)}
             className={cx(
               "relative isolate inline-flex shrink-0 items-center gap-1.5 rounded-pill px-3 type-label transition-colors duration-200 sm:px-4",
-              // `sm` draws at 32px; the ::after grows the touch target to 44px vertically (neighbours sit side by side).
-              size === "sm" ? "h-8 after:absolute after:inset-x-0 after:-inset-y-1.5 after:content-['']" : "h-10",
+              // The ::after grows the touch target to 44px vertically (neighbours sit side by side). It stays
+              // inside the group's 4px padding, which a scroll container would clip anything past — so `sm`
+              // draws at 36px, like an `sm` button, and `md` at 40px.
+              "after:absolute after:inset-x-0 after:content-['']",
+              size === "sm" ? "h-9 after:-inset-y-1" : "h-10 after:-inset-y-0.5",
               selected ? "text-action-ink" : "text-ink hover:bg-surface-2",
             )}
           >

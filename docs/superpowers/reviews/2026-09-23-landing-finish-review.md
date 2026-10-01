@@ -73,9 +73,12 @@ Scored against what the recapture actually shows. Where the hidden pane can't sh
 
 ### remaining
 
-- The `sm` segments' 40px target.
+None. The segments' touch area, closed 2026-10-01:
+- **The cause:** the group scrolls horizontally, so it clipped each segment's invisible extension to its own padding.
+- **The fix:** `sm` now draws at 36px with a 4px extension, and `md` stays at 40px with a 2px extension, so both reach 44px inside the group.
+- **Measured:** by hit-testing on the kit page, every segment is 44px.
 
-**disposition: fix** (no partials left)
+**disposition: pass**
 
 ## Ceiling item: type that inflates, done 2026-09-30
 
